@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Magento Auctionmaid Shipping Module
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magentocommerce.com for more information.
+ *
+ * @category   Auctionmaid
+ * @package    Auctionmaid_Productmatrix
+ * @copyright  Copyright (c) 2008 Auction Maid (http://www.auctionmaid.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @author     Karen Baker <enquiries@auctionmaid.com>
+*/
+-->
+<config>
+   <modules>
+        <Auctionmaid_Productmatrix>
+          <version>3.0.1</version>
+           <depends>
+               <Mage_Shipping />
+           </depends>
+    </Auctionmaid_Productmatrix>
+    </modules>
+ <global>
+    <models>
+      <Productmatrix>
+        <class>Auctionmaid_Productmatrix</class>
+      </Productmatrix>
+	  <productmatrix_shipping>
+			<class>Auctionmaid_Productmatrix_Model</class>
+			<resourceModel>productmatrix_mysql4</resourceModel>
+		</productmatrix_shipping>
+		<productmatrix_mysql4>
+			<class>Auctionmaid_Productmatrix_Model_Mysql4</class>
+			<entities>
+	  			<productmatrix>
+					<table>shipping_productmatrix</table>
+				</productmatrix>
+			</entities>
+      </productmatrix_mysql4>
+     <!--  <googlecheckout>
+ 	   		<rewrite>
+	   			<api_xml_callback>Auctionmaid_Productmatrix_GoogleCheckout_Model_Api_Xml_Callback</api_xml_callback>
+	   		</rewrite>
+ 	  </googlecheckout>-->
+    </models>
+ 
+    <resources>
+      <productmatrix_setup>
+        <setup>
+          <module>Auctionmaid_Productmatrix</module>
+        </setup>
+        <connection>
+          <use>core_setup</use>
+        </connection>
+            <productmatrix_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </productmatrix_write>
+            <productmatrix_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </productmatrix_read>
+      </productmatrix_setup>
+    </resources>
+    <sales>
+	<shipping>
+	    <carriers>
+			<productmatrix>
+				<class>Auctionmaid_Productmatrix_Model_Carrier_Productmatrix</class>
+			</productmatrix>
+	    </carriers>
+	</shipping>
+    </sales>
+    <blocks>
+		<auctionmaid_productmatrix>
+		<class>Auctionmaid_Productmatrix_Block</class>
+		</auctionmaid_productmatrix>
+	</blocks>
+  </global>
+      <frontend>
+        <routers>
+            <productmatrix>
+                <use>standard</use>
+                <args>
+                    <module>Auctionmaid_Productmatrix</module>
+                    <frontName>productmatrix</frontName>
+                </args>
+            </productmatrix>
+        </routers>
+         <translate>
+      <modules>
+        <Auctionmaid_Productmatrix>
+          <files>
+            <default>Auctionmaid_Productmatrix.csv</default>
+          </files>
+        </Auctionmaid_Productmatrix>
+      </modules>
+    </translate>
+          <layout>
+              <updates>
+                  <productmatrix module="Auctionmaid_Productmatrix">
+                      <file>productmatrix.xml</file>
+                  </productmatrix>
+              </updates>
+          </layout>
+    </frontend>
+   <adminhtml>
+    <translate>
+      <modules>
+        <Auctionmaid_Productmatrix>
+          <files>
+            <default>Auctionmaid_Productmatrix.csv</default>
+          </files>
+        </Auctionmaid_Productmatrix>
+      </modules>
+    </translate>
+      
+ 	</adminhtml>
+   
+    <default>
+        <carriers>
+            <productmatrix>
+                <active>0</active>
+                <ziprange>0</ziprange>
+                <free_shipping_text>Free Shipping</free_shipping_text>
+                <show_only_free>0</show_only_free>
+                <sallowspecific>0</sallowspecific>
+                <cutoff_cost>50</cutoff_cost>
+                <custom_sorting>0</custom_sorting>
+                <model>productmatrix_shipping/carrier_productmatrix</model>
+                <title>Shipping Option</title>
+                <name>Productmatrix</name>
+                <filter_price>0</filter_price>
+                <apply_handling>1</apply_handling>
+                <exclude_virtual>0</exclude_virtual>
+                <specificerrmsg>This shipping method is currently unavailable. If you would like to ship using this shipping method, please contact us.</specificerrmsg>      
+            </productmatrix>
+        </carriers>
+    </default>
+</config>
