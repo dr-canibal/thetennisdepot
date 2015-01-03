@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout>
+    <default>
+        <reference name="head">
+            <action method="addCss"><script>css/fbintegrator.css</script></action>
+            <action method="addJs"><script>fbintegrator/fbintegrator.js</script></action>
+            <block type="fbintegrator/meta" template="fbintegrator/fb_meta.phtml" name="fbintegrator.meta-tags"/>
+        </reference>
+        <reference name="content">
+            <block type="fbintegrator/fb" template="fbintegrator/fb_inc.phtml" before="-"/>
+        </reference>
+    </default>
+    <customer_account_login>
+        <reference name="content">
+            <block type="fbintegrator/fb" template="fbintegrator/fb_login.phtml" name="fbintegrator.login-page-connect-container">
+                <block type="fbintegrator/connect" template="fbintegrator/fb_connect.phtml" name="fbintegrator.connect-button"/>
+            </block>
+        </reference>
+    </customer_account_login>
+    <catalog_product_view>
+        <reference name="product.info">
+            <block type="fbintegrator/like" name="fbintegrator.like-button-on-product-page" template="fbintegrator/fb_like.phtml" as="other"/>
+        </reference>
+    </catalog_product_view>
+</layout>

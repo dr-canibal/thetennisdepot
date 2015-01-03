@@ -1,0 +1,79 @@
+<div class="page-title">
+    <h1><?php echo Mage::getStoreConfig('expresscheckout/general/title') ?></h1>
+	<p class="expresscheckout-login-wrapper">
+    <?php if (!Mage::getSingleton('customer/session')->isLoggedIn()): ?>
+	<?php echo Mage::getStoreConfig('expresscheckout/general/custom') ?>
+        <a href="<?php echo $this->getUrl('customer/account/login') ?>" class="expresscheckout-login">
+            <?php 
+				if(Mage::getStoreConfig('expresscheckout/general/logintext')):
+					echo Mage::getStoreConfig('expresscheckout/general/logintext'); 
+				else:
+					echo '';//echo $this->__('Already registered? Login into your account');
+				endif;
+			?>
+        </a>
+    <?php endif; ?>
+	</p>
+</div>
+
+<?php echo $this->getMessagesBlock()->getGroupedHtml() ?>
+
+<script type="text/javascript" src="<?php echo $this->getSkinUrl('js/expresscheckout.js') ?>"></script>
+<script type="text/javascript">countryRegions = <?php echo $this->helper('directory')->getRegionJson() ?></script>
+
+<form action="" id="expresscheckout-form">
+<div class="col3-set expresscheckout-set">
+    <div class="col-1">
+        <?php echo $this->getChildHtml('billing.address') ?>
+        <?php echo $this->getChildHtml('shipping.address') ?>
+    </div>
+
+    <div class="col-2">
+        <?php echo $this->getChildHtml('shipping.method') ?>
+        <?php echo $this->getChildHtml('payment.method') ?>
+    </div>
+
+    <div class="col-3">
+        <?php echo $this->getChildHtml('review') ?>
+    </div>
+</div>
+</form>
+
+<?php echo $this->getChildHtml('customer.login') ?>
+<?php echo $this->getChildHtml('customer.forgot') ?>
+
+<script type="text/javascript">
+//<![CDATA[
+    var checkout = new ExpressCheckout('expresscheckout-form', {
+        success : '<?php echo $this->getUrl('expresscheckout/index/success', array('_secure'=>(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']==='on'))) ?>',
+        save    : '<?php echo $this->getUrl('expresscheckout/index/saveOrder', array('_secure'=>(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']==='on'))) ?>',
+        update  : '<?php echo $this->getUrl('expresscheckout/index/updateCheckout', array('_secure'=>(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']==='on'))) ?>',
+        failure : '<?php echo $this->getUrl('checkout/cart') ?>'
+    }, "<?php echo $this->__('Please agree to all the terms and conditions before placing the order.') ?>");
+
+    document.observe("dom:loaded", function() {
+        var triggers = {
+            login: {
+                el: $$('.expresscheckout-login'),
+                event: 'click',
+                window: $('expresscheckout-login-window')
+            },
+            forgot: {
+                el: $$('.expresscheckout-forgot'),
+                event: 'click',
+                window: $('expresscheckout-forgot-window')
+            }
+        };
+        $$('.checkout-agreements .agree a').each(function(el) {
+            triggers[el.className] = {
+                el: $$('.' + el.className),
+                event: 'click',
+                window: $(el.className + '-window')
+            };
+        });
+        expresscheckoutWindow = new ExpressCheckout.Window({
+            triggers: triggers
+        });
+    });
+//]]>
+</script>

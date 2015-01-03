@@ -1,0 +1,10 @@
+<div id="fb-root"><script src="<?php echo (Mage::helper('fbintegrator')->isSecure())?'https':'http'?>://connect.facebook.net/<?php echo Mage::app()->getStore()->getLocaleCode()?>/all.js" ></script></div>
+<form id="fb-connect" method="post" action="<?php echo Mage::getUrl('fbintegrator/facebook/connect')?>"></form>
+<script type="text/javascript">
+//<![CDATA[
+Event.observe(window, 'load', function() {
+    FB.init({appId: '<?php echo Mage::helper('fbintegrator')->getAppKey()?>', status: true, cookie: true,xfbml: true});
+    FB.Event.subscribe('auth.login', function(response) {$('fb-connect').submit();});
+});
+//]]>
+</script>

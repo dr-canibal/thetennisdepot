@@ -1,0 +1,69 @@
+<link rel="stylesheet" type="text/css" href="<?php echo $this->getSkinUrl('') ?>aw_featuredproducts/css/main.css" media="all" />
+<?php $H = Mage::helper('featuredproducts');?>
+
+<style type="text/css">
+	/* CSS */
+	
+.visios .frameWindow{
+	position:absolute;
+	height:<?php echo $H->getDisplay('blockheight')?>px;
+}
+.visios .visio-frame{
+	width:<?php echo $H->getDisplay('containerwidth')?>px;
+	height:<?php echo $H->getDisplay('containerheight')?>px;
+}
+#FPSS, #slider{
+	width:<?php echo $H->getDisplay('containerwidth')?>px;
+	height:<?php echo $H->getDisplay('containerheight')?>px;
+}
+.visios .visio-frame .visio-block{
+	width:<?php echo $H->getDisplay('blockwidth')?>px;
+	height:<?php echo $H->getDisplay('blockheight')?>px;
+	text-align:<?php echo $H->getDisplay('align')?>;
+	
+}
+
+#slider{
+	position:relative;
+}
+
+#slider .visio-blinker{
+	position:relative;
+}
+.visios .visio-blinker .visio-frame{
+	width:<?php echo $H->getDisplay('blockwidth')?>px;
+	height:<?php echo $H->getDisplay('blockheight')?>px;
+}
+A.slider-button{
+	height:<?php echo $H->getDisplay('blockheight')?>px;
+}
+
+
+.product-image{
+	margin-right:5px;
+}
+#slider .dock{
+	bottom:0;
+	clear:both;
+	line-height:48px;
+	margin:auto;
+	position:absolute;
+	vertical-align:bottom;
+	width:100%;
+}
+
+
+#FPSS .slider button.button{
+	float:<?php echo $H->getDisplay('align')?>;
+}
+
+.FPSSError{
+	color:red;
+	text-align:center;
+	padding:30px;
+	border:1px solid gray;
+}
+</style>
+
+
+
