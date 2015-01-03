@@ -32,8 +32,8 @@
 ## adjust memory limit
 
 #    php_value memory_limit 64M
-    php_value memory_limit 512M
-    php_value max_execution_time 36000
+    php_value memory_limit 128M
+    php_value max_execution_time 18000
 
 ############################################
 ## disable magic quotes for php request vars
@@ -171,16 +171,9 @@
     Order allow,deny
     Allow from all
 
-###########################################
-## Deny access to release notes to prevent disclosure of the installed Magento version
-
-    <Files RELEASE_NOTES.txt>
-        order allow,deny
-        deny from all
-    </Files>
-
 ############################################
 ## If running in cluster environment, uncomment this
 ## http://developer.yahoo.com/performance/rules.html#etags
 
     #FileETag none
+
