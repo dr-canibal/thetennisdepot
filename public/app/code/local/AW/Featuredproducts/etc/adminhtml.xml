@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<config>
+    <adminhtml>
+        <acl>
+          <resources>
+			<all>
+				<title>Allow Everything</title>
+			</all>
+            <admin>
+              <children>
+                  <system>
+                      <children>
+                        <config>
+                          <children>
+                            <featuredproducts>
+                              <title>aheadWorks - Featured Products Section</title>
+                            </featuredproducts>
+                          </children>
+                        </config>
+                      </children>
+                  </system>
+              </children>
+            </admin>
+          </resources>
+        </acl>
+		<translate>
+            <modules>
+                <AW_Featuredproducts>
+                    <files>
+                        <default>AW_Featuredproducts.csv</default>
+                    </files>
+                </AW_Featuredproducts>
+            </modules>
+        </translate>
+    </adminhtml>    
+</config>
