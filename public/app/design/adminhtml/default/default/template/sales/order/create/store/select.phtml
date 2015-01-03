@@ -24,10 +24,8 @@
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 ?>
-
 <?php foreach ($this->getWebsiteCollection() as $_website): ?>
     <?php $showWebsite=false; ?>
-
     <?php foreach ($this->getGroupCollection($_website) as $_group): ?>
         <?php $showGroup=false; ?>
         <?php foreach ($this->getStoreCollection($_group) as $_store): ?>

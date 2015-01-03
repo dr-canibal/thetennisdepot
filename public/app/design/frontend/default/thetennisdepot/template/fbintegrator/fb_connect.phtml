@@ -1,5 +1,0 @@
-<fb:login-button onclick="login()" perms="publish_stream,user_birthday,email">Login via Facebook</fb:login-button>
-<?php Mage::helper('fbintegrator')->setFbBackUrl($this->helper('core/url')->getCurrentUrl());?>
-<div id="fb-loader" style="display:none;">
-    <p class="loader" id="loading_mask_loader"><img src="<?php echo $this->getSkinUrl('images/ajax-loader-tr.gif',array('_area'=>'adminhtml')) ?>" alt="<?php echo Mage::helper('adminhtml')->__('Loading...') ?>" /><br /><?php echo Mage::helper('adminhtml')->__('Please wait...') ?></p>
-</div>

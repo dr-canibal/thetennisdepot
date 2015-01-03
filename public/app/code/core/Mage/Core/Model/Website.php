@@ -258,8 +258,7 @@ class Mage_Core_Model_Website extends Mage_Core_Model_Abstract
     {
         return Mage::getModel('core/store_group')
             ->getCollection()
-            ->addWebsiteFilter($this->getId())
-            ->setOrder('name','desc');
+            ->addWebsiteFilter($this->getId());
     }
 
     /**
