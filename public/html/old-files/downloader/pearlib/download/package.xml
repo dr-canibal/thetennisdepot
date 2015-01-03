@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.7.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
+    http://pear.php.net/dtd/tasks-1.0.xsd
+    http://pear.php.net/dtd/package-2.0
+    http://pear.php.net/dtd/package-2.0.xsd">
+ <name>Eznewsletter_Ezsubscribers</name>
+ <channel>connect.magentocommerce.com/community</channel>
+ <summary>Integrates Magento with your ez.newsletter account.</summary>
+ <description>The ez.newsletter system provides you with all of the tools you need to build successful email marketing campaigns and monitor their progress online.</description>
+ <lead>
+  <name>Eric Hileman</name>
+  <user>erichileman</user>
+  <email>eric@ez-llc.com</email>
+  <active>yes</active>
+ </lead>
+ <date>2010-01-10</date>
+ <time>23:16:45</time>
+ <version>
+  <release>1.0.30</release>
+  <api>1.0.30</api>
+ </version>
+ <stability>
+  <release>stable</release>
+  <api>stable</api>
+ </stability>
+ <license>MIT</license>
+ <notes>Notes.</notes>
+ <contents>
+  <dir name="/">
+   <dir name="app">
+    <dir name="design">
+     <dir name="frontend">
+      <dir name="default">
+       <dir name="default">
+        <dir name="layout">
+         <file md5sum="6d659eebb6664b440cb40bdf1c11c8be" name="eznewsletter_checkout.xml" role="mageweb" />
+        </dir> <!-- /app/design/frontend/default/default/layout -->
+        <dir name="template">
+         <dir name="eznewsletter">
+          <file md5sum="094cb2d4159d6b49870b1640e3c574b1" name="checkout.phtml" role="mageweb" />
+          <file md5sum="3b1599a6b5545a2b6adff1a801b60890" name="default-checkout-onepage-billing.phtml" role="mageweb" />
+         </dir> <!-- /app/design/frontend/default/default/template/eznewsletter -->
+        </dir> <!-- /app/design/frontend/default/default/template -->
+       </dir> <!-- /app/design/frontend/default/default -->
+      </dir> <!-- /app/design/frontend/default -->
+     </dir> <!-- /app/design/frontend -->
+    </dir> <!-- /app/design -->
+    <dir name="etc">
+     <dir name="modules">
+      <file md5sum="a5600cd529a1a248109ba9578a8fb1ef" name="Eznewsletter_Ezsubscribers.xml" role="mageweb" />
+     </dir> <!-- /app/etc/modules -->
+    </dir> <!-- /app/etc -->
+   </dir> <!-- /app -->
+   <dir name="Eznewsletter">
+    <dir name="Ezsubscribers">
+     <dir name="Block">
+      <file md5sum="7ec16f2e3e5ff73fed1308528643c02d" name="Newsletter.php" role="magelocal" />
+     </dir> <!-- /Eznewsletter/Ezsubscribers/Block -->
+     <dir name="etc">
+      <file md5sum="faedbe1e1a835462583bb4c0ff355a2e" name="api.xml" role="magelocal" />
+      <file md5sum="697b014ab96963e587f94959e4dcdc9c" name="config.xml" role="magelocal" />
+      <file md5sum="eceb7a08987f28beb6e898b55fa4dc65" name="system.xml" role="magelocal" />
+     </dir> <!-- /Eznewsletter/Ezsubscribers/etc -->
+     <dir name="Helper">
+      <file md5sum="003507bc34d0754547af787bdd1d70bb" name="Data.php" role="magelocal" />
+     </dir> <!-- /Eznewsletter/Ezsubscribers/Helper -->
+     <dir name="Model">
+      <dir name="Checkout">
+       <dir name="Type">
+        <file md5sum="a2b387a41fa7d95a157696aa926bf524" name="Onepage.php" role="magelocal" />
+       </dir> <!-- /Eznewsletter/Ezsubscribers/Model/Checkout/Type -->
+      </dir> <!-- /Eznewsletter/Ezsubscribers/Model/Checkout -->
+      <dir name="Ezeditor">
+       <file md5sum="5d7a7039bbf6a134ca18df320e993b5f" name="Api.php" role="magelocal" />
+      </dir> <!-- /Eznewsletter/Ezsubscribers/Model/Ezeditor -->
+      <dir name="Ezorders">
+       <file md5sum="20b5b84b5e1654bd2916a36bd3cd5a73" name="Api.php" role="magelocal" />
+       <file md5sum="b940888ad5e0e74797a1e40fc133b577" name="Api_Marty.php" role="magelocal" />
+       <file md5sum="fecc32be4808a7ac372e21d59488cdff" name="Api_Marty2.php" role="magelocal" />
+      </dir> <!-- /Eznewsletter/Ezsubscribers/Model/Ezorders -->
+      <dir name="Ezsignups">
+       <file md5sum="bfda954158ebfe74c643887ccb6c5345" name="Api.php" role="magelocal" />
+      </dir> <!-- /Eznewsletter/Ezsubscribers/Model/Ezsignups -->
+      <dir name="Ezutilities">
+       <file md5sum="c57211b566a7724e41a8fbb5065b0f29" name="Api.php" role="magelocal" />
+      </dir> <!-- /Eznewsletter/Ezsubscribers/Model/Ezutilities -->
+      <file md5sum="fe980c1fcaa5ebcca4491c9d0cfc49d5" name="Observer.php" role="magelocal" />
+     </dir> <!-- /Eznewsletter/Ezsubscribers/Model -->
+    </dir> <!-- /Eznewsletter/Ezsubscribers -->
+   </dir> <!-- /Eznewsletter -->
+  </dir> <!-- / -->
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.2.0</min>
+    <max>6.0.0</max>
+   </php>
+   <pearinstaller>
+    <min>1.6.2</min>
+   </pearinstaller>
+  </required>
+ </dependencies>
+ <phprelease />
+</package>

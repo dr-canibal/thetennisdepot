@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!-- 
+/**
+ * @category   Netz98
+ * @package    Netz98_Raffle
+ * @author     Daniel Nitz <d.nitz@netz98.de>
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+ -->
+<config>
+    <modules>
+        <Netz98_Raffle>
+            <active>true</active>
+            <codePool>local</codePool>
+            <depends>
+                <Mage_Newsletter />
+            </depends>
+        </Netz98_Raffle>
+    </modules>
+</config> 

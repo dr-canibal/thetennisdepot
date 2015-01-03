@@ -1,0 +1,37 @@
+<?php if (Mage::getStoreConfig('ajax_pro/general/enabled')) :?>
+<script type="text/javascript">
+//<![CDATA[
+    var ajaxproLocationMessage = "<?php echo Mage::getStoreConfig('ajax_pro/general/location')?>";
+    var ajaxproHandles = <?php echo Zend_Json::encode($this->getLayout()->getUpdate()->getHandles());?>;
+
+    var ajaxproEnabledShoppingCart = <?php echo (Mage::getStoreConfig('ajax_pro/addToCart/enabled') != 1 ? 0 : 1)?>;
+    var ajaxproEnabledCompare = <?php echo (Mage::getStoreConfig('ajax_pro/addToCompare/enabled') != 1 ? 0 : 1)?>;
+    var ajaxproEnabledWishlist = <?php echo (Mage::getStoreConfig('ajax_pro/addToWishlist/enabled') != 1 ? 0 : 1)?>;
+
+    var ajaxproEnabledNoticeForm = <?php echo (Mage::getStoreConfig('ajax_pro/general/enabledNoticeForm') != 1 ? 0 : 1)?>;
+    var ajaxproEnabledShoppingCartForm = <?php echo (Mage::getStoreConfig('ajax_pro/addToCart/enabledForm') != 1 ? 0 : 1)?>;
+    var ajaxproEnabledCompareForm = <?php echo (Mage::getStoreConfig('ajax_pro/addToCompare/enabledForm') != 1 ? 0 : 1) ?>;
+    var ajaxproEnabledWishlistForm = <?php echo (Mage::getStoreConfig('ajax_pro/addToWishlist/enabledForm') != 1 ? 0 : 1)?>;
+
+    var customerLoggedId = <?php echo Mage::helper('customer')->isLoggedIn() ? 1 : 0 ?>;
+    var baseUrl = "<?php echo Mage::getBaseUrl(); ?>";
+
+    var enabledDeleteCartConfirm = <?php echo (Mage::getStoreConfig('ajax_pro/addToCart/enabledDeleteConfirm') != 1 ? 0 : 1)?>;
+    var enabledDeleteCompareConfirm = <?php echo (Mage::getStoreConfig('ajax_pro/addToCompare/enabledDeleteConfirm') != 1 ? 0 : 1)?>;
+    var enabledDeleteWishlistConfirm = <?php echo (Mage::getStoreConfig('ajax_pro/addToWishlist/enabledDeleteConfirm') != 1 ? 0 : 1)?>;
+
+    var removeCartItemMessage = '<?php echo Mage::helper('ajaxpro')->__('Are you sure you would like to remove this item from the shopping cart?')?>';
+    var removeCompareItemMessage = '<?php echo Mage::helper('ajaxpro')->__('Are you sure you would like to remove this item from the compare products?')?>';
+    var removeCompareClearMessage = '<?php echo Mage::helper('ajaxpro')->__('Are you sure you would like to remove all products from your comparison?')?>';
+    var removeWishlistItemMessage = '<?php echo Mage::helper('ajaxpro')->__('Are you sure you would like to remove this item from the wishlist?')?>';
+
+    var ajaxproOpacity = <?php echo Mage::getStoreConfig('ajax_pro/general/opacity')?>;
+    <?php
+
+    if (Mage::getStoreConfig('ajax_pro/addToCompare/enabled'))  {
+        $this->helper('catalog/product_compare')->calculate();
+    }
+    ?>
+//]]>
+</script>
+<?php endif;?>

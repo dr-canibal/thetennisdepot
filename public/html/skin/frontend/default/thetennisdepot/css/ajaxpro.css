@@ -1,0 +1,45 @@
+#ajaxpro-spinner {
+    background: #fff url(../images/ajaxpro_loader_animation.gif) no-repeat 50% 50%;
+    border: 1px solid #aaa;
+    position: absolute;
+    top:0;
+    left:0;
+    width:300px;
+    height:125px;
+    z-index:998;
+    position:fixed;
+}
+
+.ajaxpro-message {
+    margin: 10px 0px 10px 0px;;
+	font-weight: bold;
+}
+
+.ajaxpro-or{
+    margin: 0px;	
+}
+
+.ajaxpro-continue-button, .ajaxpro-continue-button:hover{text-decoration:none; color: #fff;}
+
+#ajaxpro-addtocart-form, #ajaxpro-addtocompare-form,
+#ajaxpro-addtowishlist-form, #ajaxpro-notice-form {
+    background: #fff;
+    border: 1px solid #aaa;
+    top:0;
+    left:0;
+    width:300px;
+    height:125px;
+    z-index:999;
+    text-align:center;
+    position:fixed;
+	padding: 10px;
+}
+
+.form-button, .form-button-alt {
+}
+	
+.form-button span, .form-button-alt span {
+}
+
+.form-button-alt {
+}

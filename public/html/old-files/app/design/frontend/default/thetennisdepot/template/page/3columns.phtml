@@ -1,0 +1,115 @@
+<?php
+/**
+ * Template for Mage_Page_Block_Html
+ */
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?php echo $this->getLang() ?>" lang="<?php echo $this->getLang() ?>">
+<head>
+    <?php echo $this->getChildHtml('head') ?>
+    
+<script>
+jQuery.noConflict();
+
+jQuery(document).ready( function(){
+  jQuery('.rounded').corners("3px");
+  jQuery('.form-button').corners("3px");
+  jQuery('.form-button-alt').corners("3px");
+  jQuery('.breadcrumbs').corners("3px");
+  jQuery('.category-head').corners("3px");
+  jQuery('.page-head').corners("3px");
+  jQuery('.page-head-alt').corners("3px");
+  jQuery('.head').corners("3px");
+  jQuery('.content').corners("3px");
+  jQuery('.mini-cart .subtotal').corners("3px");
+  jQuery('.footer').corners("3px");
+  jQuery('.footer .informational').corners("3px");
+  jQuery('.footer .copyright').corners("3px");
+  jQuery('.listing-type-grid li.item').corners("3px");
+  jQuery('.sub-category-listing li.item').corners("3px");
+  jQuery('.product-info-box').corners("3px");
+  jQuery('.product-info-box a').corners("3px");
+  jQuery('.product-options').corners("3px");
+  jQuery('.product-options-bottom').corners("3px");
+  jQuery('.shopping-cart-totals').corners("3px");
+  jQuery('.shopping-cart-collaterals .box').corners("3px");
+  jQuery('.one-page-checkout-progress li').corners("3px");
+  jQuery('.login-box .col-1').corners("3px");
+  jQuery('.login-box .col-2').corners("3px");
+  jQuery('.account-box').corners("3px");
+  jQuery('.group-select').corners("3px");
+  jQuery('.group-select .legend').corners("3px");
+  jQuery('.notice-msg').corners("3px");
+  jQuery('.note-msg').corners("3px");
+  jQuery('.success-msg').corners("3px");
+  jQuery('.error-msg').corners("3px");
+  jQuery('.data-table').corners("3px");
+  jQuery('table.pager').corners("3px");
+  jQuery('table.view-by').corners("3px");
+});</script>
+</head>
+<body <?php echo $this->getBodyClass()?'class="'.$this->getBodyClass().'"':'' ?>>
+<div class="wrapper">
+    <?php echo $this->getChildHtml('global_notices') ?>
+<!--[if lte IE 6]>
+        <div class="noscript">
+            <div class="noscript-inner">
+                <p><strong>We detected that you are using an old and deprecated browser.</strong></p>
+                <p>We encourage you to upgrade your browser, or better yet, install <a href="http://www.getfirefox.com/" title="Firefox">Firefox</a>.</p>
+            </div>
+        </div>
+<![endif]-->
+        <!-- start header -->
+        <div class="header">
+            <?php echo $this->getChildHtml('header') ?>
+        </div>
+        <!-- end header -->
+
+        <!-- start middle -->
+        <div class="middle-container">
+            <div class="middle col-3-layout">
+                <!-- start left -->
+                <div class="col-left side-col">
+                  <?php echo $this->getChildHtml('left') ?>
+                <!-- [start] menu -->    
+                     <?=$this->getChildHtml('leftMenu')?>
+                <!-- [end] menu --> 
+                </div>
+                <!-- end left -->
+
+                <!-- start center -->
+                <div id="main" class="col-main">
+                    <?php echo $this->getChildHtml('breadcrumbs') ?>
+                
+                    <!-- start global messages -->
+                        <?php echo $this->getChildHtml('global_messages') ?>
+                    <!-- end global messages -->
+
+                    <!-- start content -->
+                        <?php echo $this->getChildHtml('content') ?>&nbsp;
+                    <!-- end content -->
+                </div>
+                <!-- end center -->
+
+                <!-- start right -->
+                <div class="col-right side-col">
+                    <?php echo $this->getChildHtml('right') ?>&nbsp;
+                </div>
+                <!-- end right -->
+
+            </div>
+        </div>
+        <!-- end middle -->
+
+        <!-- start footer -->
+        <div class="footer-container">
+            <div class="footer">
+                <?php echo $this->getChildHtml('footer') ?>
+            </div>
+        </div>
+        <!-- end footer -->
+<?php echo $this->getChildHtml('before_body_end') ?>
+</div>
+<?php echo $this->getAbsoluteFooter() ?>
+</body>
+</html>

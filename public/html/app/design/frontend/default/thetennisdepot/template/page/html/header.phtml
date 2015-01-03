@@ -1,0 +1,65 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magentocommerce.com for more information.
+ *
+ * @category    design
+ * @package     default_modern
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<div class="header-container">
+    <div class="header">
+        <div class="logo"><strong><?php echo $this->getLogoAlt() ?></strong><a href="<?php echo $this->getUrl('') ?>" title="<?php echo $this->getLogoAlt() ?>" class="sitelogo"><img src="<?php echo $this->getLogoSrc() ?>" alt="<?php echo $this->getLogoAlt() ?>" /></a></div>
+        <div class="top-menu"><?php echo $this->getChildHtml('topLinks') ?></div>
+        <span class="welcome-msg"><?php echo $this->getWelcome()?></span>
+		<div class="phone">
+			<img src="<?php echo $this->getSkinUrl('images/phone.gif');?>" alt="phone" />
+		</div>
+		<?php 
+			  //PHPBB forum link
+			  $forumurl = $this->getUrl('forum');
+			  $session = Mage::getSingleton('customer/session');
+			  if($session->getPHPBBSessionId()!="") {
+			  		$forumurl .= "?sid=".$session->getPHPBBSessionId();
+			  }
+		 ?>
+		<ul class="top-links">
+			<li><a href="<?php echo $forumurl; ?>">Message Board</a></li>
+			<li><a href="<?php echo $this->getUrl('learning-center');?>">Learning Center</a></li>
+			<li><a href="<?php echo $this->getUrl('demo-program');?>">Demo Program</a></li>
+		</ul>
+    </div>
+    <div class="quick-access">
+		<?php /*?><div id="menu">
+			<ul>
+				<?php $current_page = basename($this->helper('core/url')->getCurrentUrl()); ?>
+				<li<?php if(Mage::getSingleton('cms/page')->getIdentifier()=='home') { ?> class="active"<?php } ?>><a href="<?php echo $this->getUrl();?>"><span><?php echo $this->__('Tennis');?></span></a></li>
+				<li<?php if($current_page=='international') { ?> class="active"<?php } ?>><a href="<?php echo $this->getUrl('');?>"><span><?php echo $this->__('Badminton');?></span></a></li>
+				<li<?php if($current_page=='our-policy') { ?> class="active"<?php } ?>><a href="<?php echo $this->getUrl('');?>"><span><?php echo $this->__('Squash');?></span></a></li>
+				<li<?php if($current_page=='about-us') { ?> class="active"<?php } ?>><a href="<?php echo $this->getUrl('');?>"><span><?php echo $this->__('Beach Tennis');?></span></a></li>
+			</ul>
+		</div><?php */?>
+		<?php echo $this->getChildHtml('top_navi') ?>
+		<?php //echo $this->getChildHtml('topSearch') ?>
+		<?php //echo $this->getChildHtml('topMenu') ?>
+		<?php echo $this->getChildHtml('topBar') ?>
+    </div>
+    <?php echo $this->getChildHtml('topContainer'); ?>
+</div>

@@ -1,0 +1,3 @@
+[20-Jul-2009 11:15:35] PHP Fatal error:  Call to a member function IsActivated() on a non-object in /home/thetenni/public_html/livezilla/_lib/objects.global.inc.php on line 130
+[21-Jul-2009 05:04:21] PHP Fatal error:  Call to a member function IsActivated() on a non-object in /home/thetenni/public_html/livezilla/_lib/objects.global.inc.php on line 130
+[29-Nov-2009 15:39:49] PHP Fatal error:  Call to a member function IsActivated() on a non-object in /home/thetenni/public_html/livezilla/_lib/objects.global.inc.php on line 130

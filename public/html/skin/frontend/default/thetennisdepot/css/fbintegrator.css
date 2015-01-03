@@ -1,0 +1,106 @@
+.fbintegrator-login-box .content {
+    min-height: 236px;
+}
+
+.fbintegrator-login-box h4, .fbintegrator-login-box .new-users h4, .fbintegrator-login-box .registered-users h4 {
+    background-image: url(../images/fbintegrator/Connect_light_small_short.gif);
+    background-position:0 1px;
+    background-repeat:no-repeat;
+    min-height:20px;
+    padding-left:23px;
+}
+
+#fbintegrator{
+    display:none;
+    position: absolute;
+    top:50%;
+    left:50%;
+    z-index:9999;
+    width:400px;
+    margin:-200px 0 0 -200px;
+    /*background-color: #fff;*/
+}
+#fbintegrator[id]{ /* IE6 and below Can't See This */
+    position:fixed;
+}
+/*#referafriend h3 {margin-bottom: 20px;}*/
+#fbintegrator h4 {padding: 4px 0;}
+#fbintegrator .group-select {margin: 0;}
+#fbintegrator-overlay{
+    display:none;
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:5000;
+    background-color:#000;
+    -moz-opacity: 0.3;
+    opacity:.30;
+    filter: alpha(opacity=30);
+}
+#fbintegrator-overlay[id]{ /* IE6 and below Can't See This */
+    position:fixed;
+}
+#fbintegrator.done #fbiLoadMessage{
+	display:none;
+}
+#fbintegrator.done #fbiContent{
+	display:block;
+}
+#fbintegrator.loading #fbiContent{
+	display:none;
+}
+#fbintegrator.loading #fbiLoadMessage{
+	font-size: 1.1em;
+	font-weight: bold;
+	color: #000;
+	display:block;
+	background-color: #fff;
+	width: 100px;
+	padding: 10px;
+	margin: 250px 0 0 150px;
+}
+
+
+.fbintegrator-please-wait {
+	padding-right:7px;
+}
+/*
+#referafriend.done img{
+	width:100%;
+	height:100%;
+}
+*/
+
+#fbi-login {
+	background: #fbfaf6;
+}
+
+#fbi-login .group-select {
+    margin:28px 0;
+    border:1px solid #bbafa0;
+    padding:22px 25px 12px 25px;
+    background:#fbfaf6;
+}
+
+#fbi-login .group-select li .input-box .input-text,#fbi-invite .group-select li .input-box textarea {
+	width:275px;
+}
+
+#fbi-login .button-set{
+	border-top:1px solid #E4E4E4;
+	clear:both;
+	margin-top:4em;
+	padding-top:8px;
+	text-align:right;
+}
+
+
+#fbi-login .buttonlist li span a, .rightlink li span a, .form-button, button.button span {
+    display:inline
+}
+
+.fbi-right{
+	text-align: right;
+}

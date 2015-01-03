@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <zblocks_adminhtml_zblocks_index>
+        <reference name="content">
+            <block type="zblocks/adminhtml_zblocks" name="zblocks" />
+        </reference>
+    </zblocks_adminhtml_zblocks_index>
+    <zblocks_adminhtml_zblocks_editContent>
+        <reference name="content">
+            <block type="zblocks/adminhtml_zblocks_edit_tab_content_edit" name="zblockscontent" />
+        </reference>
+    </zblocks_adminhtml_zblocks_editContent>
+</layout>

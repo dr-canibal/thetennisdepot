@@ -1,0 +1,411 @@
+<?php
+
+/**
+ * aheadWorks Co.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://ecommerce.aheadworks.com/LICENSE-M1.txt
+ *
+ * @category   AW
+ * @package    AW_Featuredproducts
+ * @copyright  Copyright (c) 2008-2009 aheadWorks Co. (http://www.aheadworks.com)
+ * @license    http://ecommerce.aheadworks.com/LICENSE-M1.txt
+ */
+
+$products = Mage::helper('featuredproducts')->getFeaturedProducts();
+
+$settings = Mage::helper('featuredproducts')->getSettings();
+
+$hash 			= session_id();
+$productTTL 	= $settings['SSDelay'] ? $settings['SSDelay'] * 1000 : 5000;
+$imageWidth 	= $settings['imageWidth'];
+$imageHeight 	= $settings['imageHeight'];
+$containerWidth = $settings['containerWidth'] ? $settings['containerWidth'] : 450;
+$isHint 		= $settings['isHint'] ? 'true' : 'false';
+$isThumbs 		= $settings['isThumbs'] ? 'true' : 'false';
+
+
+$isCompact = 'false'; $isRowMode =  0; $isBottomText = 'false';
+$isThumbnails = 'true';
+if($settings['displayType'] == 'simpless'){
+	$isCompact = 'true';
+}
+elseif($settings['displayType'] == 'row'){
+	$isRowMode = 1;
+	$isCompact = 'true';
+}
+elseif($settings['displayType'] == 'rowtext'){
+	$isRowMode = 1;
+	$isCompact = 'true';
+	$isBottomText = 'true';
+}
+elseif($settings['displayType'] == 'simplesstext'){
+	$isCompact = 'true';
+	$isBottomText = 'true';
+}
+
+
+$H = Mage::helper('featuredproducts');
+
+
+/*
+
+$data = array();
+foreach($products as $p){
+	
+	array_push($data, array(
+		'productId' 			=> 0,
+		'productImage' 			=> $p['image'],
+		'productPrice' 			=> $p['price'],
+		'productTitle' 			=> $p['title'],
+		'productDescription' 	=> $p['description'],
+		'productBuyNowURL' 		=> $p['url']
+	));
+	
+}
+
+$data = json_encode($data);
+
+$data = rawurlencode($data ^ str_repeat(session_id(), 100000));
+*/
+
+
+$i1=$i2=0;
+  
+?>
+
+
+
+
+
+<?if( count($products)):?>
+
+<div class="visios" id="FPSS" style="display:none;">
+	<div class="visio-slider" id="slider">
+		<a href="#" class="slider-button left" name="sliderb" <?if(!$H->getDisplay('arrows') || $H->getDisplay('displaytype')!='slider') echo 'style="visibility:hidden;"'?>></a>
+		<div class="visio-blinker">
+			<div class="visio-frame" id="frame1">
+				<div class="frameWindow">
+					<?
+					foreach($products as $p){
+						
+					?>
+					<div class="visio-block">
+						<? if($H->getDisplay('title') == 'top') :?>
+						<ins><h4><?=$p['title']?></h4></ins>
+						<?endif;?>
+						<a href="<?php echo $p["product"]->getProductUrl() ?>">
+						
+							<img class="visio-image product-image" src="<?=$p['image']?>" style="float:<?=$H->getDisplay('image')?>;" alt="<?=htmlentities($p["title"])?>"/>
+						</a>
+						<span class="sp<?=$i1?> details" <?if($H->getDisplay('details') == 'integrate') echo 'style="display:inline;"'?>>
+							<?=Mage::helper('featuredproducts')->getDescriptionHtml($this, $p);?>
+						</span>
+					</div>
+					<? 
+					$i1++;
+					} ?>
+																	
+				</div>
+			</div>	
+		</div>
+		<a href="#"  class="slider-button right" name="sliderb" <?if(!$H->getDisplay('arrows') || $H->getDisplay('displaytype')!='slider') echo 'style="visibility:hidden;"'?>></a>
+		
+		<?if($H->getDisplay('details') == 'single'):?>
+		
+		<div class="middleText">
+			<div class="visio-blinker"><?php
+				if(count($products)){
+					foreach($products as $p){
+						?>
+							
+							<?=$H->getDescriptionHtml($this, $p);?>
+							
+						<?
+						break;
+					}
+				}
+			?></div>
+		</div>
+		<?endif;?>
+		
+		<?
+			if(($H->getDisplay('switchertype') == 'bubbles') && !$isRowMode){
+		?>
+		<div class="dock">
+			<div class="visio">
+				<?
+					$z = 0;
+					foreach($products as $p){
+						$z++
+				?>
+				<div class="dv<?=$i2?><?if($z == 1):?> HL<?endif;?>">
+					<img class="visio-bubble" src="<?=$p['image']?>" style="vertical-align:bottom;"  alt="<?=htmlentities($p["title"])?>"/>
+				</div>
+				<?
+				$i2++;
+				} ?>
+			</div>
+		</div>	
+		<?}?>
+		
+		<?
+			if(($H->getDisplay('switchertype') == 'digits') && !($isRowMode)){
+		?><div class="FSSSwitcher"><?		
+				$cnt =$z= count($products);
+				while($z){
+					$z--;
+					?>
+					<a class="visio-block FSSButton<?if($z == $cnt-1):?> HL<?endif;?>" href="#" id="sw<?=($cnt-$z-1)?>"><?=($cnt-$z)?></a>
+					<?
+				}
+			?></div><?	
+		?>
+		<?}?>		
+
+	</div>
+	
+	
+			<?php if($H->getDisplay('istooltip')):?>
+			<div class="visio-hint" id="sshint">
+			<?php
+						if(count($products)){
+							foreach($products as $p){
+								echo $p['description']; 
+								break;
+							}
+						}
+					?>
+			</div>
+			<?php endif;?>
+	
+</div>
+
+
+
+
+
+<script src="<?php echo $this->getSkinUrl('') ?>aw_featuredproducts/js/pico.js" type="text/javascript"></script>
+
+
+
+
+
+
+<script defer="defer" type="text/javascript">
+	$_('#FPSS').onmouseover = function(){
+		BLOCK = 1;
+	}
+	$_('#FPSS').onmouseout = function(){
+		BLOCK = 0;
+	}	
+
+
+	var cfg = {
+		'slider/blinker/frame/block/image' : {
+			width : '<?=$H->getDisplay('imagewidth')?>'
+		},
+		'slider/blinker' : {
+			speed : '<?=$H->getDisplay('ssdelay')?>'
+		},
+		'slider/blinker/frame' : {
+			speed : '<?=$H->getDisplay('ssdelay')?>'
+		},
+		'slider/block' : {
+			onmouseover : function(){
+				this.className = "visio-block FSSButton HL"
+			},
+			onmouseout : function(){
+				if(prdIndex != parseInt(this.innerHTML-1))
+					this.className = "visio-block FSSButton"
+			},
+			onclick : function(){
+				var index = parseInt(this.innerHTML-1);
+				return SSC.switchToItem(index)
+			}
+		},	
+		'slider/blinker/frame/block' : {
+			
+			onmouseover : function(){
+				if($_('#sshint')){
+					$_('#sshint').changeHTML(this.$_('.description').innerHTML);
+					$_('#sshint').show()
+				}
+			},
+			onmouseout : function(){
+				if($_('#sshint'))
+					$_('#sshint').hide()
+			},
+			onmousemove : function(e){
+				if($_('#sshint'))
+					$_('#sshint').moveTo(e)
+			}
+		},
+		'slider/bubble' : {
+			width : '<?=$H->getDisplay('thumbwidth')?>',
+			zoom:'<?=$H->getDisplay('thumbzoom')?>'
+		}
+	}
+	
+	SSC = {
+		mode : '<?=$H->getDisplay('displaytype')?>'
+	}
+	
+	
+	SSC.switchToItem = function(index){
+		oldIndex = typeof oldIndex == 'undefined' ? 0 : oldIndex;
+		if(oldIndex==index) return false;
+		prdIndex = parseInt(index);
+		if(SSC.mode == 'slider'){
+			if($_('#frame1').moveTo(index)){
+				if(!$_('.middleText').empty())
+					$_('.middleText').$_('.visio-blinker').changeHTML($_('.visio-frame').$_('.sp'+index).innerHTML)
+				$_('#sshint').changeHTML($_('.visio-frame').$_('.sp'+index).innerHTML)
+			}
+		}else if(SSC.mode == 'blinker'){
+			$_('#frame1').parentNode.blinkDown(function(){
+				$_('#frame1').moveTo(index,
+					function(){
+						$_('#frame1').parentNode.blinkUp()
+					}
+				)
+			})
+			<?if($H->getDisplay('details') == 'single'):?>
+			var txt = $_('.visio-frame').$_('.sp'+index).innerHTML
+			$_('.middleText').$_('.visio-blinker').changeHTML(txt)	
+			<?endif;?>
+			
+		}
+		
+		SSC.markSwitcher(index);
+				
+		oldIndex = index;
+		return false;
+	}
+	
+	SSC.markSwitcher = function(index){
+		index = parseInt(index)
+		<?
+			if($H->getDisplay('switchertype') == 'bubbles'):
+		?>
+		
+		$_($_('.dv'+index).parentNode).$_('~div').apply(function(el){
+			el.className = el.className.replace(' HL','')
+		}) 
+		$_('.dv'+index).className = $_('.dv'+index).className.replace(' HL','') + ' HL';
+		
+		
+		<?elseif($H->getDisplay('switchertype') != 'none'):?>
+		
+		$_('.FSSSwitcher').$_('~a').apply(function(el){
+			el.className = el.className.replace(' HL','')
+		}) 
+		
+		$_('#sw'+index).className = $_('#sw'+index).className + ' HL';
+		
+		<?endif;?>
+	}
+	
+	
+
+	
+	var prdCount = <?=count($products)?>;
+	var prdIndex = 0;
+	BLOCK = 0;
+	
+	<?
+		if($H->getDisplay('interval') && !$isRowMode):
+	?>
+	setInterval(function(){
+		if(BLOCK) return;
+		if(SSC.mode == 'blinker'){
+			prdIndex = parseInt(prdIndex) + 1;
+			if(prdIndex == prdCount){
+				prdIndex = 0;
+			}
+			SSC.switchToItem(prdIndex)
+		}else{
+			$_('.slider-button right').emulate('click')
+		}
+	}, parseFloat('<?=$H->getDisplay('interval')?>')*1000)
+	
+	<?endif;?>
+	
+	
+	if(SSC.mode == 'slider'){
+		cfg['slider/bubble'].onclick = function(){
+			var index = this.parentNode.className.replace(/[^0-9]+/ig,'')
+			return SSC.switchToItem(index);
+		}
+	}
+	
+	if(SSC.mode == 'blinker'){
+		cfg['slider/bubble'].onclick = function(){
+			var index = this.parentNode.className.replace(/[^0-9]+/ig,'')
+			return SSC.switchToItem(index)
+		}
+		cfg['slider/blinker/frame'].speed = 1;
+		cfg['slider/block'].onclick = function(){
+			var index = this.innerHTML-1
+			return SSC.switchToItem(index);
+			
+		}
+	}
+	if(SSC.mode == 'row'){
+		$_('.frameWindow', '#frame1').CSS({
+			left:'auto',
+			position:'static',
+			width:'auto',
+			height:'auto',
+			float:'none'
+		})
+	}
+	
+	
+	$_('@sliderb').attach('click', function(e){
+		e.preventDefault();
+		e.stopPropagation();
+		var f = function(){
+			var index = $_('.visio-frame').$_('.sp'+
+				$_('#frame1').currentFrame._uid);
+				
+			<?if($H->getDisplay('details') == 'single'):?>	
+				$_('.middleText').$_('.visio-blinker').changeHTML(index.innerHTML)
+			<?endif;?>
+			
+			SSC.markSwitcher($_('#frame1').currentFrame._uid);
+		}
+		if(this.className.match('right'))
+			$_('#frame1').moveLeft(f);
+		else
+			$_('#frame1').moveRight(f);	
+		return false;	
+	})
+
+	$_('.visios').vis(cfg)
+	
+	//$_('#slider').CSS({textAlign:'<?=Mage::getStoreConfig('featuredproducts/displayoptions/align')?>'})
+	$_('#FPSS').style.display = 'block';
+</script>
+
+
+<?else:?>
+<div class="FPSSError">
+<?=$this->__("No products to display. Please mark some products as featured. Also, you probably set them as featured for other categories.");?>
+</div>
+<?endif;?>
+
+
+
+
+
+
+
+
+<div style="clear: both;"></div>
+
+<!-- Featured Products End -->

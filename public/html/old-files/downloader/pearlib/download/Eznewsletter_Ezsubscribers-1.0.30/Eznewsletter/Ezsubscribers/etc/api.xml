@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+<config>
+    <api>
+        <resources>
+
+            <ezeditor translate="title" module="ezsubscribers">
+            <title>Title Of My Resource</title>
+            <acl>eznewsletter</acl>
+            <model>ezsubscribers/ezeditor_api</model>
+            <methods>
+                <getTest translate="title" module="ezsubscribers">
+                    <title>Test method.</title>
+                    <acl>eznewsletter</acl>
+                </getTest>
+                <getCategoryLayout translate="title" module="ezsubscribers">
+                    <title>Returns category layout.</title>
+                    <acl>eznewsletter</acl>
+                </getCategoryLayout>
+                <getCatalog translate="title" module="ezsubscribers">
+                    <title>Returns the product catalog.</title>
+                    <acl>eznewsletter</acl>
+                </getCatalog>
+            </methods>
+            </ezeditor>
+
+            <ezsignups translate="title" module="ezsubscribers">
+            <title>Title Of My Resource</title>
+            <acl>eznewsletter</acl>
+            <model>ezsubscribers/ezsignups_api</model>
+            <methods>
+                <getAllSignups translate="title" module="ezsubscribers">
+                    <title>Get all subscribers.</title>
+                    <acl>eznewsletter</acl>
+                </getAllSignups>
+                <unsubscribe translate="title" module="ezsubscribers">
+                    <title>Unsubscribe a subscriber</title>
+                    <acl>eznewsletter</acl>
+                </unsubscribe>
+            </methods>
+            </ezsignups>
+
+            <ezorders translate="title" module="ezsubscribers">
+            <title>Title Of My Resource</title>
+            <acl>eznewsletter</acl>
+            <model>ezsubscribers/ezorders_api</model>
+            <methods>
+                <getAllOrders translate="title" module="ezsubscribers">
+                    <title>Get all orders.</title>
+                    <acl>eznewsletter</acl>
+                </getAllOrders>
+            </methods>
+            </ezorders>
+
+            <ezutilities translate="title" module="ezsubscribers">
+            <title>Title Of My Resource</title>
+            <acl>eznewsletter</acl>
+            <model>ezsubscribers/ezutilities_api</model>
+            <methods>
+                <createCategory translate="title" module="ezsubscribers">
+                    <title>Creates a category.</title>
+                    <acl>eznewsletter</acl>
+                </createCategory>
+                <deleteCategory translate="title" module="ezsubscribers">
+                    <title>Deletes a category.</title>
+                    <acl>eznewsletter</acl>
+                </deleteCategory>
+                <getVersion translate="title" module="ezsubscribers">
+                    <title>Get the version of ez.newsletter extension installed.</title>
+                    <acl>eznewsletter</acl>
+                </getVersion>
+                <getServerDateTime translate="title" module="ezsubscribers">
+                    <title>Get the date and time set on the client server.</title>
+                    <acl>eznewsletter</acl>
+                </getServerDateTime>
+                <getDateShifted translate="title" module="ezsubscribers">
+                    <title>Get the last run dated shifted into client timezone.</title>
+                    <acl>eznewsletter</acl>
+                </getDateShifted>
+                <getTimeZone translate="title" module="ezsubscribers">
+                    <title>Get the TimeZone.</title>
+                    <acl>eznewsletter</acl>
+                </getTimeZone>
+                <getGMTOffset translate="title" module="ezsubscribers">
+                    <title>Get the GMT Offset.</title>
+                    <acl>eznewsletter</acl>
+                </getGMTOffset>
+                <getStoreIds translate="title" module="ezsubscribers">
+                    <title>Get all store ids.</title>
+                    <acl>eznewsletter</acl>
+                </getStoreIds>
+                <getStoreIdsByWebsiteCode translate="title" module="ezsubscribers">
+                    <title>Get all store ids by website code.</title>
+                    <acl>eznewsletter</acl>
+                </getStoreIdsByWebsiteCode>
+                <getStoreIdsByStoreName translate="title" module="ezsubscribers">
+                    <title>Get all store ids by store name.</title>
+                    <acl>eznewsletter</acl>
+                </getStoreIdsByStoreName>
+                <getStoreIdsByStoreViewCode translate="title" module="ezsubscribers">
+                    <title>Get all store ids by store view code.</title>
+                    <acl>eznewsletter</acl>
+                </getStoreIdsByStoreViewCode>
+                <getEntityIdByEntityModel translate="title" module="ezsubscribers">
+                    <title>Get the entity id for order status.</title>
+                    <acl>eznewsletter</acl>
+                </getEntityIdByEntityModel>
+                <getOrderStatuses translate="title" module="ezsubscribers">
+                    <title>Get all the available order statuses.</title>
+                    <acl>eznewsletter</acl>
+                </getOrderStatuses>
+            </methods>
+            </ezutilities>
+        </resources>
+
+        <acl>
+            <resources>
+                <eznewsletter translate="title" module="ezsubscribers">
+                    <title>ez.newsletter Magento Customer Management Module</title>
+                    <sort_order>20</sort_order>
+                </eznewsletter>
+            </resources>
+        </acl>
+    </api>
+</config>

@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Morningtime 
+ * LatestReviews module
+ *
+ * @category   Morningtime
+ * @package    Morningtime_LatestReviews
+ * @author     Mathijs Koenraadt (info@morningtime.com)
+ * @copyright  Copyright (c) 2009 Morningtime, http://www.morningtime.com
+ * @license    http://www.opensource.org/licenses/gpl-3.0.html GNU General Public License version 3
+ */
+-->
+<config>
+    <modules>
+        <Morningtime_LatestReviews>
+            <version>1.3.2.1.4</version>
+        </Morningtime_LatestReviews>
+    </modules>
+    <global>
+        <models>
+            <latestreviews>
+                <class>Morningtime_LatestReviews_Model</class>
+            </latestreviews>
+        </models>
+        <blocks>
+            <latestreviews>
+                <class>Morningtime_LatestReviews_Block</class>
+            </latestreviews>
+        </blocks>
+        <helpers>
+            <latestreviews>
+                <class>Morningtime_LatestReviews_Helper</class>
+            </latestreviews>
+        </helpers>
+    </global>
+    <adminhtml>
+        <acl>
+            <resources>
+                <admin>
+                    <children>
+                        <system>
+                            <children>
+                                <config>
+                                    <children>
+                                        <latestreviews>
+                                            <title>Latest Reviews</title>
+                                        </latestreviews>
+                                    </children>
+                                </config>
+                            </children>
+                        </system>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
+    </adminhtml>
+    <default>
+        <latestreviews>
+            <general>
+                <num_displayed_reviews>10</num_displayed_reviews>
+                <sort_by>rs.rating_summary</sort_by>
+            </general>
+			<reviews>
+                <show_title>product</show_title>
+                <link_to>product</link_to>
+                <show_fields>date,title,preview,rating</show_fields>
+			</reviews>
+			<products>
+                <listing_type>grid</listing_type>
+			</products>
+        </latestreviews>
+    </default>
+</config>

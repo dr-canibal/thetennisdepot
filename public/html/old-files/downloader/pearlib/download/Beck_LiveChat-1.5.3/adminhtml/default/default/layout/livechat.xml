@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<layout>
+	<default>
+		<reference name="head">
+			<action method="addCss"><name>livechat/livechat.css</name></action>
+		</reference>
+		<reference name="content">
+			<block type="livechat/notification_toolbar" after="notification_toolbar" name="livechat_toolbar" as="livechat_toolbar" template="livechat/notification/toolbar.phtml" />
+		</reference>
+	</default>
+	<livechat_session_list_index>
+		<reference name="head">
+			<action method="addCss"><name>livechat/livechat.css</name></action>
+		</reference>
+		<reference name="content">
+            <block type="livechat/session" name="livechat.session.list" />
+        </reference>
+	</livechat_session_list_index>
+	<livechat_session_list_detail>
+		<reference name="head">
+			<action method="addCss"><name>livechat/livechat.css</name></action>
+		</reference>
+		<reference name="content">
+            <block type="livechat/session_detail" name="livechat.session.detail" />
+        </reference>
+	</livechat_session_list_detail>
+	<livechat_operator_list_index>
+		<reference name="head">
+			<action method="addCss"><name>livechat/livechat.css</name></action>
+		</reference>
+		<reference name="content">
+            <block type="livechat/operator" name="livechat.operator" />
+        </reference>
+	</livechat_operator_list_index>
+    <livechat_operator_list_edit>
+        <reference name="content">
+            <block type="livechat/operator_edit" name="livechat.operator.edit" />
+        </reference>
+    </livechat_operator_list_edit>
+	<livechat_session_live_index>
+		<reference name="head">
+			<action method="addCss"><name>livechat/livechat.css</name></action>
+		</reference>
+		<reference name="content">
+			<block type="livechat/widget_sessions" name="livechat.sessions.live" />
+		</reference>
+	</livechat_session_live_index>
+	<livechat_reporting_index>
+		<reference name="head">
+			<action method="addJs"><script>livechat/AC_RunActiveContent.js</script></action>
+		</reference>
+		<reference name="content">
+			<block type="livechat/reporting" name="stats" template="livechat/reporting.phtml" />
+		</reference>
+	</livechat_reporting_index>
+</layout>

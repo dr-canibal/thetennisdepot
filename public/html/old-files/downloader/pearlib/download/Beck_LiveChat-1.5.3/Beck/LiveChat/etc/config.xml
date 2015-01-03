@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<config>
+    <modules>
+        <Beck_LiveChat>
+            <version>1.5.3</version>
+        </Beck_LiveChat>
+    </modules>
+    <admin>
+        <routers>
+            <livechat>
+                <use>admin</use>
+                <args>
+                    <module>Beck_LiveChat</module>
+                    <frontName>livechat</frontName>
+                </args>
+            </livechat>
+        </routers>
+    </admin>
+
+    <adminhtml>
+		<menu>
+			<customer>
+				<children>
+					<livechat translate="title" module="livechat">
+						<title>LiveChat</title>
+						<resource>admin/customer/livechat</resource>
+						<children>
+							<sessionlist translate="title" module="livechat">
+								<title>Customers chat list</title>
+								<action>livechat/session_list</action>
+								<resource>admin/customer/livechat/sessionlist</resource>
+							</sessionlist>
+							<sessionlive translate="title" module="livechat">
+								<title>Operator access</title>
+								<action>livechat/session_live</action>
+								<resource>admin/customer/livechat/sessionlive</resource>
+							</sessionlive>
+							<operatorlist translate="title" module="livechat">
+								<title>Operators list</title>
+								<action>livechat/operator_list</action>
+								<resource>admin/customer/livechat/operatorlist</resource>
+							</operatorlist>
+							<reporting translate="title" module="livechat">
+								<title>Reporting</title>
+								<action>livechat/reporting</action>
+								<resource>admin/customer/livechat/reporting</resource>
+							</reporting>
+						</children>
+					</livechat>
+				</children>
+			</customer>
+		</menu>
+        <acl>
+            <resources>
+                <all>
+                    <title>Allow everything</title>
+                </all>
+                <admin>
+                    <children>
+                        <system>
+                            <children>
+                                <config>
+                                    <children>
+                                        <livechatconfiguration translate="title" module="livechat">
+                                            <title>LiveChat configuration</title>
+                                            <sort_order>808</sort_order>
+                                        </livechatconfiguration>
+                                        <livechatevents translate="title" module="livechat">
+                                            <title>LiveChat events</title>
+                                            <sort_order>809</sort_order>
+                                        </livechatevents>
+                                    </children>
+                                </config>
+                            </children>
+                        </system>
+						<customer>
+							<children>
+								<livechat translate="title" module="livechat">
+								<title>LiveChat</title>
+								<sort_order>808</sort_order>
+								<children>
+									<sessionlist translate="title" module="livechat">
+										<title>Customers chat list</title>
+										<sort_order>808</sort_order>
+									</sessionlist>
+									<sessionlive translate="title" module="livechat">
+										<title>Operator access</title>
+										<sort_order>809</sort_order>
+									</sessionlive>
+									<operatorlist translate="title" module="livechat">
+										<title>Operators list</title>
+										<sort_order>810</sort_order>
+									</operatorlist>
+									<reporting translate="title" module="livechat">
+										<title>Reporting</title>
+										<sort_order>811</sort_order>
+									</reporting>
+								</children>
+								</livechat>
+							</children>
+						</customer>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
+        <helpers>
+            <data>Beck_LiveChat_Helper_Data</data>
+        </helpers>
+        <translate>
+            <modules>
+                <Beck_LiveChat>
+                    <files>
+                        <default>Beck_LiveChat.csv</default>
+                    </files>
+                </Beck_LiveChat>
+            </modules>
+        </translate>
+        <layout>
+            <updates>
+                <livechat>
+                    <file>livechat.xml</file>
+                </livechat>
+            </updates>
+        </layout>
+    </adminhtml>
+    <frontend>
+		<routers>
+            <livechat>
+                <use>standard</use>
+                <args>
+                    <module>Beck_LiveChat</module>
+                    <frontName>flivechat</frontName>
+                </args>
+            </livechat>
+        </routers>
+        <translate>
+            <modules>
+                <Beck_LiveChat>
+                    <files>
+                        <default>Beck_LiveChat.csv</default>
+                    </files>
+                </Beck_LiveChat>
+            </modules>
+        </translate>
+        <layout>
+            <updates>
+                <livechat>
+                    <file>livechat.xml</file>
+                </livechat>
+            </updates>
+        </layout>
+    </frontend>
+    <global>
+        <models>
+            <livechat>
+                <class>Beck_LiveChat_Model</class>
+                <resourceModel>livechat_mysql4</resourceModel>
+            </livechat>
+            <livechat_mysql4>
+                <class>Beck_LiveChat_Model_Mysql4</class>
+                <entities>
+                    <livechat_messages>
+                        <table>livechat_messages</table>
+                    </livechat_messages>
+                    <livechat_operators>
+                        <table>livechat_operators</table>
+                    </livechat_operators>
+                    <livechat_sessions>
+                        <table>livechat_sessions</table>
+                    </livechat_sessions>
+					<livechat_messages_archives>
+                        <table>livechat_messages_archives</table>
+                    </livechat_messages_archives>
+                    <livechat_sessions_archives>
+                        <table>livechat_sessions_archives</table>
+                    </livechat_sessions_archives>
+                </entities>
+            </livechat_mysql4>
+        </models>
+		<events>
+			<sales_order_place_after>
+				<observers>
+					<LiveChat_Save_Chat_Session_Order_Placed>
+						<type>model</type>
+						<class>livechat/event</class>
+						<method>save_chat_session_order_placed</method>
+					</LiveChat_Save_Chat_Session_Order_Placed>
+				</observers>
+			</sales_order_place_after>
+			<customer_login>
+				<observers>
+					<LiveChat_On_Customer_Login>
+						<type>model</type>
+						<class>livechat/event</class>
+						<method>on_customer_login</method>
+					</LiveChat_On_Customer_Login>
+				</observers>
+			</customer_login>
+		</events>
+        <resources>
+            <livechat_setup>
+                <setup>
+                    <module>Beck_LiveChat</module>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </livechat_setup>
+            <livechat_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </livechat_write>
+            <livechat_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </livechat_read>
+        </resources>
+        <blocks>
+            <livechat>
+                <class>Beck_LiveChat_Block</class>
+            </livechat>
+        </blocks>
+        <helpers>
+            <livechat>
+                <class>Beck_LiveChat_Helper</class>
+            </livechat>
+        </helpers>
+    </global>
+    <default>
+        <livechatconfiguration>
+            <general>
+                <active>0</active>
+                <refreshfrequency>15</refreshfrequency>
+                <refreshdecay>1</refreshdecay>
+				<adminrefreshrate>300</adminrefreshrate>
+				<sessioncreation>0</sessioncreation>
+				<nbmaxlines>15</nbmaxlines>
+				<displayadmintab>1</displayadmintab>
+            </general>
+            <display>
+            	<titlelabel>LIVECHAT</titlelabel>
+                <chatlabel>Need help ? Ask live !</chatlabel>
+                <imagestyle>3</imagestyle>
+                <unavailablelabel>We are sorry we have no operator online. Call 555.845.454</unavailablelabel>
+                <defaultcustomername>Customer</defaultcustomername>
+                <systemname>System</systemname>
+                <systemwaitmessage>Your message has been sent, an operator will answer you soon</systemwaitmessage>
+				<systemautosessionmessage>Welcome, you can now discuss with an operator</systemautosessionmessage>
+				<limitregisteredusers>0</limitregisteredusers>
+            </display>
+        </livechatconfiguration>
+		<livechatevents>
+			<onoperatordisconnect>
+				<closesession>0</closesession>
+				<undispatchsession>1</undispatchsession>
+			</onoperatordisconnect>
+			<onsessionclose>
+				<sendclosemessage>0</sendclosemessage>
+			</onsessionclose>
+			<oncustomerconnexion>
+				<changechatcreatorname>1</changechatcreatorname>
+				<changeallcustomermessageautor>1</changeallcustomermessageautor>
+			</oncustomerconnexion>
+			<oncustomersendmessage>
+				<allowcustomerreopen>1</allowcustomerreopen>
+			</oncustomersendmessage>
+			<onsessionexpire>
+				<archive>1</archive>
+			</onsessionexpire>
+		</livechatevents>
+    </default>
+</config>

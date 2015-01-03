@@ -1,0 +1,91 @@
+.notification-livechat
+ { 
+	padding:5px 27px 5px 47px;
+	background:#CCCCFF url(../images/livechat/chat.png) 27px 5px no-repeat;
+	border:1px solid #9999FF;
+	border-top:2px solid #9999FF;
+	font-size:11px;
+	line-height:16px;
+	color:#444;
+	position:relative;
+}
+.notification-livechat .label { color:#eb5e00; }
+.notification-livechat .clickable { cursor:pointer; }
+.notification-livechat span.critical { color:#d20000; }
+.notification-livechat a:hover { text-decoration:none; }
+
+
+.head-livechat { background-image:url(../images/livechat/chat.png); }
+
+.livechat-box
+{
+	margin-bottom: 1.3em;
+	margin-right: 1.3em;
+	width: 195px;
+}
+
+.base-livechat
+{
+	border:1px solid #c4c1bc;
+	background:#f8f7f5;
+	font-size:.95em;
+}
+
+.base-livechat .head
+{
+	margin:0 1px;
+	border-bottom:1px solid #ddd;
+	background:url(../images/livechat/base_mini_head_bg.gif) repeat-x #fff;
+	padding:2px 8px;
+	line-height:1.25em;
+	text-align: left;
+}
+
+.base-livechat .head h4
+{
+	min-height:16px;
+	color:#e26703;
+	background-repeat:no-repeat;
+	background-position:0 0; padding:1px 0 1px 21px;
+	text-transform:uppercase;
+	background-image: url(../images/livechat/chat.png);
+}
+
+
+.base-livechat .content
+{
+	padding-top: 5px;
+	padding-right: 10px;
+	padding-bottom: 5px;
+	padding-left: 10px;
+	background-color: #f8f7f5;
+	background-image: none;
+	background-repeat: repeat;
+	background-attachment: scroll;
+	background-position: 0% 0%;
+}
+
+.base-livechat .actions
+{
+	background-color: #dee5e8;
+	background-image: url(../images/livechat/base_mini_actions_bg.gif);
+	background-repeat: repeat-x;
+	background-attachment: scroll;
+	background-position: 0% 0%;
+	padding-top: 6px;
+	padding-right: 6px;
+	padding-bottom: 6px;
+	padding-left: 6px;
+}
+
+.close
+{  
+	width: 16px; 
+	height: 16px; 
+	background: transparent url(../images/livechat/close.png) no-repeat; 
+} 
+
+.close:hover
+{ 
+	background: transparent url(../images/livechat/close_hover.png) no-repeat;
+} 

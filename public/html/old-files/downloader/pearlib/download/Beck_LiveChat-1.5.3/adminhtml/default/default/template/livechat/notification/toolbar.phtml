@@ -1,0 +1,37 @@
+<?php
+$session = Mage::getSingleton('livechat/adminSession');
+if ($this->isShow()): ?>
+<div class="notification-livechat">
+
+<?php if ($session->getData('OperatorName') != null):  ?>
+<span class="label clickable"><a href="<?php echo $this->getUrl('livechat/session_live/logout'); ?>" onClick="return confirm('<?php echo Mage::helper('livechat')->__('Are you sure ?'); ?>');" title="<?php echo $this->__('Disconnect'); ?>"><?php echo $session->getData('OperatorName'); ?></a></span>
+<span>
+<?php
+	$sessions = Mage::getModel('livechat/operator')->loadByName($session->getData('OperatorName'))->getSessionsAvailable();
+	if (count($sessions) > 0)
+	{
+		echo count($sessions) . ' chat sessions : ';
+	}
+	else
+	{
+		echo 'no chat session';
+	}
+	foreach ($sessions as $chat)
+	{
+		echo '#'.$chat->getId() . ' ';
+	}
+?>
+</span>
+<?php else: ?>
+<form name="livechatloginloginform" id="livechatloginloginform" method="post" action="<?php echo $this->getUrl('livechat/session_live/login'); ?>">
+<input type="hidden" name="form_key" value="<?php echo $this->getFormKey(); ?>">
+<?php echo $this->__('Operator name'); ?> <input type="text" name="Login">
+<?php echo $this->__('Operator key'); ?> <input type="password" name="Key">
+<button class="form-button-alt save" onclick="javascript: livechatloginform.submit(); return false;"><span><?php echo $this->__('Log in'); ?></span></button>
+</form>
+<script type="text/javascript">
+    var livechatloginform = new varienForm('livechatloginloginform');
+</script>
+<?php endif; ?>
+</div>
+<?php endif; ?>

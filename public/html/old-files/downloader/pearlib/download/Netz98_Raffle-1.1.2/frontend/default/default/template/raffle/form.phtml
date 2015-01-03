@@ -1,0 +1,38 @@
+<?php
+/**
+ * @category   Netz98
+ * @package    Netz98_Raffle
+ * @author     Daniel Nitz <d.nitz@netz98.de>
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+?>
+
+<form action="<?php echo $this->getUrl('raffle/participant/add') ?>" method="post" id="form-validate">
+    
+    <input name="campaign" type="hidden" value="<?php echo $this->getCampaign() ?>" />
+    <input name="redirect" type="hidden" value="<?php echo $this->getRedirect() ?>" />
+
+    <div class="input-box">
+        <label for="firstname"><?php echo $this->__('First Name') ?> <span class="required">*</span></label><br />
+        <input name="firstname" type="text" value="<?php echo $this->htmlEscape($this->getCustomer()->getFirstname()) ?>" class="required-entry input-text" />
+    </div>
+    
+    <div class="input-box">
+        <label for="lastname"><?php echo $this->__('Last Name') ?> <span class="required">*</span></label><br />
+        <input name="lastname" type="text" value="<?php echo $this->htmlEscape($this->getCustomer()->getLastname()) ?>" class="required-entry input-text" />
+    </div>
+    
+    <div class="input-box">
+        <label for="email"><?php echo $this->__('E-Mail Address') ?> <span class="required">*</span></label><br />
+        <input name="email" type="text" value="<?php echo $this->htmlEscape($this->getCustomer()->getEmail()) ?>" class="required-entry validate-email input-text" />
+    </div>
+    
+    <div>
+    	<button class="form-button" type="submit"><span><?php echo $this->__('enter') ?></span></button>
+    </div>
+    
+</form>
+
+<script type="text/javascript">
+    var dataForm = new VarienForm('form-validate', true);
+</script>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <!-- AjaxPro -->
+   <modules>
+       <TM_AjaxPro>
+           <version>1.0</version>
+       </TM_AjaxPro>
+   </modules>
+   
+   <global>
+       
+        <helpers>
+            <ajaxpro>
+                <class>TM_AjaxPro_Helper</class>
+            </ajaxpro>
+        </helpers>
+        
+        <resources>
+            <ajaxpro_setup>
+                <setup>
+                    <module>TM_AjaxPro</module>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </ajaxpro_setup>
+            <ajaxpro_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </ajaxpro_write>
+            <ajaxpro_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </ajaxpro_read>
+        </resources>
+
+        <rewrite>
+            <TM_Ajax_CheckoutCartAdd>
+                <from><![CDATA[ #^/checkout/cart/add/#  ]]></from>
+                <to>/ajaxpro/cart/add/</to>
+            </TM_Ajax_CheckoutCartAdd>
+            
+            <TM_Ajax_CheckoutCartUpdatePost>
+                <from><![CDATA[ #^/checkout/cart/updatePost/#  ]]></from>
+                <to>/ajaxpro/cart/updatePost/</to>
+            </TM_Ajax_CheckoutCartUpdatePost>
+
+            <TM_Ajax_CheckoutCartDelete>
+                <from><![CDATA[ #^/checkout/cart/delete/#  ]]></from>
+                <to>/ajaxpro/cart/delete/</to>
+            </TM_Ajax_CheckoutCartDelete>
+
+             <TM_Ajax_CatalogProductCompareAdd>
+                <from><![CDATA[ #^/catalog/product_compare/add/#  ]]></from>
+                <to>/ajaxpro/compare/add/</to>
+            </TM_Ajax_CatalogProductCompareAdd>
+
+            <TM_Ajax_CatalogProductCompareRemove>
+                <from><![CDATA[ #^/catalog/product_compare/remove/#  ]]></from>
+                <to>/ajaxpro/compare/remove/</to>
+            </TM_Ajax_CatalogProductCompareRemove>
+
+            <TM_Ajax_CatalogProductCompareClear>
+                <from><![CDATA[ #^/catalog/product_compare/clear/#  ]]></from>
+                <to>/ajaxpro/compare/clear/</to>
+            </TM_Ajax_CatalogProductCompareClear>
+
+            <TM_Ajax_WishlistAdd>
+                <from><![CDATA[ #^/wishlist/index/add/#  ]]></from>
+                <to>/ajaxpro/wishlist/add/</to>
+            </TM_Ajax_WishlistAdd>
+
+            <TM_Ajax_WishlistRemove>
+                <from><![CDATA[ #^/wishlist/index/remove/#  ]]></from>
+                <to>/ajaxpro/wishlist/remove/</to>
+            </TM_Ajax_WishlistRemove>
+
+            <TM_Ajax_WishlistRemove>
+                <from><![CDATA[ #^/wishlist/index/cart/#  ]]></from>
+                <to>/ajaxpro/wishlist/cart/</to>
+            </TM_Ajax_WishlistRemove>
+        </rewrite>
+
+    </global>
+    
+    <default>
+        <ajax_pro>
+            <general>
+                <enabled>0</enabled>
+                <location>center</location>
+                <opacity>0.95</opacity>
+                <enabledNoticeForm>0</enabledNoticeForm>
+                <disabledOnShoppingCartPage>0</disabledOnShoppingCartPage>
+            </general>
+            <addToCart>
+                <enabled>0</enabled>
+                <enabledForm>0</enabledForm>
+                <enabledDeleteConfirm>1</enabledDeleteConfirm>
+            </addToCart>
+            <addToCompare>
+                <enabled>0</enabled>
+                <enabledForm>0</enabledForm>
+                <enabledDeleteConfirm>1</enabledDeleteConfirm>
+            </addToCompare>
+            <addToWishlist>
+                <enabled>0</enabled>
+                <enabledForm>0</enabledForm>
+                <enabledDeleteConfirm>1</enabledDeleteConfirm>
+            </addToWishlist>
+        </ajax_pro>
+    </default>
+
+    <frontend>
+        <layout>
+            <updates>
+                <ajaxpro>
+                    <file>ajaxpro.xml</file>
+                </ajaxpro>
+            </updates>
+        </layout>
+        <routers>
+            <TM_AjaxPro>
+            <!--  should be set to "admin" when overloading admin stuff (?) -->
+            <use>standard</use>
+            <args>
+                <module>TM_AjaxPro</module>
+                <!--  This is used when "catching" the rewrite above -->
+                <frontName>ajaxpro</frontName>
+            </args>
+            </TM_AjaxPro>
+        </routers>
+        <translate>
+            <modules>
+                <TM_Ajaxpro>
+                    <files>
+                        <default>TM_Ajaxpro.csv</default>
+                    </files>
+                </TM_Ajaxpro>
+            </modules>
+        </translate>
+   </frontend>
+</config>

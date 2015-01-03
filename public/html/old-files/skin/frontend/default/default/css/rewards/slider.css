@@ -1,0 +1,37 @@
+@CHARSET "ISO-8859-1";
+
+a.sliderHandle {
+	background:#fff url("../../images/rewards/slider/slider_handle.gif") no-repeat;
+	height: 17px; 
+	width: 11px;
+	position:absolute;
+	cursor:pointer;
+}
+.sliderRail
+{
+	position: relative;
+	background:#fff url("../../images/rewards/slider/slider_rail.gif") repeat-x;
+	height:17px;
+	margin-top:12px;
+	position:relative;
+	width:192px;
+}
+.sliderCaption {
+	margin-bottom:12px;
+	margin-left:12px;
+	margin-top:10px;
+	width:128px;
+}
+
+.slider {
+	margin-bottom: 6px;
+}
+
+.sliderHandle-sliding {
+	cursor:e-resize;
+	
+}
+.sliderRail-sliding {
+	cursor:e-resize;
+
+}

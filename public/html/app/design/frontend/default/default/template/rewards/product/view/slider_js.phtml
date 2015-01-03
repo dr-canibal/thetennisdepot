@@ -1,0 +1,83 @@
+<script type="text/javascript">
+	document.observe("dom:loaded", function() {
+		usesContainer = $('redemption_rule_uses_container');
+	});
+			
+    /**
+     * 
+     * @param rule_id
+     * @return
+     */
+    function feignPriceChange(rule_id) {
+    	var newPrice = $(new_price_dom_id);
+    	var oldPrice = $(old_price_dom_id);
+    	var numUses = getRedemptionUses();
+    	numUses = (numUses == "") ? 1 : parseInt(numUses);
+    	if(rule_id == null) {
+    		rule_id = $('redemption_rule').value;
+    	}
+    
+    	if(!show_lowest_price) { return; }
+    	
+    	if(oldPrice == null) {
+    		oldPrice = newPrice.cloneNode(true);
+    		newPrice.up().insertBefore(oldPrice, newPrice);
+    		oldPrice.id = old_price_dom_id;
+    		oldPrice.removeClassName('price');
+    		oldPrice.addClassName('old-price');
+    		do_hide_old_price = true;
+    	}
+    
+    	var finalPrice;
+    	if(optionsPrice.optionPrices.config != undefined) {
+    		if(optionsPrice.optionPrices.config > 0) {
+    			finalPrice = optionsPrice.productPriceBeforeRedemptions;
+    		} else {
+    			finalPrice= getProductPriceBeforeRedemptions();
+    		}
+    	} else {
+    		finalPrice = getProductPriceBeforeRedemptions();
+    	}
+    	if(rule_id == "") {
+    		if(do_hide_old_price) oldPrice.hide();
+        	optionsPrice.productPrice = finalPrice;
+            optionsPrice.reload();
+    	} else {
+    		if(do_hide_old_price) oldPrice.show();
+    		var price_disposition = rule_options[rule_id]['price_disposition'];
+    		//Edited 2/24/2010 7:41:46 AM : prices that set "to_fixed" discount should also 
+    		if(rule_options[rule_id]['discount_action'] == 'by_fixed' && rule_options[rule_id]['new_price_flt'] <= 0.0000) {
+                optionsPrice.productPrice = 0;
+                optionsPrice.minusDisposition = 9999999999; // hack to make sure the price stays at 0;
+            } else {
+                optionsPrice.productPrice = finalPrice - price_disposition*numUses;
+            }
+            //Edited
+    		//points_caption = rule_options[rule_id]['points_caption'];
+    		points_amount = rule_options[rule_id]['amount'];
+    		points_currency_id = rule_options[rule_id]['currency_id'];
+    		points_caption = getPointsString(points_amount*numUses, points_currency_id);
+    		
+    	    optionsPrice.reload();
+    	    
+            var points_with = " " + CAPTION_WITH + " " + points_caption ;
+       	    if(newPrice.down() != null) {
+       			newPrice.down().innerHTML =  newPrice.down().innerHTML  + points_with ;
+       	    } else if(newPrice.down() == null && newPrice != null) {
+       	    	newPrice.innerHTML =  newPrice.innerHTML  + points_with;
+       	    } else {
+       			// don't know where it is so just don't show the points thing.
+       	    }
+    	}
+    	//newPrice.toggle();
+    }
+    function getRedemptionUses() {
+        var uses;
+        if(slider_mode) {
+            uses = rSlider.getUses();
+        } else {
+        	uses = $('redemption_rule_uses').value;
+        }
+        return uses;
+    }
+</script>

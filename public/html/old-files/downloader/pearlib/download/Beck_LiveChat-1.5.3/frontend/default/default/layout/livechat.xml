@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<layout>
+    <default>
+        <reference name="head">
+			<action method="addCss"><stylesheet>css/livechat/livechat.css</stylesheet></action>
+            <action method="addJs">
+                <script>livechat/js.js</script>
+            </action>
+        </reference>
+        <reference name="right">
+            <block type="livechat/template" after="cart_sidebar" name="livechat.chat" template="livechat/chat.phtml"/>
+        </reference>
+    </default>
+</layout>

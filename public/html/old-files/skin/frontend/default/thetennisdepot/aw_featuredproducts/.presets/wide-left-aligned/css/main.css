@@ -1,0 +1,122 @@
+
+.visios .visio-frame{
+	overflow:hidden;
+	position:relative;
+}
+.visios .frameWindow{
+	position:absolute;
+	width:1000000px;
+}
+
+.visios .visio-frame .visio-block, .visios .visio-blinker .visio-frame{
+
+	float:left;
+} 
+.visios .visio-blinker .visio-frame{
+	float:none;
+	margin:auto;
+}
+.visios .visio-frame .visio-block{
+	padding-top:10px;	
+	/*text-align:center;*/
+}
+.visio-slider .dock{
+	line-height:48px;
+	clear:both;
+	vertical-align:bottom;
+}
+
+#slider .visio-blinker{
+	float:none;
+}
+
+.visio-slider .dock .visio-bubble{
+	cursor:pointer;
+}
+
+.visio-slider .dock div{
+	display:inline;
+	height:32px;
+}
+.visio-slider .dock div img{
+	vertical-align:bottom;
+}
+
+
+/* Slider buttns */
+
+A.slider-button{
+	position:absolute;
+	top:0px;
+	width:25px;
+	display:block;
+	cursor:pointer;
+	float:left;
+	background-repeat:no-repeat;
+	background-position:0px 50%;
+}
+A.slider-button:hover{
+	
+	background-position:-25px 50%;
+
+}
+
+
+A.left{
+	left:5px;
+	background-image:url(../images/larrow.gif);
+}
+A.right{
+	right:5px;
+	background-image:url(../images/rarrow.gif);
+}
+
+
+.middleText{
+	clear:both;
+}
+.visio-frame .visio-block SPAN.details{
+	display:none;
+}
+
+
+.visio-hint{
+	padding:5px;
+	z-index:110;
+	border:1px solid gray;
+	position:absolute;
+	background:#ffc;
+	width:200px;
+	display:none;
+}
+
+
+
+/* Highlighted page switcher */
+.dock DIV.HL IMG{
+	border:orange 1px solid;/*url('img/button-hl.png') no-repeat top left;*/
+}
+.dock{
+	text-align:center;
+}
+
+
+.description:first-line{
+	margin-left:10px;
+}
+
+
+#FPSS{
+	/*background:url(../images/background.gif) no-repeat top left;*/
+	margin-bottom:10px;
+	position:relative;
+}
+
+#FPSS .price-box{
+	display:inline;
+}
+
+#FPSS button.form-button{
+	display:block;
+	float:left;
+}

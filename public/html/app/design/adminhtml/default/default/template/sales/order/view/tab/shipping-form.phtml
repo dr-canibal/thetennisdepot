@@ -1,0 +1,28 @@
+<?php $status = $this->getOrderStatus() ?>
+<?php $widgetName = "" ?>
+<?php $shippingRates = $this->getShippingAddressRates($this->getRequest()->getParams()) ?>
+<?php if($this->getRequest()->getParam('newAddressCalc') == 'true'): ?>
+	<?php $widgetName = "shipping" ?>
+<?php elseif($this->getRequest()->getParam('newMethodCalc') == 'true'): ?>
+	<?php $widgetName = "shippingmethod" ?>
+<?php endif ?>
+
+<?php $currentCheck = "" ?>
+<?php if(count($shippingRates) > 0): ?>
+	<form id="shipping-radio">
+	<div id='<?php echo $widgetName ?>-radio-select'>
+		<?php foreach($shippingRates as $key => $shippingRate): ?>
+				<h4><?php echo $key ?></h4>
+				<?php foreach($shippingRate as $rate): ?>
+					<span class='shipping-rate-item'>
+						<span><input class="admin-widget-edit-req-field" type="radio" name="rateid" value="<?php echo $rate['rate_id'] ?>" id="rateid" /></span>
+						<b><?php echo $this->getFormattedPrice($rate['price']) ?></b>
+						<span> - <?php echo $rate['carrier_title'] ?> - <?php echo $rate['method_title'] ?></span>
+					</span>
+				<?php endforeach; ?>
+		<?php endforeach ?><br />
+	</div>
+	</form>
+<?php else: ?>
+	<br /><b>Error:</b> No updated shipping rates were found.<br /><br />
+<?php endif ?>
