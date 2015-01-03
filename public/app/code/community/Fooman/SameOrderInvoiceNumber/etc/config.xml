@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Fooman Order = Invoice Number
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@fooman.co.nz so we can send you a copy immediately.
+ *
+ *
+ * @category   Fooman
+ * @package    SameOrderInvoiceNumber
+ * @copyright  Copyright (c) 2009 Fooman Limited (http://www.fooman.co.nz)
+ * @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+-->
+<config>
+    <modules>
+        <Fooman_SameOrderInvoiceNumber>
+            <version>1.0.3</version>
+            <depends>
+                <Mage_Sales />
+            </depends>
+        </Fooman_SameOrderInvoiceNumber>
+    </modules>
+
+    <global>
+        <models>
+            <sameorderinvoicenumber>
+                <class>Fooman_SameOrderInvoiceNumber_Model</class>
+            </sameorderinvoicenumber>
+            <sales_mysql4>
+                <rewrite>
+                    <order_invoice>Fooman_SameOrderInvoiceNumber_Model_Mysql4_Order_Invoice</order_invoice>
+                    <order_shipment>Fooman_SameOrderInvoiceNumber_Model_Mysql4_Order_Shipment</order_shipment>
+                    <order_creditmemo>Fooman_SameOrderInvoiceNumber_Model_Mysql4_Order_Creditmemo</order_creditmemo>
+                </rewrite>
+            </sales_mysql4>
+        </models>
+        <helpers>
+            <sameorderinvoicenumber>
+                <class>Fooman_SameOrderInvoiceNumber_Helper</class>
+            </sameorderinvoicenumber>
+        </helpers>
+    </global>
+    <adminhtml>
+		<acl>
+			<resources>
+				<admin>
+					<children>
+						<system>
+                            <children>
+                                <config>
+                                    <children>
+                                        <sameorderinvoicenumber>
+                                            <title>Order numbers by FOOMAN</title>
+                                        </sameorderinvoicenumber>
+                                    </children>
+                                </config>
+                            </children>
+                        </system>
+					</children>
+				</admin>
+			</resources>
+		</acl>
+    </adminhtml>
+	<default>
+        <config_vars><!--config values --></config_vars>
+        <sameorderinvoicenumber>
+            <settings>
+                <invoiceprefix></invoiceprefix>
+                <shipmentprefix></shipmentprefix>
+                <creditmemoprefix></creditmemoprefix>
+            </settings>
+        </sameorderinvoicenumber>
+	</default>
+
+</config>

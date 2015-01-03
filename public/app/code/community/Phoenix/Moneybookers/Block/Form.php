@@ -20,20 +20,6 @@
 class Phoenix_Moneybookers_Block_Form extends Mage_Payment_Block_Form
 {
     /**
-     * Available locales for content URL generation
-     *
-     * @var array
-     */
-    protected $_supportedInfoLocales = array('de');
-
-    /**
-     * Default locale for content URL generation
-     *
-     * @var string
-     */
-    protected $_defaultInfoLocale = 'en';
-
-    /**
      * Constructor. Set template.
      */
     protected function _construct()
@@ -50,10 +36,6 @@ class Phoenix_Moneybookers_Block_Form extends Mage_Payment_Block_Form
      */
     public function getPaymentImageSrc($payment)
     {
-        if ($payment == 'moneybookers_obt') {
-            $payment .= '_'.$this->getInfoLocale();
-        }
-    
         $imageFilename = Mage::getDesign()
             ->getFilename('images' . DS . 'moneybookers' . DS . $payment, array('_type' => 'skin'));
 
@@ -64,30 +46,5 @@ class Phoenix_Moneybookers_Block_Form extends Mage_Payment_Block_Form
         }
 
         return false;
-    }
-
-    /**
-     * Return supported locale for information text
-     *
-     * @return string
-     */
-    public function getInfoLocale()
-    {
-        $locale = substr(Mage::app()->getLocale()->getLocaleCode(), 0 ,2);
-        if (!in_array($locale, $this->_supportedInfoLocales)) {
-            $locale = $this->_defaultInfoLocale;
-        }
-        return $locale;
-    }
-
-    /**
-     * Return info URL for eWallet payment
-     *
-     * @return string
-     */
-    public function getWltInfoUrl()
-    {
-        $locale = substr(Mage::app()->getLocale()->getLocaleCode(), 0 ,2);
-        return 'http://www.moneybookers.com/app/?l=' . strtoupper($locale);
     }
 }
