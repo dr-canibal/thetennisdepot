@@ -157,25 +157,13 @@ abstract class Mage_Paypal_Controller_Express_Abstract extends Mage_Core_Control
      */
     public function returnAction()
     {
-	if ($this->getRequest()->getParam('retry_authorization') == 'true'
-            && is_array($this->_getCheckoutSession()->getPaypalTransactionData())
-        ) {
-            $this->_forward('placeOrder');
+        try {
+            $this->_initCheckout();
+            $this->_checkout->returnFromPaypal($this->_initToken());
+            $this->_redirect('*/*/review');
             return;
         }
-        try {
-            $this->_getCheckoutSession()->unsPaypalTransactionData();
-            $this->_checkout = $this->_initCheckout();
-            $this->_checkout->returnFromPaypal($this->_initToken());
-
-            if ($this->_checkout->canSkipOrderReviewStep()) {
-                $this->_forward('placeOrder');
-            } else {
-                $this->_redirect('*/*/review');
-            }
-
-            return;
-        } catch (Mage_Core_Exception $e) {
+        catch (Mage_Core_Exception $e) {
             Mage::getSingleton('checkout/session')->addError($e->getMessage());
         }
         catch (Exception $e) {
@@ -334,7 +322,6 @@ abstract class Mage_Paypal_Controller_Express_Abstract extends Mage_Core_Control
             'config' => $this->_config,
             'quote'  => $quote,
         ));
-	return $this->_checkout;
     }
 
     /**
