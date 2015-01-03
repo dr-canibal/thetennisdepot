@@ -1,0 +1,16 @@
+<?php /*TODO: REMOVE THIS LATER /?>
+
+
+
+<tbody>
+    <?php foreach($this->getItems() as $_item): ?>
+        <?php echo str_ireplace('</tr>', '', implode('</td>', $this->formatItemColoumn($_item))); ?>
+            <td align="center">
+                <?php echo Mage::helper('rewards/transfer')->getEarnedPointsOnItem($_item) ?>
+            </td>
+        </tr>
+    <?php endforeach ?>
+</tbody>
+
+
+<?php /*TODO: REMOVE THIS LATER */?>

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<layout>
+    <customer_account>
+        <reference name="customer_account_navigation">
+            <action method="addLink" translate="label" module="customer" 
+                    ifconfig="rewards/referral/referral_show">
+                <name>rewardsref_referral</name>
+                <path>rewardsref/customer/index/</path>
+                <label>My Referrals</label>
+            </action>
+        </reference>
+    </customer_account>
+
+    <rewardsref_customer_index>
+        <update handle="customer_account"/>
+        <reference name="content">
+            <block type="rewardsref/customer_referral" name="referral" template="rewardsref/customer/referral.phtml" />
+            <block type="customer/account_dashboard" name="customer.account.link.back" template="customer/account/link/back.phtml"/>
+        </reference>
+    </rewardsref_customer_index>
+</layout>

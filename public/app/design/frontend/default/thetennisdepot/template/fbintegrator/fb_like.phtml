@@ -1,0 +1,6 @@
+<?php if($this->canShow()):?>
+    <?php $like = $this->getLikeConf();?>
+    <div class="fbintegrator-likebutton">
+        <fb:like layout="<?php echo $like['laystyle']?>" show_faces="<?php echo $like['face']?>" width="<?php echo $like['width']?>" action="<?php echo $like['verb']?>" font="<?php echo $like['font']?>" colorscheme="<?php echo $like['color']?>"></fb:like>
+    </div>
+<?php endif;?>

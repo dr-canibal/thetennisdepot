@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <stockupload_stockupload_index>
+        <reference name="content">
+            <block type="stockupload/stockupload" name="stockupload" template="stockupload/index.phtml"/>
+        </reference>
+    </stockupload_stockupload_index>
+</layout>
