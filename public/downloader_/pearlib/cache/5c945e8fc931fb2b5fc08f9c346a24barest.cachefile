@@ -1,0 +1,45 @@
+a:9:{s:7:"attribs";a:2:{s:5:"xmlns";s:36:"http://pear.php.net/dtd/rest.package";s:18:"xsi:schemaLocation";s:80:"http://pear.php.net/dtd/rest.package    http://pear.php.net/dtd/rest.package.xsd";}s:1:"n";s:19:"Ebizmarts_MailChimp";s:1:"c";s:37:"connect.magentocommerce.com/community";s:2:"ca";a:2:{s:7:"attribs";a:1:{s:10:"xlink:href";s:34:"/Chiara_PEAR_Server_REST/c/Default";}s:8:"_content";s:7:"Default";}s:1:"l";s:27:"Open Software License (OSL)";s:2:"lu";s:42:"http://opensource.org/licenses/osl-3.0.php";s:1:"s";s:71:"Full MailChimp Integration for Magento by ebizmarts, now free! Eep Eep!";s:1:"d";s:3830:"<p><img style="margin: 0 10px 10px;" src="../../../../img/members/p-comm_partner_seal.png" alt="" align="left" /></p>
+<h2>Full MailChimp Integration for Magento, now Free!</h2>
+<div>
+<p>This module provides full integration with MailChimp email marketing system using their integration API.&nbsp;</p>
+<br /><br />
+<h3>Main Features:</h3>
+<p>&nbsp;* Adds <a href="http://blog.mailchimp.com/tag/ecommerce-360/" target="_blank">ECommerce360</a> integration</p>
+<p><span style="white-space: pre;"> </span>* Supports multiple MailChimp email lists.&nbsp;</p>
+<p>&nbsp;* Supports multiple <a href="http://blog.mailchimp.com/tag/interest-groups/" target="_blank">interest groups</a></p>
+<p><span style="white-space: pre;"> * A</span>llows sending additional Customer data to MailChimp as Merge fields.</p>
+<p><span style="white-space: pre;"> </span>* Supports <a href="http://www.mailchimp.com/api/webhooks/" target="_blank">WebHooks</a>&nbsp;to keep&nbsp;subscriptions in sync in both, Magento and MailChimp. In example, unsubscribe the user from Magento's email list when they unsubscribe on Mailchimp's site.</p>
+<p>&nbsp;* Double opt-in support</p>
+<!-- p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 14.0px; font: 11.0px 'Lucida Grande'; color: #141414} -->
+<p class="p1">&nbsp;* Allows to force subscription on both Register and Checkout.</p>
+<p class="p1">&nbsp;* Support for batch sync of subscribers from Magento to MailChimp and vice versa.</p>
+<p><span style="white-space: pre;"> </span>* Supports Magento CE v1.4 and v1.5</p>
+<p><span style="white-space: pre;"> </span>* Supports Magento EE v1.8, v1.9 and 1.10</p>
+<p><span style="white-space: pre;"> </span>* Supports Magento Professional v1.9 and 1.10</p>
+<p>&nbsp;*&nbsp;<a href="http://apidocs.mailchimp.com/sts/1.0/" target="_blank">STS</a> support now available!</p>
+<p>&nbsp;* As suggested by Magento, do not install extensions directly on your Live setup, try it on a Test setup first. Also, it is a good practice to make backups of both Magento and the Database before installing this extension.&nbsp;</p>
+<ul>
+</ul>
+</div>
+<h3>Support and Documentation</h3>
+<p>&nbsp;*&nbsp;Check the extension Discussion boards for support and documentation.</p>
+<h3>Feedback</h3>
+<p>&nbsp;* We encourage you to <a href="../../../../magento-connect/ebizmarts/extension/1208/ebizmarts-mail-chimp-module/reviews#reviews">review</a> this extension based on your experience, any positive, neutral or negative feedback  is welcome to make this extension better.</p>
+<h3>Releases</h3>
+<p>[06/06/2011] v3.0.3 released, Removed all old Pro version files.</p>
+<p>[06/01/2011] v3.0.2 released, STS support added, Admin full synchro and reported bugs fixed.</p>
+<p>[04/25/2011] v3.0.0 released, new beginning!</p>
+<p>[10/27/2009] v1.4.3 released, Bugs fixed in code at unsubscribing.</p>
+<p>[10/12/2009] v1.4.2 released, Account confirmation issue fixed.</p>
+<p>[09/11/2009] v1.4.1 released, Bugs fixed in code.</p>
+<p>[09/02/2009] v1.4 released, Renewed code according to new API specs, in which Username and Password are not needed anymore, just the API key. Fixed code error in Admin Panel.</p>
+<p>[08/21/2009] v1.3.8 released, Code fixed.</p>
+<p>[07/16/2009] v1.3.7 released, Can't save Customer Bug fixed.</p>
+<p>[06/02/2009] v1.3.6 released, compatibility with Magento 1.3.2,  Admin Synchronizes bottom bug fixed and Customer profile bugs fixed.</p>
+<p>[05/19/2009] v1.3.5 released, Admin Config, add drop down list id selector.</p>
+<p>[05/06/2009] v1.3.4 released, Admin Config. Section Bug fixed.</p>
+<p>[05/05/2009] v1.3.3 released, Bug pack fixed.</p>
+<p>[05/05/2009] v1.3.2 released, Bug pack fixed.</p>
+<p>[05/05/2009] v1.3.1 released, List ID display on error.</p>
+<p>[05/05/2009] v1.3 released, multi-store support added.</p>
+<p>[04/27/2009] First version released v1.2</p>";s:1:"r";a:1:{s:7:"attribs";a:1:{s:10:"xlink:href";s:46:"/Chiara_PEAR_Server_REST/r/Ebizmarts_MailChimp";}}}

@@ -1,0 +1,11 @@
+a:9:{s:7:"attribs";a:2:{s:5:"xmlns";s:36:"http://pear.php.net/dtd/rest.package";s:18:"xsi:schemaLocation";s:80:"http://pear.php.net/dtd/rest.package    http://pear.php.net/dtd/rest.package.xsd";}s:1:"n";s:15:"MobileDashboard";s:1:"c";s:37:"connect.magentocommerce.com/community";s:2:"ca";a:2:{s:7:"attribs";a:1:{s:10:"xlink:href";s:34:"/Chiara_PEAR_Server_REST/c/Default";}s:8:"_content";s:7:"Default";}s:1:"l";s:27:"Open Software License (OSL)";s:2:"lu";s:42:"http://opensource.org/licenses/osl-3.0.php";s:1:"s";s:66:"Extension required to use the Mobile Dashboard iPhone/Android app.";s:1:"d";s:1557:"<p><span style="font-size: small;"><strong>About the application:</strong></span></p>
+<p>Mobile Dashboard is a<strong> free native application for Android or iPhone</strong>. It gives you access to the same elements you&rsquo;re already familiar with from the regular&nbsp;Dashboard :<br />- Graph of revenue<br />* For 24h, 7 days, current month, current year<br />* Average order<br />* Lifetime sales<br />- Last orders<br />* Details of the order<br />* Products bought<br />- Bestsellers<br />- Most searched terms</p>
+<p><strong>The application is available in English and in French</strong></p>
+<p>You can download the app directly from your mobile device or by following these links:</p>
+<p>- AppStore :&nbsp;http://itunes.apple.com/us/app/magento-mobile-dashboard/id413502359?mt=8&amp;ls=1<br />- Android Market : http://www.appbrain.com/app/magento-mobile-dashboard/fr.smile.android.magento&nbsp;</p>
+<p>&nbsp;</p>
+<p><span style="font-size: small;"><strong>About the extension:</strong></span></p>
+<p>This extension provides support for the Mobile Dashboard iPhone/Android app.All you need to do is give a role access to the 'Dashboard' and 'Mobile Dashboard' resources, and you're good to go !</p>
+<p>You should install this extension first before trying to connect your mobile app to your back-office.</p>
+<p>It has been tested both on Magento CE (&gt;1.4) and EE (&gt;1.8)</p>
+<p>For more information, questions and comments, contact projet-dashboard-magento@smile.fr or go to&nbsp;http://www.smile.fr/en/Solutions/Mobile/Dashboard-Magento</p>";s:1:"r";a:1:{s:7:"attribs";a:1:{s:10:"xlink:href";s:42:"/Chiara_PEAR_Server_REST/r/MobileDashboard";}}}

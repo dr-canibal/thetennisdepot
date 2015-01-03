@@ -1,0 +1,40 @@
+a:9:{s:7:"attribs";a:2:{s:5:"xmlns";s:36:"http://pear.php.net/dtd/rest.package";s:18:"xsi:schemaLocation";s:80:"http://pear.php.net/dtd/rest.package    http://pear.php.net/dtd/rest.package.xsd";}s:1:"n";s:13:"Fooman_Jirafe";s:1:"c";s:37:"connect.magentocommerce.com/community";s:2:"ca";a:2:{s:7:"attribs";a:1:{s:10:"xlink:href";s:34:"/Chiara_PEAR_Server_REST/c/Default";}s:8:"_content";s:7:"Default";}s:1:"l";s:27:"Open Software License (OSL)";s:2:"lu";s:42:"http://opensource.org/licenses/osl-3.0.php";s:1:"s";s:106:"Deeply integrated real time analytics for Magento store owners.  Actionable dashboard, daily email report.";s:1:"d";s:2665:"<p>Jirafe provides deeply integrated real time ecommerce analytics for Magento store owners.&nbsp; The analytics dashboard displays highly relevant data and graphs, which are simple to understand and actionable to ecommerce store managers. &nbsp;Jirafe also delivers email reports to inbox and mobile phone.</p>
+<p>The analytics dashboard will provide daily summary statistics via email covering the following Magento results per store:</p>
+<p>&nbsp;</p>
+<p><strong>Headline Data</strong></p>
+<p>The headline data provides at a quick glance the following metrics, as well as trends:</p>
+<ul>
+<li>Visits</li>
+<li>Orders</li>
+<li>Revenue</li>
+<li>Conversion %</li>
+<li>AOV (Average Order Value)</li>
+<li>Revenue per Visit</li>
+</ul>
+<p>&nbsp;</p>
+<p><strong>Sales Funnel</strong></p>
+<p>The sales funnel shows how visitors are flowing through your store, from entry to sale. &nbsp;The following are the segments in the sales funnel:</p>
+<ul>
+<li>All visits</li>
+<li>Visits from interested people (who did not immediately bounce)</li>
+<li>Engaged visits (who looked at a product in detail)</li>
+<li>Ready to buy (put an item in a cart)</li>
+<li>Customer (someone who purchased an item)</li>
+</ul>
+<p>&nbsp;</p>
+<p><strong>Additional Reports</strong></p>
+<p>In addition, there are a number of additional reports that allow in depth analysis of specific parts of your store:</p>
+<ul>
+<li>Keyword Report - show the amount of visits, revenue, and orders per keyword in a graphical fashion</li>
+<li>Origin Report - display which channels your visitors used to arrive at your store</li>
+<li>Bounce Report - display the number of users that bounce away from your site</li>
+<li>...and many others!</li>
+</ul>
+<p>&nbsp;</p>
+<p><strong>Known Issues</strong></p>
+<p>The current version of Jirafe has no known issues. &nbsp;If you come across any issues installing or using the Jirafe Extension for Magento, please add them <a href="https://github.com/jirafe/magento-plugin/issues">here</a>.</p>
+<p>&nbsp;</p>
+<p><strong>Magento 1.3<br /></strong></p>
+<p>After installing via Magento Connect please copy the following files</p>
+<p>app/design/frontend/base/default/layout/foomanjirafe.xml<br /> to<br /> app/design/frontend/<strong>default</strong>/default/layout/foomanjirafe.xml<br /> <br /> and copy the folder<br /> app/design/frontend/base/default/template/fooman/jirafe<br /> to<br /> app/design/frontend/<strong>default</strong>/default/template/fooman/jirafe<br /> <br /> adjust default if you are using different package/theme names.</p>
+<p><img src="http://data.jirafe.com/piwik.php?idsite=1&amp;rec=1&amp;action_name=MagentoConnect-FoomanJirafe" border="0" alt="" /></p>";s:1:"r";a:1:{s:7:"attribs";a:1:{s:10:"xlink:href";s:40:"/Chiara_PEAR_Server_REST/r/Fooman_Jirafe";}}}

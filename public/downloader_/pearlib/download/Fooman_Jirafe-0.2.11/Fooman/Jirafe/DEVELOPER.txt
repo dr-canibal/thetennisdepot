@@ -1,0 +1,66 @@
+## Run this to link Jirafe to a Magento instance
+cd app/code/community/
+ln -s ~/code/jirafe-magento-plugin/app/code/community/Fooman
+cd ../../..
+cd app/design/adminhtml/default/default/layout
+ln -s ~/code/jirafe-magento-plugin/app/design/adminhtml/default/default/layout/foomanjirafe.xml
+cd ../../../../../..
+cd app/design/adminhtml/default/default/template/
+ln -s ~/code/jirafe-magento-plugin/app/design/adminhtml/default/default/template/fooman
+cd ../../../../../..
+cd app/design/frontend/base/default/layout/
+ln -s ~/code/jirafe-magento-plugin/app/design/frontend/base/default/layout/foomanjirafe.xml
+cd ../../../../../..
+cd app/design/frontend/base/default/template/
+ln -s ~/code/jirafe-magento-plugin/app/design/frontend/base/default/template/fooman
+cd ../../../../../..
+cd app/etc/modules/
+ln -s ~/code/jirafe-magento-plugin/app/etc/modules/Fooman_Jirafe.xml
+cd ../../..
+cd app/locale/en_US/template/email/
+ln -s ~/code/jirafe-magento-plugin/app/locale/en_US/template/email/jirafe
+cd ../../../../..
+cd js/
+ln -s ~/code/jirafe-magento-plugin/js/fooman
+cd ..
+cd lib/
+ln -s ~/code/jirafe-magento-plugin/lib/Piwik
+cd ..
+
+## Run this to remove a linked Jirafe from a Magento instance
+rm app/code/community/Fooman
+rm app/design/adminhtml/default/default/layout/foomanjirafe.xml
+rm app/design/adminhtml/default/default/template/fooman
+rm app/design/frontend/base/default/layout/foomanjirafe.xml
+rm app/design/frontend/base/default/template/fooman
+rm app/etc/modules/Fooman_Jirafe.xml
+rm app/locale/en_US/template/email/jirafe
+rm js/fooman
+rm lib/Piwik
+
+## Run this in the MySQL DB to remove Jirafe (assumes no table prefix)
+DROP TABLE foomanjirafe_report;
+DELETE FROM core_config_data WHERE path LIKE '%jirafe%';
+DELETE FROM core_resource WHERE code = 'foomanjirafe_setup';
+ALTER TABLE admin_user DROP COLUMN jirafe_send_email_for_store;
+ALTER TABLE admin_user DROP COLUMN jirafe_send_email;
+ALTER TABLE admin_user DROP COLUMN jirafe_email_report_type;
+ALTER TABLE admin_user DROP COLUMN jirafe_email_suppress;
+ALTER TABLE admin_user DROP COLUMN jirafe_user_id;
+ALTER TABLE admin_user DROP COLUMN jirafe_user_token;
+ALTER TABLE admin_user DROP COLUMN jirafe_dashboard_active;
+
+#Magento 1.4.1.+
+ALTER TABLE sales_flat_order DROP COLUMN jirafe_visitor_id;
+ALTER TABLE sales_flat_order DROP COLUMN jirafe_attribution_data;
+ALTER TABLE sales_flat_order DROP COLUMN jirafe_export_status;
+ALTER TABLE sales_flat_order DROP COLUMN jirafe_placed_from_frontend;
+
+#Magento 1.4.1.-
+ALTER TABLE sales_order DROP COLUMN jirafe_visitor_id;
+ALTER TABLE sales_order DROP COLUMN jirafe_attribution_data;
+ALTER TABLE sales_order DROP COLUMN jirafe_export_status;
+ALTER TABLE sales_order DROP COLUMN jirafe_placed_from_frontend;
+
+#for versions pre 0.2.7
+ALTER TABLE admin_user DROP COLUMN jirafe_also_send_to;
