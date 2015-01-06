@@ -11,17 +11,17 @@
  * http://opensource.org/licenses/afl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Api
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 -->
@@ -37,11 +37,11 @@
                                 <sort_order>0</sort_order>
                                 <children>
                                     <users translate="title">
-                                        <title>Users</title>
+                                        <title>SOAP/XML-RPC - Users</title>
                                         <sort_order>10</sort_order>
                                     </users>
                                     <roles translate="title">
-                                        <title>Roles</title>
+                                        <title>SOAP/XML-RPC - Roles</title>
                                         <sort_order>20</sort_order>
                                     </roles>
                                 </children>
@@ -67,12 +67,14 @@
                     <sort_order>25</sort_order>
                     <children>
                         <users translate="title">
-                            <title>Users</title>
+                            <title>SOAP/XML-RPC - Users</title>
                             <action>adminhtml/api_user</action>
+                            <sort_order>10</sort_order>
                         </users>
                         <roles translate="title">
-                            <title>Roles</title>
+                            <title>SOAP/XML-RPC - Roles</title>
                             <action>adminhtml/api_role</action>
+                            <sort_order>20</sort_order>
                         </roles>
                     </children>
                 </api>

@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Api
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -38,6 +38,7 @@ abstract class Mage_Api_Model_Server_Handler_Abstract
     public function __construct()
     {
         set_error_handler(array($this, 'handlePhpError'), E_ALL);
+        Mage::app()->loadAreaPart(Mage_Core_Model_App_Area::AREA_ADMINHTML, Mage_Core_Model_App_Area::PART_EVENTS);
     }
 
     public function handlePhpError($errorCode, $errorMessage, $errorFile)
@@ -109,7 +110,7 @@ abstract class Mage_Api_Model_Server_Handler_Abstract
     /**
      *  Check session expiration
      *
-     *  @return	  boolean
+     *  @return  boolean
      */
     protected function _isSessionExpired ()
     {
@@ -209,10 +210,14 @@ abstract class Mage_Api_Model_Server_Handler_Abstract
      * @param string $apiKey
      * @return string
      */
-    public function login($username, $apiKey)
+    public function login($username, $apiKey = null)
     {
-        $this->_startSession();
+        if (empty($username) || empty($apiKey)) {
+            return $this->_fault('invalid_request_param');
+        }
+
         try {
+            $this->_startSession();
             $this->_getSession()->login($username, $apiKey);
         } catch (Exception $e) {
             return $this->_fault('access_denied');
@@ -224,7 +229,7 @@ abstract class Mage_Api_Model_Server_Handler_Abstract
      * Call resource functionality
      *
      * @param string $sessionId
-     * @param string $resourcePath
+     * @param string $apiPath
      * @param array  $args
      * @return mixed
      */
@@ -282,7 +287,7 @@ abstract class Mage_Api_Model_Server_Handler_Abstract
                 throw new Mage_Api_Exception('resource_path_not_callable');
             }
 
-            if (is_callable(array(&$model, $method))) {
+            if (method_exists($model, $method)) {
                 if (isset($methodInfo->arguments) && ((string)$methodInfo->arguments) == 'array') {
                     return $model->$method((is_array($args) ? $args : array($args)));
                 } elseif (!is_array($args)) {
@@ -395,7 +400,7 @@ abstract class Mage_Api_Model_Server_Handler_Abstract
                     throw new Mage_Api_Exception('resource_path_not_callable');
                 }
 
-                if (is_callable(array(&$model, $method))) {
+                if (method_exists($model, $method)) {
                     if (isset($methodInfo->arguments) && ((string)$methodInfo->arguments) == 'array') {
                         $result[] = $model->$method((is_array($args) ? $args : array($args)));
                     } elseif (!is_array($args)) {

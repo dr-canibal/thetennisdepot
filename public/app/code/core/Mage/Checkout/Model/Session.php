@@ -10,25 +10,52 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Checkout
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
 class Mage_Checkout_Model_Session extends Mage_Core_Model_Session_Abstract
 {
     const CHECKOUT_STATE_BEGIN = 'begin';
-    protected $_quote = null;
+
+    /**
+     * Quote instance
+     *
+     * @var null|Mage_Sales_Model_Quote
+     */
+    protected $_quote;
+
+    /**
+     * Customer instance
+     *
+     * @var null|Mage_Customer_Model_Customer
+     */
+    protected $_customer;
+
+    /**
+     * Whether load only active quote
+     *
+     * @var bool
+     */
+    protected $_loadInactive = false;
+
+    /**
+     * Loaded order instance
+     *
+     * @var Mage_Sales_Model_Order
+     */
+    protected $_order;
 
     /**
      * Class constructor. Initialize checkout session namespace
@@ -48,19 +75,57 @@ class Mage_Checkout_Model_Session extends Mage_Core_Model_Session_Abstract
     }
 
     /**
+     * Set customer instance
+     *
+     * @param Mage_Customer_Model_Customer|null $customer
+     * @return Mage_Checkout_Model_Session
+     */
+    public function setCustomer($customer)
+    {
+        $this->_customer = $customer;
+        return $this;
+    }
+
+    /**
+     * Check whether current session has quote
+     *
+     * @return bool
+     */
+    public function hasQuote()
+    {
+        return isset($this->_quote);
+    }
+
+    /**
+     * Set quote to be loaded even if inactive
+     *
+     * @param bool $load
+     * @return Mage_Checkout_Model_Session
+     */
+    public function setLoadInactive($load = true)
+    {
+        $this->_loadInactive = $load;
+        return $this;
+    }
+
+    /**
      * Get checkout quote instance by current session
      *
      * @return Mage_Sales_Model_Quote
      */
     public function getQuote()
     {
-        if ($this->_quote === null) {
-            $quote = Mage::getModel('sales/quote')
-                ->setStoreId(Mage::app()->getStore()->getId());
+        Mage::dispatchEvent('custom_quote_process', array('checkout_session' => $this));
 
-            /* @var $quote Mage_Sales_Model_Quote */
+        if ($this->_quote === null) {
+            /** @var $quote Mage_Sales_Model_Quote */
+            $quote = Mage::getModel('sales/quote')->setStoreId(Mage::app()->getStore()->getId());
             if ($this->getQuoteId()) {
-                $quote->loadActive($this->getQuoteId());
+                if ($this->_loadInactive) {
+                    $quote->load($this->getQuoteId());
+                } else {
+                    $quote->loadActive($this->getQuoteId());
+                }
                 if ($quote->getId()) {
                     /**
                      * If current currency code of quote is not equal current currency code of store,
@@ -85,8 +150,9 @@ class Mage_Checkout_Model_Session extends Mage_Core_Model_Session_Abstract
             $customerSession = Mage::getSingleton('customer/session');
 
             if (!$this->getQuoteId()) {
-                if ($customerSession->isLoggedIn()) {
-                    $quote->loadByCustomer($customerSession->getCustomer());
+                if ($customerSession->isLoggedIn() || $this->_customer) {
+                    $customer = ($this->_customer) ? $this->_customer : $customerSession->getCustomer();
+                    $quote->loadByCustomer($customer);
                     $this->setQuoteId($quote->getId());
                 } else {
                     $quote->setIsCheckoutCart(true);
@@ -95,8 +161,9 @@ class Mage_Checkout_Model_Session extends Mage_Core_Model_Session_Abstract
             }
 
             if ($this->getQuoteId()) {
-                if ($customerSession->isLoggedIn()) {
-                    $quote->setCustomer($customerSession->getCustomer());
+                if ($customerSession->isLoggedIn() || $this->_customer) {
+                    $customer = ($this->_customer) ? $this->_customer : $customerSession->getCustomer();
+                    $quote->setCustomer($customer);
                 }
             }
 
@@ -137,6 +204,9 @@ class Mage_Checkout_Model_Session extends Mage_Core_Model_Session_Abstract
         if (!Mage::getSingleton('customer/session')->getCustomerId()) {
             return $this;
         }
+
+        Mage::dispatchEvent('load_customer_quote_before', array('checkout_session' => $this));
+
         $customerQuote = Mage::getModel('sales/quote')
             ->setStoreId(Mage::app()->getStore()->getId())
             ->loadByCustomer(Mage::getSingleton('customer/session')->getCustomerId());
@@ -155,7 +225,11 @@ class Mage_Checkout_Model_Session extends Mage_Core_Model_Session_Abstract
             }
             $this->_quote = $customerQuote;
         } else {
+            $this->getQuote()->getBillingAddress();
+            $this->getQuote()->getShippingAddress();
             $this->getQuote()->setCustomer(Mage::getSingleton('customer/session')->getCustomer())
+                ->setTotalsCollectedFlag(false)
+                ->collectTotals()
                 ->save();
         }
         return $this;
@@ -323,5 +397,33 @@ class Mage_Checkout_Model_Session extends Mage_Core_Model_Session_Abstract
         $this->_quote = $quote;
         $this->setQuoteId($quote->getId());
         return $this;
+    }
+
+    /**
+     * Get order instance based on last order ID
+     *
+     * @return Mage_Sales_Model_Order
+     */
+    public function getLastRealOrder()
+    {
+        $orderId = $this->getLastRealOrderId();
+        if ($this->_order !== null && $orderId == $this->_order->getIncrementId()) {
+            return $this->_order;
+        }
+        $this->_order = $this->_getOrderModel();
+        if ($orderId) {
+            $this->_order->loadByIncrementId($orderId);
+        }
+        return $this->_order;
+    }
+
+    /**
+     * Get order model
+     *
+     * @return Mage_Sales_Model_Order
+     */
+    protected function _getOrderModel()
+    {
+        return Mage::getModel('sales/order');
     }
 }

@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Rss
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -38,7 +38,10 @@ class Mage_Rss_Block_Catalog_Tag extends Mage_Rss_Block_Catalog_Abstract
         /*
         * setting cache to save the rss for 10 minutes
         */
-        $this->setCacheKey('rss_catalog_tag_'.$this->getStoreId());
+        $tagModel = Mage::registry('tag_model');
+        if ($tagModel) {
+            $this->setCacheKey('rss_catalog_tag_' . $this->getStoreId() . '_' . $tagModel->getName());
+        }
         $this->setCacheLifetime(600);
     }
 
@@ -68,8 +71,12 @@ class Mage_Rss_Block_Catalog_Tag extends Mage_Rss_Block_Catalog_Abstract
 
         $product = Mage::getModel('catalog/product');
 
-        Mage::getSingleton('core/resource_iterator')
-                ->walk($_collection->getSelect(), array(array($this, 'addTaggedItemXml')), array('rssObj'=> $rssObj, 'product'=>$product));
+        Mage::getSingleton('core/resource_iterator')->walk(
+            Mage::getResourceHelper('core')->getQueryUsingAnalyticFunction($_collection->getSelect()),
+            array(array($this, 'addTaggedItemXml')),
+            array('rssObj'=> $rssObj, 'product'=>$product),
+            $_collection->getSelect()->getAdapter()
+        );
 
         return $rssObj->createRssXml();
     }
@@ -84,6 +91,7 @@ class Mage_Rss_Block_Catalog_Tag extends Mage_Rss_Block_Catalog_Abstract
         $product = $args['product'];
 
         $product->setAllowedInRss(true);
+        $product->setAllowedPriceInRss(true);
         Mage::dispatchEvent('rss_catalog_tagged_item_xml_callback', $args);
 
         if (!$product->getAllowedInRss()) {
@@ -94,9 +102,10 @@ class Mage_Rss_Block_Catalog_Tag extends Mage_Rss_Block_Catalog_Abstract
         $allowedPriceInRss = $product->getAllowedPriceInRss();
 
         $product->unsetData()->load($args['row']['entity_id']);
-        $description = '<table><tr>'.
-        '<td><a href="'.$product->getProductUrl().'"><img src="'. $this->helper('catalog/image')->init($product, 'thumbnail')->resize(75, 75) .'" border="0" align="left" height="75" width="75"></a></td>'.
-        '<td  style="text-decoration:none;">'.$product->getDescription();
+        $description = '<table><tr><td><a href="'.$product->getProductUrl().'">'
+            . '<img src="' . $this->helper('catalog/image')->init($product, 'thumbnail')->resize(75, 75)
+            . '" border="0" align="left" height="75" width="75"></a></td>'
+            . '<td  style="text-decoration:none;">'.$product->getDescription();
 
         if ($allowedPriceInRss) {
             $description .= $this->getPriceHtml($product,true);
@@ -106,10 +115,10 @@ class Mage_Rss_Block_Catalog_Tag extends Mage_Rss_Block_Catalog_Abstract
 
         $rssObj = $args['rssObj'];
         $data = array(
-                'title'         => $product->getName(),
-                'link'          => $product->getProductUrl(),
-                'description'   => $description,
-            );
+            'title'         => $product->getName(),
+            'link'          => $product->getProductUrl(),
+            'description'   => $description,
+        );
         $rssObj->_addEntry($data);
     }
 }

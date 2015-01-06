@@ -10,28 +10,60 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Tax
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * Tax Rate Model
  *
- * @author Magento Core Team <core@magentocommerce.com>
+ * @method Mage_Tax_Model_Resource_Calculation_Rate _getResource()
+ * @method Mage_Tax_Model_Resource_Calculation_Rate getResource()
+ * @method string getTaxCountryId()
+ * @method Mage_Tax_Model_Calculation_Rate setTaxCountryId(string $value)
+ * @method int getTaxRegionId()
+ * @method Mage_Tax_Model_Calculation_Rate setTaxRegionId(int $value)
+ * @method string getTaxPostcode()
+ * @method Mage_Tax_Model_Calculation_Rate setTaxPostcode(string $value)
+ * @method string getCode()
+ * @method Mage_Tax_Model_Calculation_Rate setCode(string $value)
+ * @method float getRate()
+ * @method Mage_Tax_Model_Calculation_Rate setRate(float $value)
+ * @method int getZipIsRange()
+ * @method Mage_Tax_Model_Calculation_Rate setZipIsRange(int $value)
+ * @method int getZipFrom()
+ * @method Mage_Tax_Model_Calculation_Rate setZipFrom(int $value)
+ * @method int getZipTo()
+ * @method Mage_Tax_Model_Calculation_Rate setZipTo(int $value)
+ *
+ * @category    Mage
+ * @package     Mage_Tax
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Tax_Model_Calculation_Rate extends Mage_Core_Model_Abstract
 {
+    /**
+     * List of tax titles
+     *
+     * @var array
+     */
     protected $_titles = null;
+
+    /**
+     * The Mage_Tax_Model_Calculation_Rate_Title
+     *
+     * @var Mage_Tax_Model_Calculation_Rate_Title
+     */
     protected $_titleModel = null;
 
     /**
@@ -49,15 +81,36 @@ class Mage_Tax_Model_Calculation_Rate extends Mage_Core_Model_Abstract
      */
     protected function _beforeSave()
     {
-        if ($this->getZipIsRange()) {
-            $zipFrom = (strlen($this->getZipFrom()) > 10) ? substr($this->getZipFrom(), 0, 10) : $this->getZipFrom();
-            $zipTo   = (strlen($this->getZipTo()) > 10) ? substr($this->getZipTo(), 0, 10) : $this->getZipTo();
+        if ($this->getCode() === '' || $this->getTaxCountryId() === '' || $this->getRate() === ''
+            || $this->getZipIsRange() && ($this->getZipFrom() === '' || $this->getZipTo() === '')
+        ) {
+            Mage::throwException(Mage::helper('tax')->__('Please fill all required fields with valid information.'));
+        }
 
-            $this->setTaxPostcode("{$zipFrom}-{$zipTo}");
+        if (!is_numeric($this->getRate()) || $this->getRate() < 0) {
+            Mage::throwException(Mage::helper('tax')->__('Rate Percent should be a positive number.'));
+        }
+
+        if ($this->getZipIsRange()) {
+            $zipFrom = $this->getZipFrom();
+            $zipTo = $this->getZipTo();
+
+            if (strlen($zipFrom) > 9 || strlen($zipTo) > 9) {
+                Mage::throwException(Mage::helper('tax')->__('Maximum zip code length is 9.'));
+            }
+
+            if (!is_numeric($zipFrom) || !is_numeric($zipTo) || $zipFrom < 0 || $zipTo < 0) {
+                Mage::throwException(Mage::helper('tax')->__('Zip code should not contain characters other than digits.'));
+            }
+
+            if ($zipFrom > $zipTo) {
+                Mage::throwException(Mage::helper('tax')->__('Range To should be equal or greater than Range From.'));
+            }
+
+            $this->setTaxPostcode($zipFrom . '-' . $zipTo);
         } else {
             $taxPostCode = $this->getTaxPostcode();
 
-            // postcode must be not longer than 10 symbols
             if (strlen($taxPostCode) > 10) {
                 $taxPostCode = substr($taxPostCode, 0, 10);
             }
@@ -117,6 +170,11 @@ class Mage_Tax_Model_Calculation_Rate extends Mage_Core_Model_Abstract
         return parent::_afterDelete();
     }
 
+    /**
+     * Saves the tax titles
+     *
+     * @param array | null $titles
+     */
     public function saveTitles($titles = null)
     {
         if (is_null($titles)) {
@@ -125,7 +183,7 @@ class Mage_Tax_Model_Calculation_Rate extends Mage_Core_Model_Abstract
 
         $this->getTitleModel()->deleteByRateId($this->getId());
         if (is_array($titles) && $titles) {
-            foreach ($titles as $store=>$title) {
+            foreach ($titles as $store => $title) {
                 if ($title !== '') {
                     $this->getTitleModel()
                         ->setId(null)
@@ -138,6 +196,11 @@ class Mage_Tax_Model_Calculation_Rate extends Mage_Core_Model_Abstract
         }
     }
 
+    /**
+     * Returns the Mage_Tax_Model_Calculation_Rate_Title
+     *
+     * @return Mage_Tax_Model_Calculation_Rate_Title
+     */
     public function getTitleModel()
     {
         if (is_null($this->_titleModel)) {
@@ -146,6 +209,11 @@ class Mage_Tax_Model_Calculation_Rate extends Mage_Core_Model_Abstract
         return $this->_titleModel;
     }
 
+    /**
+     * Returns the list of tax titles
+     *
+     * @return array
+     */
     public function getTitles()
     {
         if (is_null($this->_titles)) {
@@ -154,6 +222,11 @@ class Mage_Tax_Model_Calculation_Rate extends Mage_Core_Model_Abstract
         return $this->_titles;
     }
 
+    /**
+     * Deletes all tax rates
+     *
+     * @return Mage_Tax_Model_Calculation_Rate
+     */
     public function deleteAllRates()
     {
         $this->_getResource()->deleteAllRates();

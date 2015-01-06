@@ -10,22 +10,29 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Core
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * Custom variable model
+ *
+ * @method Mage_Core_Model_Resource_Variable _getResource()
+ * @method Mage_Core_Model_Resource_Variable getResource()
+ * @method string getCode()
+ * @method Mage_Core_Model_Variable setCode(string $value)
+ * @method string getName()
+ * @method Mage_Core_Model_Variable setName(string $value)
  *
  * @category    Mage
  * @package     Mage_Core
@@ -96,7 +103,7 @@ class Mage_Core_Model_Variable extends Mage_Core_Model_Abstract
             $value = $this->getData('plain_value');
             //escape html if type is html, but html value is not defined
             if ($type == self::TYPE_HTML) {
-                $value = nl2br(Mage::helper('core')->htmlEscape($value));
+                $value = nl2br(Mage::helper('core')->escapeHtml($value));
             }
             return $value;
         }

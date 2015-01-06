@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Core
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
@@ -82,7 +82,15 @@ class Mage_Core_Model_Design_Package
      */
     protected $_callbackFileDir;
 
+    /**
+     * @var Mage_Core_Model_Design_Config
+     */
     protected $_config = null;
+
+    /**
+     * @var Mage_Core_Model_Design_Fallback
+     */
+    protected $_fallback = null;
 
     /**
      * Whether theme/skin hierarchy should be checked via fallback mechanism
@@ -90,6 +98,18 @@ class Mage_Core_Model_Design_Package
      * @var bool
      */
     protected $_shouldFallback = true;
+
+    public function __construct()
+    {
+        if (is_null($this->_config)) {
+            $this->_config = Mage::getSingleton('core/design_config');
+        }
+        if (is_null($this->_fallback)) {
+            $this->_fallback = Mage::getSingleton('core/design_fallback', array(
+                'config' => $this->_config,
+            ));
+        }
+    }
 
     /**
      * Set store
@@ -99,6 +119,9 @@ class Mage_Core_Model_Design_Package
      */
     public function setStore($store)
     {
+        if ($this->_fallback) {
+            $this->_fallback->setStore($store);
+        }
         $this->_store = $store;
         return $this;
     }
@@ -418,22 +441,17 @@ class Mage_Core_Model_Design_Package
     {
         Varien_Profiler::start(__METHOD__);
         $this->updateParamDefaults($params);
-        $result = $this->_fallback($file, $params, array(
-            array(),
-            array('_theme' => $this->getFallbackTheme()),
-            array('_theme' => self::DEFAULT_THEME),
-        ));
+        $result = $this->_fallback(
+            $file,
+            $params,
+            $this->_fallback->getFallbackScheme(
+                $params['_area'],
+                $params['_package'],
+                $params['_theme']
+            )
+        );
         Varien_Profiler::stop(__METHOD__);
         return $result;
-    }
-
-    /**
-     * Default theme getter
-     * @return string
-     */
-    public function getFallbackTheme()
-    {
-        return Mage::getStoreConfig('design/theme/default', $this->getStore());
     }
 
     public function getLayoutFilename($file, array $params=array())
@@ -472,11 +490,15 @@ class Mage_Core_Model_Design_Package
         }
         $this->updateParamDefaults($params);
         if (!empty($file)) {
-            $result = $this->_fallback($file, $params, array(
-                array(),
-                array('_theme' => $this->getFallbackTheme()),
-                array('_theme' => self::DEFAULT_THEME),
-            ));
+            $result = $this->_fallback(
+                $file,
+                $params,
+                $this->_fallback->getFallbackScheme(
+                    $params['_area'],
+                    $params['_package'],
+                    $params['_theme']
+                )
+            );
         }
         $result = $this->getSkinBaseUrl($params) . (empty($file) ? '' : $file);
         Varien_Profiler::stop(__METHOD__);
@@ -518,7 +540,7 @@ class Mage_Core_Model_Design_Package
      * Directories lister utility method
      *
      * @param string $path
-     * @param string|false $fullPath
+     * @param string|bool $fullPath
      * @return array
      */
     private function _listDirectories($path, $fullPath = false)
@@ -581,6 +603,7 @@ class Mage_Core_Model_Design_Package
      *
      * @param array $rules - design exception rules
      * @param string $regexpsConfigPath
+     * @return bool|string
      */
     public static function getPackageByUserAgent(array $rules, $regexpsConfigPath = 'path_mock')
     {
@@ -647,7 +670,13 @@ class Mage_Core_Model_Design_Package
 
         // merge into target file
         $targetFilename = md5(implode(',', $files) . "|{$hostname}|{$port}") . '.css';
-        if ($this->_mergeFiles($files, $targetDir . DS . $targetFilename, false, array($this, 'beforeMergeCss'), 'css')) {
+        $mergeFilesResult = $this->_mergeFiles(
+            $files, $targetDir . DS . $targetFilename,
+            false,
+            array($this, 'beforeMergeCss'),
+            'css'
+        );
+        if ($mergeFilesResult) {
             return $baseMediaUrl . $mergerDir . '/' . $targetFilename;
         }
         return '';
@@ -658,13 +687,14 @@ class Mage_Core_Model_Design_Package
      *
      * @see Mage_Core_Helper_Data::mergeFiles()
      * @param array $srcFiles
-     * @param string|false $targetFile - file path to be written
+     * @param string|bool $targetFile - file path to be written
      * @param bool $mustMerge
      * @param callback $beforeMergeCallback
      * @param array|string $extensionsFilter
      * @return bool|string
      */
-    protected function _mergeFiles(array $srcFiles, $targetFile = false, $mustMerge = false, $beforeMergeCallback = null, $extensionsFilter = array())
+    protected function _mergeFiles(array $srcFiles, $targetFile = false,
+        $mustMerge = false, $beforeMergeCallback = null, $extensionsFilter = array())
     {
         if (Mage::helper('core/file_storage_database')->checkDbUsage()) {
             if (!file_exists($targetFile)) {
@@ -675,14 +705,26 @@ class Mage_Core_Model_Design_Package
             } else {
                 $filemtime = null;
             }
-            $result = Mage::helper('core')->mergeFiles($srcFiles, $targetFile, $mustMerge, $beforeMergeCallback, $extensionsFilter);
+            $result = Mage::helper('core')->mergeFiles(
+                $srcFiles,
+                $targetFile,
+                $mustMerge,
+                $beforeMergeCallback,
+                $extensionsFilter
+            );
             if ($result && (filemtime($targetFile) > $filemtime)) {
                 Mage::helper('core/file_storage_database')->saveFile($targetFile);
             }
             return $result;
 
         } else {
-            return Mage::helper('core')->mergeFiles($srcFiles, $targetFile, $mustMerge, $beforeMergeCallback, $extensionsFilter);
+            return Mage::helper('core')->mergeFiles(
+                $srcFiles,
+                $targetFile,
+                $mustMerge,
+                $beforeMergeCallback,
+                $extensionsFilter
+            );
         }
     }
 
@@ -704,6 +746,7 @@ class Mage_Core_Model_Design_Package
      *
      * @param string $dirRelativeName
      * @param bool $cleanup
+     * @return bool
      */
     protected function _initMergerDir($dirRelativeName, $cleanup = false)
     {
@@ -738,7 +781,7 @@ class Mage_Core_Model_Design_Package
        $cssImport = '/@import\\s+([\'"])(.*?)[\'"]/';
        $contents = preg_replace_callback($cssImport, array($this, '_cssMergerImportCallback'), $contents);
 
-       $cssUrl = '/url\\(\\s*([^\\)\\s]+)\\s*\\)?/';
+       $cssUrl = '/url\\(\\s*(?!data:)([^\\)\\s]+)\\s*\\)?/';
        $contents = preg_replace_callback($cssUrl, array($this, '_cssMergerUrlCallback'), $contents);
 
        return $contents;
@@ -798,6 +841,9 @@ class Mage_Core_Model_Design_Package
             $pathParts = explode(DS, $uri);
             $fileDirParts = explode(DS, $this->_callbackFileDir);
             $store = $this->getStore();
+            if (is_int($store)) {
+                $store = Mage::app()->getStore($store);
+            }
             if ($store->isAdmin()) {
                 $secure = $store->isAdminUrlSecure();
             } else {
@@ -830,5 +876,15 @@ class Mage_Core_Model_Design_Package
             $uri = $baseUrl.$fileDir.implode('/', $pathParts);
         }
         return $uri;
+    }
+
+    /**
+     * Default theme getter
+     * @return string
+     * @deprecated since 1.8.2.0
+     */
+    public function getFallbackTheme()
+    {
+        return Mage::getStoreConfig('design/theme/default', $this->getStore());
     }
 }

@@ -1,11 +1,11 @@
 /**
  * Popup.js
  *
- * Copyright 2009, Moxiecode Systems AB
+ * Copyright, Moxiecode Systems AB
  * Released under LGPL License.
  *
- * License: http://tinymce.moxiecode.com/license
- * Contributing: http://tinymce.moxiecode.com/contributing
+ * License: http://www.tinymce.com/license
+ * Contributing: http://www.tinymce.com/contributing
  */
 
 // Some global instances
@@ -37,7 +37,8 @@ tinyMCEPopup = {
 		t.features = t.editor.windowManager.features;
 
 		// Setup local DOM
-		t.dom = t.editor.windowManager.createInstance('tinymce.dom.DOMUtils', document);
+		t.dom = t.editor.windowManager.createInstance('tinymce.dom.DOMUtils', document, {ownEvents: true, proxy: tinyMCEPopup._eventProxy});
+		t.dom.bind(window, 'ready', t._onDOMLoaded, t);
 
 		// Enables you to skip loading the default css
 		if (t.features.popup_css !== false)
@@ -45,6 +46,21 @@ tinyMCEPopup = {
 
 		// Setup on init listeners
 		t.listeners = [];
+
+		/**
+		 * Fires when the popup is initialized.
+		 *
+		 * @event onInit
+		 * @param {tinymce.Editor} editor Editor instance.
+		 * @example
+		 * // Alerts the selected contents when the dialog is loaded
+		 * tinyMCEPopup.onInit.add(function(ed) {
+		 *     alert(ed.selection.getContent());
+		 * });
+		 * 
+		 * // Executes the init method on page load in some object using the SomeObject scope
+		 * tinyMCEPopup.onInit.add(SomeObject.init, SomeObject);
+		 */
 		t.onInit = {
 			add : function(f, s) {
 				t.listeners.push({func : f, scope : s});
@@ -141,7 +157,7 @@ tinyMCEPopup = {
 				t.getWindowArg('mce_height') - vp.h,
 				t.id || window
 			);
-		}, 0);
+		}, 10);
 	},
 
 	/**
@@ -176,8 +192,9 @@ tinyMCEPopup = {
 	restoreSelection : function() {
 		var t = tinyMCEPopup;
 
-		if (!t.isWindow && tinymce.isIE)
+		if (!t.isWindow && tinymce.isIE) {
 			t.editor.selection.moveToBookmark(t.editor.windowManager.bookmark);
+		}
 	},
 
 	/**
@@ -189,7 +206,7 @@ tinyMCEPopup = {
 	requireLangPack : function() {
 		var t = this, u = t.getWindowArg('plugin_url') || t.getWindowArg('theme_url');
 
-		if (u && t.editor.settings.language && t.features.translate_i18n !== false) {
+		if (u && t.editor.settings.language && t.features.translate_i18n !== false && t.editor.settings.language_load !== false) {
 			u += '/langs/' + t.editor.settings.language + '_dlg.js';
 
 			if (!tinymce.ScriptLoader.isDone(u)) {
@@ -284,28 +301,15 @@ tinyMCEPopup = {
 
 	// Internal functions	
 
-	_restoreSelection : function() {
-		var e = window.event.srcElement;
+	_restoreSelection : function(e) {
+		var e = (e && e.target) || window.event.srcElement;
 
 		if (e.nodeName == 'INPUT' && (e.type == 'submit' || e.type == 'button'))
 			tinyMCEPopup.restoreSelection();
 	},
 
-/*	_restoreSelection : function() {
-		var e = window.event.srcElement;
-
-		// If user focus a non text input or textarea
-		if ((e.nodeName != 'INPUT' && e.nodeName != 'TEXTAREA') || e.type != 'text')
-			tinyMCEPopup.restoreSelection();
-	},*/
-
 	_onDOMLoaded : function() {
 		var t = tinyMCEPopup, ti = document.title, bm, h, nv;
-
-		if (t.domLoaded)
-			return;
-
-		t.domLoaded = 1;
 
 		// Translate page
 		if (t.features.translate_i18n !== false) {
@@ -324,15 +328,20 @@ tinyMCEPopup = {
 				document.title = ti = nv;
 		}
 
+		if (!t.editor.getParam('browser_preferred_colors', false) || !t.isWindow)
+			t.dom.addClass(document.body, 'forceColors');
+
 		document.body.style.display = '';
 
 		// Restore selection in IE when focus is placed on a non textarea or input element of the type text
-		if (tinymce.isIE) {
+		if (tinymce.isIE && !tinymce.isIE11) {
 			document.attachEvent('onmouseup', tinyMCEPopup._restoreSelection);
 
 			// Add base target element for it since it would fail with modal dialogs
 			t.dom.add(t.dom.select('head')[0], 'base', {target : '_self'});
-		}
+		} else if (tinymce.isIE11) {
+			document.addEventListener('mouseup', tinyMCEPopup._restoreSelection, false);
+ 		}
 
 		t.restoreSelection();
 		t.resizeToInnerSize();
@@ -344,7 +353,7 @@ tinyMCEPopup = {
 			window.focus();
 
 		if (!tinymce.isIE && !t.isWindow) {
-			tinymce.dom.Event._add(document, 'focus', function() {
+			t.dom.bind(document, 'focus', function() {
 				t.editor.windowManager.focus(t.id);
 			});
 		}
@@ -382,10 +391,10 @@ tinyMCEPopup = {
 		e = e || window.event;
 
 		if (e.keyCode == 13 || e.keyCode == 32) {
-			e = e.target || e.srcElement;
+			var elm = e.target || e.srcElement;
 
-			if (e.onchange)
-				e.onchange();
+			if (elm.onchange)
+				elm.onchange();
 
 			return tinymce.dom.Event.cancel(e);
 		}
@@ -398,41 +407,11 @@ tinyMCEPopup = {
 			tinyMCEPopup.close();
 	},
 
-	_wait : function() {
-		// Use IE method
-		if (document.attachEvent) {
-			document.attachEvent("onreadystatechange", function() {
-				if (document.readyState === "complete") {
-					document.detachEvent("onreadystatechange", arguments.callee);
-					tinyMCEPopup._onDOMLoaded();
-				}
-			});
-
-			if (document.documentElement.doScroll && window == window.top) {
-				(function() {
-					if (tinyMCEPopup.domLoaded)
-						return;
-
-					try {
-						// If IE is used, use the trick by Diego Perini
-						// http://javascript.nwbox.com/IEContentLoaded/
-						document.documentElement.doScroll("left");
-					} catch (ex) {
-						setTimeout(arguments.callee, 0);
-						return;
-					}
-
-					tinyMCEPopup._onDOMLoaded();
-				})();
-			}
-
-			document.attachEvent('onload', tinyMCEPopup._onDOMLoaded);
-		} else if (document.addEventListener) {
-			window.addEventListener('DOMContentLoaded', tinyMCEPopup._onDOMLoaded, false);
-			window.addEventListener('load', tinyMCEPopup._onDOMLoaded, false);
-		}
+	_eventProxy: function(id) {
+		return function(evt) {
+			tinyMCEPopup.dom.events.callNativeHandler(id, evt);
+		};
 	}
 };
 
 tinyMCEPopup.init();
-tinyMCEPopup._wait(); // Wait for DOM Content Loaded

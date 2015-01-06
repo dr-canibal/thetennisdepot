@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Catalog
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
@@ -34,6 +34,11 @@
  */
 abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Template
 {
+    /**
+     * Price block array
+     *
+     * @var array
+     */
     protected $_priceBlock = array();
 
     /**
@@ -43,10 +48,25 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
      */
     protected $_block = 'catalog/product_price';
 
+    /**
+     * Price template
+     *
+     * @var string
+     */
     protected $_priceBlockDefaultTemplate = 'catalog/product/price.phtml';
 
-    protected $_tierPriceDefaultTemplate  = 'catalog/product/view/tierprices.phtml';
+    /**
+     * Tier price template
+     *
+     * @var string
+     */
+    protected $_tierPriceDefaultTemplate = 'catalog/product/view/tierprices.phtml';
 
+    /**
+     * Price types
+     *
+     * @var array
+     */
     protected $_priceBlockTypes = array();
 
     /**
@@ -56,6 +76,11 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
      */
     protected $_useLinkForAsLowAs = true;
 
+    /**
+     * Review block instance
+     *
+     * @var null|Mage_Review_Block_Helper
+     */
     protected $_reviewsHelperBlock;
 
     /**
@@ -73,6 +98,13 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
     protected $_columnCountLayoutDepend = array();
 
     /**
+     * Default MAP renderer type
+     *
+     * @var string
+     */
+    protected $_mapRenderer = 'msrp';
+
+    /**
      * Retrieve url for add product to cart
      * Will return product view page URL if product has required options
      *
@@ -82,18 +114,33 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
      */
     public function getAddToCartUrl($product, $additional = array())
     {
-        if ($product->getTypeInstance(true)->hasRequiredOptions($product)) {
-            if (!isset($additional['_escape'])) {
-                $additional['_escape'] = true;
-            }
-            if (!isset($additional['_query'])) {
-                $additional['_query'] = array();
-            }
-            $additional['_query']['options'] = 'cart';
-
-            return $this->getProductUrl($product, $additional);
+        if (!$product->getTypeInstance(true)->hasRequiredOptions($product)) {
+            return $this->helper('checkout/cart')->getAddUrl($product, $additional);
         }
-        return $this->helper('checkout/cart')->getAddUrl($product, $additional);
+        $additional = array_merge(
+            $additional,
+            array(Mage_Core_Model_Url::FORM_KEY => $this->_getSingletonModel('core/session')->getFormKey())
+        );
+        if (!isset($additional['_escape'])) {
+            $additional['_escape'] = true;
+        }
+        if (!isset($additional['_query'])) {
+            $additional['_query'] = array();
+        }
+        $additional['_query']['options'] = 'cart';
+        return $this->getProductUrl($product, $additional);
+    }
+
+    /**
+     * Return model instance
+     *
+     * @param string $className
+     * @param array $arguments
+     * @return Mage_Core_Model_Abstract
+     */
+    protected function _getSingletonModel($className, $arguments = array())
+    {
+        return Mage::getSingleton($className, $arguments);
     }
 
     /**
@@ -119,7 +166,7 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
     }
 
     /**
-     * Enter description here...
+     * Return link to Add to Wishlist
      *
      * @param Mage_Catalog_Model_Product $product
      * @return string
@@ -140,14 +187,28 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
         return $this->helper('catalog/product_compare')->getAddUrl($product);
     }
 
+    /**
+     * Gets minimal sales quantity
+     *
+     * @param Mage_Catalog_Model_Product $product
+     * @return int|null
+     */
     public function getMinimalQty($product)
     {
-        if ($stockItem = $product->getStockItem()) {
-            return ($stockItem->getMinSaleQty() && $stockItem->getMinSaleQty() > 0 ? $stockItem->getMinSaleQty() * 1 : null);
+        $stockItem = $product->getStockItem();
+        if ($stockItem) {
+            return ($stockItem->getMinSaleQty()
+            && $stockItem->getMinSaleQty() > 0 ? $stockItem->getMinSaleQty() * 1 : null);
         }
         return null;
     }
 
+    /**
+     * Return price block
+     *
+     * @param string $productTypeId
+     * @return mixed
+     */
     protected function _getPriceBlock($productTypeId)
     {
         if (!isset($this->_priceBlock[$productTypeId])) {
@@ -162,6 +223,12 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
         return $this->_priceBlock[$productTypeId];
     }
 
+    /**
+     * Return Block template
+     *
+     * @param string $productTypeId
+     * @return string
+     */
     protected function _getPriceBlockTemplate($productTypeId)
     {
         if (isset($this->_priceBlockTypes[$productTypeId])) {
@@ -196,7 +263,19 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
      */
     public function getPriceHtml($product, $displayMinimalPrice = false, $idSuffix = '')
     {
-        return $this->_preparePriceRenderer($product->getTypeId())
+        $type_id = $product->getTypeId();
+        if (Mage::helper('catalog')->canApplyMsrp($product)) {
+            $realPriceHtml = $this->_preparePriceRenderer($type_id)
+                ->setProduct($product)
+                ->setDisplayMinimalPrice($displayMinimalPrice)
+                ->setIdSuffix($idSuffix)
+                ->toHtml();
+            $product->setAddToCartUrl($this->getAddToCartUrl($product));
+            $product->setRealPriceHtml($realPriceHtml);
+            $type_id = $this->_mapRenderer;
+        }
+
+        return $this->_preparePriceRenderer($type_id)
             ->setProduct($product)
             ->setDisplayMinimalPrice($displayMinimalPrice)
             ->setIdSuffix($idSuffix)
@@ -228,10 +307,14 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
      * @param bool $displayIfNoReviews
      * @return string
      */
-    public function getReviewsSummaryHtml(Mage_Catalog_Model_Product $product, $templateType = false, $displayIfNoReviews = false)
+    public function getReviewsSummaryHtml(Mage_Catalog_Model_Product $product, $templateType = false,
+        $displayIfNoReviews = false)
     {
-        $this->_initReviewsHelperBlock();
-        return $this->_reviewsHelperBlock->getSummaryHtml($product, $templateType, $displayIfNoReviews);
+        if ($this->_initReviewsHelperBlock()) {
+            return $this->_reviewsHelperBlock->getSummaryHtml($product, $templateType, $displayIfNoReviews);
+        }
+
+        return '';
     }
 
     /**
@@ -239,22 +322,33 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
      *
      * @param string $type
      * @param string $template
+     * @return string
      */
     public function addReviewSummaryTemplate($type, $template)
     {
-        $this->_initReviewsHelperBlock();
-        $this->_reviewsHelperBlock->addTemplate($type, $template);
+        if ($this->_initReviewsHelperBlock()) {
+            $this->_reviewsHelperBlock->addTemplate($type, $template);
+        }
+
+        return '';
     }
 
     /**
      * Create reviews summary helper block once
      *
+     * @return boolean
      */
     protected function _initReviewsHelperBlock()
     {
         if (!$this->_reviewsHelperBlock) {
-            $this->_reviewsHelperBlock = $this->getLayout()->createBlock('review/helper');
+            if (!Mage::helper('catalog')->isModuleEnabled('Mage_Review')) {
+                return false;
+            } else {
+                $this->_reviewsHelperBlock = $this->getLayout()->createBlock('review/helper');
+            }
         }
+
+        return true;
     }
 
     /**
@@ -270,6 +364,11 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
         return $this->getData('product');
     }
 
+    /**
+     * Return tier price template
+     *
+     * @return mixed|string
+     */
     public function getTierPriceTemplate()
     {
         if (!$this->hasData('tier_price_template')) {
@@ -278,12 +377,15 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
 
         return $this->getData('tier_price_template');
     }
+
     /**
-     * Returns product tierprice block html
+     * Returns product tier price block html
      *
-     * @param Mage_Catalog_Model_Product $product
+     * @param null|Mage_Catalog_Model_Product $product
+     * @param null|Mage_Catalog_Model_Product $parent
+     * @return string
      */
-    public function getTierPriceHtml($product = null)
+    public function getTierPriceHtml($product = null, $parent = null)
     {
         if (is_null($product)) {
             $product = $this->getProduct();
@@ -291,8 +393,22 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
         return $this->_getPriceBlock($product->getTypeId())
             ->setTemplate($this->getTierPriceTemplate())
             ->setProduct($product)
-            ->setInGrouped($this->getProduct()->isGrouped())
-            ->toHtml();
+            ->setInGrouped($product->isGrouped())
+            ->setParent($parent)
+            ->callParentToHtml();
+    }
+
+    /*
+     * Calls the object's to Html method.
+     * This method exists to make the code more testable.
+     * By having a protected wrapper for the final method toHtml, we can 'mock' out this method
+     * when unit testing
+     *
+     *  @return string
+     */
+    protected function callParentToHtml()
+    {
+        return $this->toHtml();
     }
 
     /**
@@ -306,27 +422,51 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
         if (is_null($product)) {
             $product = $this->getProduct();
         }
-        $prices  = $product->getFormatedTierPrice();
+        $prices = $product->getFormatedTierPrice();
 
         $res = array();
         if (is_array($prices)) {
             foreach ($prices as $price) {
-                $price['price_qty'] = $price['price_qty']*1;
-                if ($product->getPrice() != $product->getFinalPrice()) {
-                    if ($price['price']<$product->getFinalPrice()) {
-                        $price['savePercent'] = ceil(100 - (( 100/$product->getFinalPrice() ) * $price['price'] ));
-                        $price['formated_price'] = Mage::app()->getStore()->formatPrice(Mage::app()->getStore()->convertPrice(Mage::helper('tax')->getPrice($product, $price['website_price'])));
-                        $price['formated_price_incl_tax'] = Mage::app()->getStore()->formatPrice(Mage::app()->getStore()->convertPrice(Mage::helper('tax')->getPrice($product, $price['website_price'], true)));
-                        $res[] = $price;
-                    }
+                $price['price_qty'] = $price['price_qty'] * 1;
+
+                $_productPrice = $product->getPrice();
+                if ($_productPrice != $product->getFinalPrice()) {
+                    $_productPrice = $product->getFinalPrice();
                 }
-                else {
-                    if ($price['price']<$product->getPrice()) {
-                        $price['savePercent'] = ceil(100 - (( 100/$product->getPrice() ) * $price['price'] ));
-                        $price['formated_price'] = Mage::app()->getStore()->formatPrice(Mage::app()->getStore()->convertPrice(Mage::helper('tax')->getPrice($product, $price['website_price'])));
-                        $price['formated_price_incl_tax'] = Mage::app()->getStore()->formatPrice(Mage::app()->getStore()->convertPrice(Mage::helper('tax')->getPrice($product, $price['website_price'], true)));
-                        $res[] = $price;
+
+                // Group price must be used for percent calculation if it is lower
+                $groupPrice = $product->getGroupPrice();
+                if ($_productPrice > $groupPrice) {
+                    $_productPrice = $groupPrice;
+                }
+
+                if ($price['price'] < $_productPrice) {
+                    $price['savePercent'] = ceil(100 - ((100 / $_productPrice) * $price['price']));
+
+                    $tierPrice = Mage::app()->getStore()->convertPrice(
+                        Mage::helper('tax')->getPrice($product, $price['website_price'])
+                    );
+                    $price['formated_price'] = Mage::app()->getStore()->formatPrice($tierPrice);
+                    $price['formated_price_incl_tax'] = Mage::app()->getStore()->formatPrice(
+                        Mage::app()->getStore()->convertPrice(
+                            Mage::helper('tax')->getPrice($product, $price['website_price'], true)
+                        )
+                    );
+
+                    if (Mage::helper('catalog')->canApplyMsrp($product)) {
+                        $oldPrice = $product->getFinalPrice();
+                        $product->setPriceCalculation(false);
+                        $product->setPrice($tierPrice);
+                        $product->setFinalPrice($tierPrice);
+
+                        $this->getPriceHtml($product);
+                        $product->setPriceCalculation(true);
+
+                        $price['real_price_html'] = $product->getRealPriceHtml();
+                        $product->setFinalPrice($oldPrice);
                     }
+
+                    $res[] = $price;
                 }
             }
         }
@@ -339,10 +479,10 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
      * to get correct values in different products lists.
      * E.g. crosssells, upsells, new products, recently viewed
      *
-     * @param Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection $collection
-     * @return Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
+     * @param Mage_Catalog_Model_Resource_Product_Collection $collection
+     * @return Mage_Catalog_Model_Resource_Product_Collection
      */
-    protected function _addProductAttributesAndPrices(Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection $collection)
+    protected function _addProductAttributesAndPrices(Mage_Catalog_Model_Resource_Product_Collection $collection)
     {
         return $collection
             ->addMinimalPrice()
@@ -360,13 +500,13 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
      *
      * @return string
      */
-    public function getImageLabel($product=null, $mediaAttributeCode='image')
+    public function getImageLabel($product = null, $mediaAttributeCode = 'image')
     {
         if (is_null($product)) {
             $product = $this->getProduct();
         }
 
-        $label = $product->getData($mediaAttributeCode.'_label');
+        $label = $product->getData($mediaAttributeCode . '_label');
         if (empty($label)) {
             $label = $product->getName();
         }
@@ -389,7 +529,6 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
             }
             return $product->getUrlModel()->getUrl($product, $additional);
         }
-
         return '#';
     }
 
@@ -398,18 +537,13 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
      *
      * @param Mage_Catalog_Model_Product $product
      * @return bool
+     *
      */
     public function hasProductUrl($product)
     {
         if ($product->getVisibleInSiteVisibilities()) {
             return true;
         }
-        if ($product->hasUrlDataObject()) {
-            if (in_array($product->hasUrlDataObject()->getVisibility(), $product->getVisibleInSiteVisibilities())) {
-                return true;
-            }
-        }
-
         return false;
     }
 
@@ -439,7 +573,7 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
      * Add row size depends on page layout
      *
      * @param string $pageLayout
-     * @param int $rowSize
+     * @param int $columnCount
      * @return Mage_Catalog_Block_Product_List
      */
     public function addColumnCountLayoutDepend($pageLayout, $columnCount)
@@ -497,6 +631,18 @@ abstract class Mage_Catalog_Block_Product_Abstract extends Mage_Core_Block_Templ
     public function getCanShowProductPrice($product)
     {
         return $product->getCanShowPrice() !== false;
+    }
+
+    /**
+     * Get if it is necessary to show product stock status
+     *
+     * @return bool
+     */
+    public function displayProductStockStatus()
+    {
+        $statusInfo = new Varien_Object(array('display_status' => true));
+        Mage::dispatchEvent('catalog_block_product_status_display', array('status' => $statusInfo));
+        return (boolean)$statusInfo->getDisplayStatus();
     }
 
     /**

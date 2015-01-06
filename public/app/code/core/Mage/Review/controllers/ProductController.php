@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Review
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -75,6 +75,9 @@ class Mage_Review_ProductController extends Mage_Core_Controller_Front_Action
         $productId  = (int) $this->getRequest()->getParam('id');
 
         $product = $this->_loadProduct($productId);
+        if (!$product) {
+            return false;
+        }
 
         if ($categoryId) {
             $category = Mage::getModel('catalog/category')->load($categoryId);
@@ -83,7 +86,10 @@ class Mage_Review_ProductController extends Mage_Core_Controller_Front_Action
 
         try {
             Mage::dispatchEvent('review_controller_product_init', array('product'=>$product));
-            Mage::dispatchEvent('review_controller_product_init_after', array('product'=>$product, 'controller_action' => $this));
+            Mage::dispatchEvent('review_controller_product_init_after', array(
+                'product'           => $product,
+                'controller_action' => $this
+            ));
         } catch (Mage_Core_Exception $e) {
             Mage::logException($e);
             return false;
@@ -149,6 +155,12 @@ class Mage_Review_ProductController extends Mage_Core_Controller_Front_Action
      */
     public function postAction()
     {
+        if (!$this->_validateFormKey()) {
+            // returns to the product item page
+            $this->_redirectReferer();
+            return;
+        }
+
         if ($data = Mage::getSingleton('review/session')->getFormData(true)) {
             $rating = array();
             if (isset($data['ratings']) && is_array($data['ratings'])) {
@@ -296,4 +308,3 @@ class Mage_Review_ProductController extends Mage_Core_Controller_Front_Action
         $this->generateLayoutXml()->generateLayoutBlocks();
     }
 }
-

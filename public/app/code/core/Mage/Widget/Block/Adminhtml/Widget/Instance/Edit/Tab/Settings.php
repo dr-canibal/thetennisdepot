@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Widget
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -112,18 +112,18 @@ class Mage_Widget_Block_Adminhtml_Widget_Instance_Edit_Tab_Settings
         $this->_addElementTypes($fieldset);
 
         $fieldset->addField('type', 'select', array(
-            'name'  => 'type',
-            'label' => Mage::helper('widget')->__('Type'),
-            'title' => Mage::helper('widget')->__('Type'),
-            'class' => '',
-            'values' => $this->getTypesOptionsArray()
+            'name'     => 'type',
+            'label'    => Mage::helper('widget')->__('Type'),
+            'title'    => Mage::helper('widget')->__('Type'),
+            'required' => true,
+            'values'   => $this->getTypesOptionsArray()
         ));
 
         $fieldset->addField('package_theme', 'select', array(
-            'name'  => 'package_theme',
-            'label' => Mage::helper('widget')->__('Design Package/Theme'),
-            'title' => Mage::helper('widget')->__('Design Package/Theme'),
-            'required' => false,
+            'name'     => 'package_theme',
+            'label'    => Mage::helper('widget')->__('Design Package/Theme'),
+            'title'    => Mage::helper('widget')->__('Design Package/Theme'),
+            'required' => true,
             'values'   => $this->getPackegeThemeOptionsArray()
         ));
         $continueButton = $this->getLayout()
@@ -150,9 +150,10 @@ class Mage_Widget_Block_Adminhtml_Widget_Instance_Edit_Tab_Settings
     public function getContinueUrl()
     {
         return $this->getUrl('*/*/*', array(
-            '_current' => true,
-            'type' => '{{type}}',
-            'package_theme' => '{{package_theme}}'
+            '_current'  => true,
+            'type'      => '{{type}}',
+            'package'   => '{{package}}',
+            'theme'     => '{{theme}}'
         ));
     }
 

@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Core
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -215,16 +215,35 @@ abstract class Mage_Core_Helper_Abstract
                 if (is_array($allowedTags) and !empty($allowedTags)) {
                     $allowed = implode('|', $allowedTags);
                     $result = preg_replace('/<([\/\s\r\n]*)(' . $allowed . ')([\/\s\r\n]*)>/si', '##$1$2$3##', $data);
-                    $result = htmlspecialchars($result);
+                    $result = htmlspecialchars($result, ENT_COMPAT, 'UTF-8', false);
                     $result = preg_replace('/##([\/\s\r\n]*)(' . $allowed . ')([\/\s\r\n]*)##/si', '<$1$2$3>', $result);
                 } else {
-                    $result = htmlspecialchars($data);
+                    $result = htmlspecialchars($data, ENT_COMPAT, 'UTF-8', false);
                 }
             } else {
                 $result = $data;
             }
         }
         return $result;
+    }
+
+     /**
+     * Remove html tags, but leave "<" and ">" signs
+     *
+     * @param   string $html
+     * @return  string
+     */
+    public function removeTags($html)
+    {
+        $html = preg_replace_callback(
+            "# <(?![/a-z]) | (?<=\s)>(?![a-z]) #xi",
+            function ($matches) {
+                return htmlentities($matches[0]);
+            },
+            $html
+        );
+        $html =  strip_tags($html);
+        return htmlspecialchars_decode($html);
     }
 
     /**
@@ -281,6 +300,22 @@ abstract class Mage_Core_Helper_Abstract
     }
 
     /**
+     * Escape quotes inside html attributes
+     * Use $addSlashes = false for escaping js that inside html attribute (onClick, onSubmit etc)
+     *
+     * @param string $data
+     * @param bool $addSlashes
+     * @return string
+     */
+    public function quoteEscape($data, $addSlashes = false)
+    {
+        if ($addSlashes === true) {
+            $data = addslashes($data);
+        }
+        return htmlspecialchars($data, ENT_QUOTES, null, false);
+    }
+
+    /**
      * Retrieve url
      *
      * @param   string $route
@@ -318,7 +353,7 @@ abstract class Mage_Core_Helper_Abstract
      *  base64_encode() for URLs encoding
      *
      *  @param    string $url
-     *  @return	  string
+     *  @return   string
      */
     public function urlEncode($url)
     {
@@ -329,7 +364,7 @@ abstract class Mage_Core_Helper_Abstract
      *  base64_dencode() for URLs dencoding
      *
      *  @param    string $url
-     *  @return	  string
+     *  @return   string
      */
     public function urlDecode($url)
     {
@@ -338,10 +373,25 @@ abstract class Mage_Core_Helper_Abstract
     }
 
     /**
+     *  base64_decode() and escape quotes in url
+     *
+     *  @param    string $url
+     *  @return   string
+     */
+    public function urlDecodeAndEscape($url)
+    {
+        $url = $this->urlDecode($url);
+        $quote = array ('\'', '"');
+        $replace = array('%27', '%22');
+        $url = str_replace($quote, $replace, $url);
+        return $url;
+    }
+
+    /**
      *   Translate array
      *
      *  @param    array $arr
-     *  @return	  array
+     *  @return   array
      */
     public function translateArray($arr = array())
     {

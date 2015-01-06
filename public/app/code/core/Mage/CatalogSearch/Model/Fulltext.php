@@ -10,25 +10,34 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_CatalogSearch
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * Catalog advanced search model
  *
- * @category   Mage
- * @package    Mage_CatalogSearch
+ * @method Mage_CatalogSearch_Model_Resource_Fulltext _getResource()
+ * @method Mage_CatalogSearch_Model_Resource_Fulltext getResource()
+ * @method int getProductId()
+ * @method Mage_CatalogSearch_Model_Fulltext setProductId(int $value)
+ * @method int getStoreId()
+ * @method Mage_CatalogSearch_Model_Fulltext setStoreId(int $value)
+ * @method string getDataIndex()
+ * @method Mage_CatalogSearch_Model_Fulltext setDataIndex(string $value)
+ *
+ * @category    Mage
+ * @package     Mage_CatalogSearch
  * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_CatalogSearch_Model_Fulltext extends Mage_Core_Model_Abstract
@@ -37,6 +46,14 @@ class Mage_CatalogSearch_Model_Fulltext extends Mage_Core_Model_Abstract
     const SEARCH_TYPE_FULLTEXT          = 2;
     const SEARCH_TYPE_COMBINE           = 3;
     const XML_PATH_CATALOG_SEARCH_TYPE  = 'catalog/search/search_type';
+
+    /**
+     * Whether table changes are allowed
+     *
+     * @deprecated after 1.6.1.0
+     * @var bool
+     */
+    protected $_allowTableChanges = true;
 
     protected function _construct()
     {
@@ -52,13 +69,22 @@ class Mage_CatalogSearch_Model_Fulltext extends Mage_Core_Model_Abstract
      * (1, 2)       => Regenerate index for product Id=2 and its store view Id=1
      * (null, 2)    => Regenerate index for all store views of product Id=2
      *
-     * @param int $storeId Store View Id
-     * @param int | array $productId Product Entity Id
+     * @param int|null $storeId Store View Id
+     * @param int|array|null $productIds Product Entity Id
+     *
      * @return Mage_CatalogSearch_Model_Fulltext
      */
     public function rebuildIndex($storeId = null, $productIds = null)
     {
+        Mage::dispatchEvent('catalogsearch_index_process_start', array(
+            'store_id'      => $storeId,
+            'product_ids'   => $productIds
+        ));
+
         $this->getResource()->rebuildIndex($storeId, $productIds);
+
+        Mage::dispatchEvent('catalogsearch_index_process_complete', array());
+
         return $this;
     }
 
@@ -122,11 +148,34 @@ class Mage_CatalogSearch_Model_Fulltext extends Mage_Core_Model_Abstract
         return Mage::getStoreConfig(self::XML_PATH_CATALOG_SEARCH_TYPE, $storeId);
     }
 
+
+
+
+
+    // Deprecated methods
+
     /**
-     * Update category'es products indexes
+     * Set whether table changes are allowed
+     *
+     * @deprecated after 1.6.1.0
+     *
+     * @param bool $value
+     * @return Mage_CatalogSearch_Model_Fulltext
+     */
+    public function setAllowTableChanges($value = true)
+    {
+        $this->_allowTableChanges = $value;
+        return $this;
+    }
+
+    /**
+     * Update category products indexes
+     *
+     * @deprecated after 1.6.2.0
      *
      * @param array $productIds
      * @param array $categoryIds
+     *
      * @return Mage_CatalogSearch_Model_Fulltext
      */
     public function updateCategoryIndex($productIds, $categoryIds)

@@ -10,17 +10,17 @@
  * http://opensource.org/licenses/afl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    design
  * @package     base_default
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 ?>
@@ -36,33 +36,31 @@ if(!window.toogleVisibilityOnObjects) {
                     item.removeClassName('validation-passed');
                 });
             });
-
-
         } else {
             objects.each(function(item){
-                $(item).hide();
-                $$('#' + item + ' .input-text').each(function(sitem) {
-                    sitem.addClassName('validation-passed');
-                });
-
-                $$('#' + item + ' .giftmessage-area').each(function(sitem) {
-                    sitem.value = '';
-                });
-                $$('#' + item + ' .checkbox').each(function(sitem) {
-                    sitem.checked = false;
-                });
-                $$('#' + item + ' .select').each(function(sitem) {
-                    sitem.value = '';
-                });
-                $$('#' + item + ' .price-box').each(function(sitem) {
-                    sitem.addClassName('no-display');
-                });
+                if ($(item)) {
+                    $(item).hide();
+                    $$('#' + item + ' .input-text').each(function(sitem) {
+                        sitem.addClassName('validation-passed');
+                    });
+                    $$('#' + item + ' .giftmessage-area').each(function(sitem) {
+                        sitem.value = '';
+                    });
+                    $$('#' + item + ' .checkbox').each(function(sitem) {
+                        sitem.checked = false;
+                    });
+                    $$('#' + item + ' .select').each(function(sitem) {
+                        sitem.value = '';
+                    });
+                    $$('#' + item + ' .price-box').each(function(sitem) {
+                        sitem.addClassName('no-display');
+                    });
+                }
             });
-
         }
-
     }
 }
+
 if(!window.toogleRequired) {
     var toogleRequired = function (source, objects)
     {
@@ -117,7 +115,7 @@ billing.onSave = function(evt){
                     <input type="checkbox" name="allow_gift_messages_for_order" id="allow_gift_messages_for_order" value="1" onclick="toogleVisibilityOnObjects(this, ['allow-gift-messages-for-order-container']);"<?php if($this->getEntityHasMessage()): ?> checked="checked"<?php endif; ?> class="checkbox" />
                     <label for="allow_gift_messages_for_order"><?php echo $this->__('Add gift options for the Entire Order') ?></label>
                 </p>
-                <div class="allow-gift-messages-for-order-container">
+                <div class="allow-gift-messages-for-order-container" id="allow-gift-messages-for-order-container" style="display:none">
                     <p><?php echo $this->__('You can leave this box blank if you do not wish to add a gift message for whole order.') ?></p>
                     <input type="hidden" name="giftmessage[<?php echo $this->getEntity()->getId() ?>][type]"  value="quote" />
                     <ul class="form-list">
@@ -163,13 +161,13 @@ billing.onSave = function(evt){
                  <li class="item">
                      <div class="product-img-box">
                          <p class="product-image">
-                             <img src="<?php echo $this->helper('catalog/image')->init($_product, 'thumbnail')->resize(75); ?>" width="75" height="75" alt="<?php echo $this->htmlEscape($_product->getName()) ?>" title="<?php echo $this->htmlEscape($_product->getName()) ?>" />
+                             <img src="<?php echo $this->helper('catalog/image')->init($_product, 'thumbnail')->resize(75); ?>" width="75" height="75" alt="<?php echo $this->escapeHtml($_product->getName()) ?>" title="<?php echo $this->escapeHtml($_product->getName()) ?>" />
                          </p>
                          <p class="number"><?php echo $this->__('Item %d of %d', $_index+1, $this->countItems()) ?></p>
                      </div>
                      <div class="details">
                          <div class="f-fix">
-                             <h5 class="product-name"><?php echo $this->htmlEscape($_product->getName()) ?></h5>
+                             <h5 class="product-name"><?php echo $this->escapeHtml($_product->getName()) ?></h5>
                              <input type="hidden" name="giftmessage[<?php echo $_item->getId() ?>][type]" value="quote_item" />
                               <ul class="form-list">
                                  <li class="fields">
@@ -280,14 +278,14 @@ billing.onSave = function(evt){
              <?php $_product=$_item->getProduct() ?>
                  <li class="item">
                      <div class="product-img-box">
-                         <p class="product-image"><img src="<?php echo $this->helper('catalog/image')->init($_product, 'small_image')->resize(75); ?>" width="75" height="75" alt="<?php echo $this->htmlEscape($_product->getName()) ?>" title="<?php echo $this->htmlEscape($_product->getName()) ?>" /></p>
+                         <p class="product-image"><img src="<?php echo $this->helper('catalog/image')->init($_product, 'small_image')->resize(75); ?>" width="75" height="75" alt="<?php echo $this->escapeHtml($_product->getName()) ?>" title="<?php echo $this->escapeHtml($_product->getName()) ?>" /></p>
                          <p class="number"><?php echo $this->__('Item %d of %d', $_index+1, $this->countItems()) ?></p>
                      </div>
                      <div class="details">
                          <div class="f-fix">
                              <input type="hidden" name="giftmessage[<?php echo $_item->getId() ?>][type]" value="quote_address_item" />
                              <input type="hidden" name="giftmessage[<?php echo $_item->getId() ?>][address]" value="<?php echo $this->getEntity()->getId()?>" />
-                             <h5 class="product-name"><?php echo $this->htmlEscape($_product->getName()) ?></h5>
+                             <h5 class="product-name"><?php echo $this->escapeHtml($_product->getName()) ?></h5>
                              <ul class="form-list">
                                  <li class="fields">
                                      <div class="field">

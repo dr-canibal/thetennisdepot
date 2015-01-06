@@ -10,20 +10,49 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+/**
+ * Enter description here ...
+ *
+ * @method Mage_Sales_Model_Resource_Order_Shipment_Track _getResource()
+ * @method Mage_Sales_Model_Resource_Order_Shipment_Track getResource()
+ * @method int getParentId()
+ * @method Mage_Sales_Model_Order_Shipment_Track setParentId(int $value)
+ * @method float getWeight()
+ * @method Mage_Sales_Model_Order_Shipment_Track setWeight(float $value)
+ * @method float getQty()
+ * @method Mage_Sales_Model_Order_Shipment_Track setQty(float $value)
+ * @method int getOrderId()
+ * @method Mage_Sales_Model_Order_Shipment_Track setOrderId(int $value)
+ * @method Mage_Sales_Model_Order_Shipment_Track setNumber(string $value)
+ * @method string getDescription()
+ * @method Mage_Sales_Model_Order_Shipment_Track setDescription(string $value)
+ * @method string getTitle()
+ * @method Mage_Sales_Model_Order_Shipment_Track setTitle(string $value)
+ * @method string getCarrierCode()
+ * @method Mage_Sales_Model_Order_Shipment_Track setCarrierCode(string $value)
+ * @method string getCreatedAt()
+ * @method Mage_Sales_Model_Order_Shipment_Track setCreatedAt(string $value)
+ * @method string getUpdatedAt()
+ * @method Mage_Sales_Model_Order_Shipment_Track setUpdatedAt(string $value)
+ *
+ * @category    Mage
+ * @package     Mage_Sales
+ * @author      Magento Core Team <core@magentocommerce.com>
+ */
 class Mage_Sales_Model_Order_Shipment_Track extends Mage_Sales_Model_Abstract
 {
     const CUSTOM_CARRIER_CODE   = 'custom';
@@ -38,6 +67,29 @@ class Mage_Sales_Model_Order_Shipment_Track extends Mage_Sales_Model_Abstract
     function _construct()
     {
         $this->_init('sales/order_shipment_track');
+    }
+
+    /**
+     * Init mapping array of short fields to
+     * its full names
+     *
+     * @resturn Varien_Object
+     */
+    protected function _initOldFieldsMap()
+    {
+        $this->_oldFieldsMap = array(
+            'number' => 'track_number'
+        );
+    }
+
+    /**
+     * Back compatibility with old versions.
+     *
+     * @return string
+     */
+    public function getNumber()
+    {
+        return $this->getData('track_number');
     }
 
     /**
@@ -90,8 +142,9 @@ class Mage_Sales_Model_Order_Shipment_Track extends Mage_Sales_Model_Abstract
     {
         $carrierInstance = Mage::getSingleton('shipping/config')->getCarrierInstance($this->getCarrierCode());
         if (!$carrierInstance) {
+            $custom = array();
             $custom['title'] = $this->getTitle();
-            $custom['number'] = $this->getNumber();
+            $custom['number'] = $this->getTrackNumber();
             return $custom;
         } else {
             $carrierInstance->setStore($this->getStore());
@@ -115,6 +168,16 @@ class Mage_Sales_Model_Order_Shipment_Track extends Mage_Sales_Model_Abstract
             return $this->getShipment()->getStore();
         }
         return Mage::app()->getStore();
+    }
+
+    /**
+     * Get store id
+     *
+     * @return int
+     */
+    public function getStoreId()
+    {
+        return $this->getStore()->getId();
     }
 
     /**

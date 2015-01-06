@@ -10,23 +10,25 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * Grid widget massaction block
  *
+ * @method Mage_Sales_Model_Quote setHideFormElement(boolean $value) Hide Form element to prevent IE errors
+ * @method boolean getHideFormElement()
  * @category   Mage
  * @package    Mage_Adminhtml
  * @author      Magento Core Team <core@magentocommerce.com>
@@ -40,6 +42,9 @@ abstract class Mage_Adminhtml_Block_Widget_Grid_Massaction_Abstract extends Mage
      */
     protected $_items = array();
 
+    /**
+     * Sets Massaction template
+     */
     public function __construct()
     {
         parent::__construct();
@@ -187,10 +192,8 @@ abstract class Mage_Adminhtml_Block_Widget_Grid_Massaction_Abstract extends Mage
         if($selected = $this->getRequest()->getParam($this->getFormFieldNameInternal())) {
             $selected = explode(',', $selected);
             return join(',', $selected);
-//            return Mage::helper('core')->jsonEncode($selected);
         } else {
             return '';
-//            return '[]';
         }
     }
 
@@ -221,13 +224,14 @@ abstract class Mage_Adminhtml_Block_Widget_Grid_Massaction_Abstract extends Mage
 
     public function getJavaScript()
     {
-        return "
-                var {$this->getJsObjectName()} = new varienGridMassaction('{$this->getHtmlId()}', {$this->getGridJsObjectName()}, '{$this->getSelectedJson()}', '{$this->getFormFieldNameInternal()}', '{$this->getFormFieldName()}');
-                {$this->getJsObjectName()}.setItems({$this->getItemsJson()});
-                {$this->getJsObjectName()}.setGridIds('{$this->getGridIdsJson()}');
-                ". ($this->getUseAjax() ? "{$this->getJsObjectName()}.setUseAjax(true);" : '') . "
-                ". ($this->getUseSelectAll() ? "{$this->getJsObjectName()}.setUseSelectAll(true);" : '') .
-                "{$this->getJsObjectName()}.errorText = '{$this->getErrorText()}';";
+        return " var {$this->getJsObjectName()} = new varienGridMassaction('{$this->getHtmlId()}', "
+                . "{$this->getGridJsObjectName()}, '{$this->getSelectedJson()}'"
+                . ", '{$this->getFormFieldNameInternal()}', '{$this->getFormFieldName()}');"
+                . "{$this->getJsObjectName()}.setItems({$this->getItemsJson()}); "
+                . "{$this->getJsObjectName()}.setGridIds('{$this->getGridIdsJson()}');"
+                . ($this->getUseAjax() ? "{$this->getJsObjectName()}.setUseAjax(true);" : '')
+                . ($this->getUseSelectAll() ? "{$this->getJsObjectName()}.setUseSelectAll(true);" : '')
+                . "{$this->getJsObjectName()}.errorText = '{$this->getErrorText()}';";
     }
 
     public function getGridIdsJson()
@@ -240,10 +244,8 @@ abstract class Mage_Adminhtml_Block_Widget_Grid_Massaction_Abstract extends Mage
 
         if(!empty($gridIds)) {
             return join(",", $gridIds);
-            //return Mage::helper('core')->jsonEncode($gridIds);
         }
         return '';
-        //return '[]';
     }
 
     public function getHtmlId()
@@ -288,4 +290,3 @@ abstract class Mage_Adminhtml_Block_Widget_Grid_Massaction_Abstract extends Mage
         return $this;
     }
 }
- // Class Mage_Adminhtml_Block_Widget_Grid_Massaction_Abstract End

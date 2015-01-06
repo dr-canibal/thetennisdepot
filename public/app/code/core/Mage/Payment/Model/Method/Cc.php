@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Payment
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
@@ -105,39 +105,56 @@ class Mage_Payment_Model_Method_Cc extends Mage_Payment_Model_Method_Abstract
                 || ($this->OtherCcType($info->getCcType()) && $this->validateCcNumOther($ccNumber))) {
 
                 $ccType = 'OT';
+                $discoverNetworkRegexp = '/^(30[0-5]\d{13}|3095\d{12}|35(2[8-9]\d{12}|[3-8]\d{13})|36\d{12}'
+                    . '|3[8-9]\d{14}|6011(0\d{11}|[2-4]\d{11}|74\d{10}|7[7-9]\d{10}|8[6-9]\d{10}|9\d{11})'
+                    . '|62(2(12[6-9]\d{10}|1[3-9]\d{11}|[2-8]\d{12}|9[0-1]\d{11}|92[0-5]\d{10})|[4-6]\d{13}'
+                    . '|8[2-8]\d{12})|6(4[4-9]\d{13}|5\d{14}))$/';
                 $ccTypeRegExpList = array(
                     //Solo, Switch or Maestro. International safe
-                    //'SS'  => '/^((6759[0-9]{12})|(6334|6767[0-9]{12})|(6334|6767[0-9]{14,15})|(5018|5020|5038|6304|6759|6761|6763[0-9]{12,19})|(49[013][1356][0-9]{12})|(633[34][0-9]{12})|(633110[0-9]{10})|(564182[0-9]{10}))([0-9]{2,3})?$/', // Maestro / Solo
-                    'SO' => '/(^(6334)[5-9](\d{11}$|\d{13,14}$))|(^(6767)(\d{12}$|\d{14,15}$))/', // Solo only
-                    'SM' => '/(^(5[0678])\d{11,18}$)|(^(6[^05])\d{11,18}$)|(^(601)[^1]\d{9,16}$)|(^(6011)\d{9,11}$)|(^(6011)\d{13,16}$)|(^(65)\d{11,13}$)|(^(65)\d{15,18}$)|(^(49030)[2-9](\d{10}$|\d{12,13}$))|(^(49033)[5-9](\d{10}$|\d{12,13}$))|(^(49110)[1-2](\d{10}$|\d{12,13}$))|(^(49117)[4-9](\d{10}$|\d{12,13}$))|(^(49118)[0-2](\d{10}$|\d{12,13}$))|(^(4936)(\d{12}$|\d{14,15}$))/',
-                    'VI'  => '/^4[0-9]{12}([0-9]{3})?$/',             // Visa
-                    'MC'  => '/^5[1-5][0-9]{14}$/',                   // Master Card
-                    'AE'  => '/^3[47][0-9]{13}$/',                    // American Express
-                    'DI'  => '/^6011[0-9]{12}$/',                     // Discovery
-                    'JCB' => '/^(3[0-9]{15}|(2131|1800)[0-9]{11})$/', // JCB
+                    /*
+                    // Maestro / Solo
+                    'SS'  => '/^((6759[0-9]{12})|(6334|6767[0-9]{12})|(6334|6767[0-9]{14,15})'
+                               . '|(5018|5020|5038|6304|6759|6761|6763[0-9]{12,19})|(49[013][1356][0-9]{12})'
+                               . '|(633[34][0-9]{12})|(633110[0-9]{10})|(564182[0-9]{10}))([0-9]{2,3})?$/',
+                    */
+                    // Solo only
+                    'SO' => '/(^(6334)[5-9](\d{11}$|\d{13,14}$))|(^(6767)(\d{12}$|\d{14,15}$))/',
+                    // Visa
+                    'VI'  => '/^4[0-9]{12}([0-9]{3})?$/',
+                    // Master Card
+                    'MC'  => '/^5[1-5][0-9]{14}$/',
+                    // American Express
+                    'AE'  => '/^3[47][0-9]{13}$/',
+                    // Discover Network
+                    'DI'  => $discoverNetworkRegexp,
+                    // Dinners Club (Belongs to Discover Network)
+                    'DICL' => $discoverNetworkRegexp,
+                    // JCB (Belongs to Discover Network)
+                    'JCB' => $discoverNetworkRegexp,
+
+                    // Maestro & Switch
+                    'SM' => '/(^(5[0678])\d{11,18}$)|(^(6[^05])\d{11,18}$)|(^(601)[^1]\d{9,16}$)|(^(6011)\d{9,11}$)'
+                    . '|(^(6011)\d{13,16}$)|(^(65)\d{11,13}$)|(^(65)\d{15,18}$)'
+                    . '|(^(49030)[2-9](\d{10}$|\d{12,13}$))|(^(49033)[5-9](\d{10}$|\d{12,13}$))'
+                    . '|(^(49110)[1-2](\d{10}$|\d{12,13}$))|(^(49117)[4-9](\d{10}$|\d{12,13}$))'
+                    . '|(^(49118)[0-2](\d{10}$|\d{12,13}$))|(^(4936)(\d{12}$|\d{14,15}$))/'
                 );
 
-                foreach ($ccTypeRegExpList as $ccTypeMatch=>$ccTypeRegExp) {
-                    if (preg_match($ccTypeRegExp, $ccNumber)) {
-                        $ccType = $ccTypeMatch;
-                        break;
+                $specifiedCCType = $info->getCcType();
+                if (array_key_exists($specifiedCCType, $ccTypeRegExpList)) {
+                    $ccTypeRegExp = $ccTypeRegExpList[$specifiedCCType];
+                    if (!preg_match($ccTypeRegExp, $ccNumber)) {
+                        $errorMsg = Mage::helper('payment')->__('Credit card number mismatch with credit card type.');
                     }
-                }
-
-                if (!$this->OtherCcType($info->getCcType()) && $ccType!=$info->getCcType()) {
-                    $errorCode = 'ccsave_cc_type,ccsave_cc_number';
-                    $errorMsg = $this->_getHelper()->__('Credit card number mismatch with credit card type.');
                 }
             }
             else {
-                $errorCode = 'ccsave_cc_number';
-                $errorMsg = $this->_getHelper()->__('Invalid Credit Card Number');
+                $errorMsg = Mage::helper('payment')->__('Invalid Credit Card Number');
             }
 
         }
         else {
-            $errorCode = 'ccsave_cc_type';
-            $errorMsg = $this->_getHelper()->__('Credit card type is not allowed for this payment method.');
+            $errorMsg = Mage::helper('payment')->__('Credit card type is not allowed for this payment method.');
         }
 
         //validate credit card verification number
@@ -145,18 +162,16 @@ class Mage_Payment_Model_Method_Cc extends Mage_Payment_Model_Method_Abstract
             $verifcationRegEx = $this->getVerificationRegEx();
             $regExp = isset($verifcationRegEx[$info->getCcType()]) ? $verifcationRegEx[$info->getCcType()] : '';
             if (!$info->getCcCid() || !$regExp || !preg_match($regExp ,$info->getCcCid())){
-                $errorMsg = $this->_getHelper()->__('Please enter a valid credit card verification number.');
+                $errorMsg = Mage::helper('payment')->__('Please enter a valid credit card verification number.');
             }
         }
 
         if ($ccType != 'SS' && !$this->_validateExpDate($info->getCcExpYear(), $info->getCcExpMonth())) {
-            $errorCode = 'ccsave_expiration,ccsave_expiration_yr';
-            $errorMsg = $this->_getHelper()->__('Incorrect credit card expiration date.');
+            $errorMsg = Mage::helper('payment')->__('Incorrect credit card expiration date.');
         }
 
         if($errorMsg){
             Mage::throwException($errorMsg);
-            //throw Mage::exception('Mage_Payment', $errorMsg, $errorCode);
         }
 
         //This must be after all validation conditions
@@ -187,7 +202,7 @@ class Mage_Payment_Model_Method_Cc extends Mage_Payment_Model_Method_Abstract
             'SM' => '/^[0-9]{3,4}$/', // Switch or Maestro
             'SO' => '/^[0-9]{3,4}$/', // Solo
             'OT' => '/^[0-9]{3,4}$/',
-            'JCB' => '/^[0-9]{4}$/' //JCB
+            'JCB' => '/^[0-9]{3,4}$/' //JCB
         );
         return $verificationExpList;
     }
@@ -195,7 +210,9 @@ class Mage_Payment_Model_Method_Cc extends Mage_Payment_Model_Method_Abstract
     protected function _validateExpDate($expYear, $expMonth)
     {
         $date = Mage::app()->getLocale()->date();
-        if (!$expYear || !$expMonth || ($date->compareYear($expYear)==1) || ($date->compareYear($expYear) == 0 && ($date->compareMonth($expMonth)==1 )  )) {
+        if (!$expYear || !$expMonth || ($date->compareYear($expYear) == 1)
+            || ($date->compareYear($expYear) == 0 && ($date->compareMonth($expMonth) == 1))
+        ) {
             return false;
         }
         return true;
@@ -259,6 +276,7 @@ class Mage_Payment_Model_Method_Cc extends Mage_Payment_Model_Method_Abstract
     /**
      * Check whether there are CC types set in configuration
      *
+     * @param Mage_Sales_Model_Quote|null $quote
      * @return bool
      */
     public function isAvailable($quote = null)

@@ -10,26 +10,26 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_XmlConnect
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * XmlConnect Country selector form element
  *
- * @category   Mage
- * @package    Mage_XmlConnect
- * @author     Magento Core Team <core@magentocommerce.com>
+ * @category    Mage
+ * @package     Mage_XmlConnect
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_XmlConnect_Block_Adminhtml_Mobile_Form_Element_Country extends Varien_Data_Form_Element_Checkboxes
 {
@@ -90,7 +90,7 @@ class Mage_XmlConnect_Block_Adminhtml_Mobile_Form_Element_Country extends Varien
         $id = $this->getData('id');
         $id = empty($id) ? '' : ' id="' . $id . '-table"';
         $class = $this->getData('class');
-        $html = "\n<table class=\"countries {$class}\"{$id}>\n";
+        $html = PHP_EOL . "<table class=\"countries {$class}\"{$id}>" . PHP_EOL;
 
         $zebrine = '';
         $stripy = false;
@@ -100,7 +100,7 @@ class Mage_XmlConnect_Block_Adminhtml_Mobile_Form_Element_Country extends Varien
 
         $columns--;
         foreach ($options as $row) {
-            $html .= "  <tr{$zebrine}>\n    ";
+            $html .= "<tr{$zebrine}>" . PHP_EOL;
 
             if ($stripy) {
                 $zebrine = empty($zebrine) ? ' class="odd"' : '';
@@ -123,11 +123,10 @@ class Mage_XmlConnect_Block_Adminhtml_Mobile_Form_Element_Country extends Varien
                 }
             }
 
-            $html .= "\n  </tr>\n";
+            $html .= PHP_EOL . '</tr>' . PHP_EOL;
         }
 
-        $html .= "</table>\n"
-            . $this->getAfterElementHtml();
+        $html .= '</table>' . PHP_EOL . $this->getAfterElementHtml();
 
         return $html;
     }
@@ -149,7 +148,8 @@ class Mage_XmlConnect_Block_Adminhtml_Mobile_Form_Element_Country extends Varien
             $border = $this->_useBorderClass ? ' class="border"' : '';
             $html = '<td' . $border . '><input id="' . $id . '"';
             foreach ($this->getHtmlAttributes() as $attribute) {
-                if ($value = $this->getDataUsingMethod($attribute, $option['value'])) {
+                $value = $this->getDataUsingMethod($attribute, $option['value']);
+                if ($value) {
                     $html .= ' ' . $attribute . '="' . $value . '"';
                 }
             }

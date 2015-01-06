@@ -10,22 +10,41 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_XmlConnect
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+
+/**
+ * Xmlconnect template edit form block
+ *
+ * @category    Mage
+ * @package     Mage_XmlConnect
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_XmlConnect_Block_Adminhtml_Template_Edit_Form extends Mage_XmlConnect_Block_Adminhtml_Mobile_Widget_Form
 {
+    /**
+     * Enabled fields flag
+     *
+     * @var bool
+     */
     protected $_fieldsEnabled = true;
+
+    /**
+     * Field dependencies
+     *
+     * @var array
+     */
     protected $_dependentFields = array();
 
     /**
@@ -55,10 +74,10 @@ class Mage_XmlConnect_Block_Adminhtml_Template_Edit_Form extends Mage_XmlConnect
         $action = $this->getUrl('*/*/saveTemplate');
 
         $form = new Varien_Data_Form(array(
-            'id' => 'edit_form',
-            'action' => $action,
-            'method' => 'post',
-            'enctype' => 'multipart/form-data'
+            'id'        => 'edit_form',
+            'action'    => $action,
+            'method'    => 'post',
+            'enctype'   => 'multipart/form-data'
         ));
         $form->setHtmlIdPrefix('template_');
 
@@ -66,16 +85,12 @@ class Mage_XmlConnect_Block_Adminhtml_Template_Edit_Form extends Mage_XmlConnect
         $this->_addElementTypes($fieldset);
 
         if ($model->getId()) {
-            $fieldset->addField('id', 'hidden', array(
-                'name'  => 'id',
-            ));
-            $fieldset->addField('template_id', 'hidden', array(
-                'name'  => 'template_id',
-            ));
+            $fieldset->addField('id', 'hidden', array('name'  => 'id'));
+            $fieldset->addField('template_id', 'hidden', array('name'  => 'template_id'));
         }
 
-        $fieldset->addField('app_code', 'select', array(
-            'name'      => 'app_code',
+        $fieldset->addField('application_id', 'select', array(
+            'name'      => 'application_id',
             'label'     => $this->__('Application'),
             'title'     => $this->__('Application'),
             'disabled'  => $model->getId() || !$this->_fieldsEnabled ? true : false,

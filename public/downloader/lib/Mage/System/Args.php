@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_System
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -59,7 +59,7 @@ class Mage_System_Args
     {
         $this->flags = array();
         $this->filtered = array();
-        
+
         if(false === $source) {
             $argv = $GLOBALS['argv'];
             array_shift($argv);
@@ -89,7 +89,7 @@ class Mage_System_Args
             }
             elseif(strlen($str) == 2 && $str[0] == '-') // -a
             {
-                $this->flags[$str[1]] = true;                
+                $this->flags[$str[1]] = true;
                 if(isset($argv[$i + 1]) && preg_match('/^--?.+/', $argv[$i + 1]) == 0) {
                     $this->flags[$str[1]] = $argv[$i + 1];
                     $argv[$i + 1] = null;

@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_ImportExport
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -256,11 +256,13 @@ abstract class Mage_ImportExport_Model_Export_Entity_Abstract
                         $from = array_shift($exportFilter[$attrCode]);
                         $to   = array_shift($exportFilter[$attrCode]);
 
-                        if (is_scalar($from) && strtotime($from)) {
-                            $collection->addAttributeToFilter($attrCode, array('from' => $from, 'date' => true));
+                        if (is_scalar($from) && !empty($from)) {
+                            $date = Mage::app()->getLocale()->date($from,null,null,false)->toString('MM/dd/YYYY');
+                            $collection->addAttributeToFilter($attrCode, array('from' => $date, 'date' => true));
                         }
-                        if (is_scalar($to) && strtotime($to)) {
-                            $collection->addAttributeToFilter($attrCode, array('to' => $to, 'date' => true));
+                        if (is_scalar($to) && !empty($to)) {
+                            $date = Mage::app()->getLocale()->date($to,null,null,false)->toString('MM/dd/YYYY');
+                            $collection->addAttributeToFilter($attrCode, array('to' => $date, 'date' => true));
                         }
                     }
                 } elseif (Mage_ImportExport_Model_Export::FILTER_TYPE_NUMBER == $attrFilterType) {
@@ -324,10 +326,10 @@ abstract class Mage_ImportExport_Model_Export_Entity_Abstract
     /**
      * Clean up attribute collection.
      *
-     * @param Mage_Eav_Model_Mysql4_Entity_Attribute_Collection $collection
-     * @return Mage_Eav_Model_Mysql4_Entity_Attribute_Collection
+     * @param Mage_Eav_Model_Resource_Entity_Attribute_Collection $collection
+     * @return Mage_Eav_Model_Resource_Entity_Attribute_Collection
      */
-    public function filterAttributeCollection(Mage_Eav_Model_Mysql4_Entity_Attribute_Collection $collection)
+    public function filterAttributeCollection(Mage_Eav_Model_Resource_Entity_Attribute_Collection $collection)
     {
         $collection->load();
 
@@ -342,7 +344,7 @@ abstract class Mage_ImportExport_Model_Export_Entity_Abstract
     /**
      * Entity attributes collection getter.
      *
-     * @return Mage_Eav_Model_Mysql4_Entity_Attribute_Collection
+     * @return Mage_Eav_Model_Resource_Entity_Attribute_Collection
      */
     abstract public function getAttributeCollection();
 
@@ -403,15 +405,11 @@ abstract class Mage_ImportExport_Model_Export_Entity_Abstract
      */
     public function getErrorMessages()
     {
-        $translator = Mage::helper('importexport');
         $messages = array();
-
         foreach ($this->_errors as $errorCode => $errorRows) {
-            if (isset($this->_messageTemplates[$errorCode])) {
-                $message = $translator->__($this->_messageTemplates[$errorCode]);
-            } else {
-                $message = $translator->__("Invalid value for '%s' column", $errorCode);
-            }
+            $message = isset($this->_messageTemplates[$errorCode])
+                ? Mage::helper('importexport')->__($this->_messageTemplates[$errorCode])
+                : Mage::helper('importexport')->__("Invalid value for '%s' column", $errorCode);
             $messages[$message] = $errorRows;
         }
         return $messages;

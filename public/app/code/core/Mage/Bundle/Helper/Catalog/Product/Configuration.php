@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Bundle
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -39,6 +39,7 @@ class Mage_Bundle_Helper_Catalog_Product_Configuration extends Mage_Core_Helper_
      *
      * @param Mage_Catalog_Model_Product $product
      * @param int $selectionId
+     *
      * @return decimal
      */
     public function getSelectionQty($product, $selectionId)
@@ -55,14 +56,20 @@ class Mage_Bundle_Helper_Catalog_Product_Configuration extends Mage_Core_Helper_
      *
      * @param Mage_Catalog_Model_Product_Configuration_Item_Interface $item
      * @param Mage_Catalog_Model_Product $selectionProduct
+     *
      * @return decimal
      */
-    public function getSelectionFinalPrice(Mage_Catalog_Model_Product_Configuration_Item_Interface $item, $selectionProduct)
+    public function getSelectionFinalPrice(Mage_Catalog_Model_Product_Configuration_Item_Interface $item,
+        $selectionProduct)
     {
-        return $item->getProduct()->getPriceModel()->getSelectionFinalPrice(
-            $item->getProduct(), $selectionProduct,
+        $selectionProduct->unsetData('final_price');
+        return $item->getProduct()->getPriceModel()->getSelectionFinalTotalPrice(
+            $item->getProduct(),
+            $selectionProduct,
             $item->getQty() * 1,
-            $this->getSelectionQty($item->getProduct(), $selectionProduct->getSelectionId())
+            $this->getSelectionQty($item->getProduct(), $selectionProduct->getSelectionId()),
+            false,
+            true
         );
     }
 
@@ -86,7 +93,7 @@ class Mage_Bundle_Helper_Catalog_Product_Configuration extends Mage_Core_Helper_
 
         // get bundle options
         $optionsQuoteItemOption = $item->getOptionByCode('bundle_option_ids');
-        $bundleOptionsIds = unserialize($optionsQuoteItemOption->getValue());
+        $bundleOptionsIds = $optionsQuoteItemOption ? unserialize($optionsQuoteItemOption->getValue()) : array();
         if ($bundleOptionsIds) {
             /**
             * @var Mage_Bundle_Model_Mysql4_Option_Collection
@@ -96,31 +103,37 @@ class Mage_Bundle_Helper_Catalog_Product_Configuration extends Mage_Core_Helper_
             // get and add bundle selections collection
             $selectionsQuoteItemOption = $item->getOptionByCode('bundle_selection_ids');
 
-            $selectionsCollection = $typeInstance->getSelectionsByIds(
-                unserialize($selectionsQuoteItemOption->getValue()),
-                $product
-            );
+            $bundleSelectionIds = unserialize($selectionsQuoteItemOption->getValue());
 
-            $bundleOptions = $optionsCollection->appendSelections($selectionsCollection, true);
-            foreach ($bundleOptions as $bundleOption) {
-                if ($bundleOption->getSelections()) {
-                    $option = array(
-                        'label' => $bundleOption->getTitle(),
-                        'value' => array()
-                    );
+            if (!empty($bundleSelectionIds)) {
+                $selectionsCollection = $typeInstance->getSelectionsByIds(
+                    unserialize($selectionsQuoteItemOption->getValue()),
+                    $product
+                );
 
-                    $bundleSelections = $bundleOption->getSelections();
+                $bundleOptions = $optionsCollection->appendSelections($selectionsCollection, true);
+                foreach ($bundleOptions as $bundleOption) {
+                    if ($bundleOption->getSelections()) {
+                        $option = array(
+                            'label' => $bundleOption->getTitle(),
+                            'value' => array()
+                        );
 
-                    foreach ($bundleSelections as $bundleSelection) {
-                        $qty = $this->getSelectionQty($product, $bundleSelection->getSelectionId()) * 1;
-                        if ($qty) {
-                            $option['value'][] = $qty . ' x ' . $this->escapeHtml($bundleSelection->getName())
-                                . ' ' . Mage::helper('core')->currency($this->getSelectionFinalPrice($item, $bundleSelection));
+                        $bundleSelections = $bundleOption->getSelections();
+
+                        foreach ($bundleSelections as $bundleSelection) {
+                            $qty = $this->getSelectionQty($product, $bundleSelection->getSelectionId()) * 1;
+                            if ($qty) {
+                                $option['value'][] = $qty . ' x ' . $this->escapeHtml($bundleSelection->getName())
+                                    . ' ' . Mage::helper('core')->currency(
+                                        $this->getSelectionFinalPrice($item, $bundleSelection)
+                                    );
+                            }
                         }
-                    }
 
-                    if ($option['value']) {
-                        $options[] = $option;
+                        if ($option['value']) {
+                            $options[] = $option;
+                        }
                     }
                 }
             }

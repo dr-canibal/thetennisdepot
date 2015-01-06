@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -82,7 +82,6 @@ class Mage_Adminhtml_TagController extends Mage_Adminhtml_Controller_Action
         $this->_initAction()
             ->_addBreadcrumb(Mage::helper('adminhtml')->__('All Tags'), Mage::helper('adminhtml')->__('All Tags'))
             ->_setActiveMenu('catalog/tag/all')
-            ->_addContent($this->getLayout()->createBlock('adminhtml/tag_tag'))
             ->renderLayout();
     }
 
@@ -93,7 +92,7 @@ class Mage_Adminhtml_TagController extends Mage_Adminhtml_Controller_Action
     public function ajaxGridAction()
     {
         $this->loadLayout();
-        $this->getResponse()->setBody($this->getLayout()->createBlock('adminhtml/tag_tag_grid')->toHtml());
+        $this->renderLayout();
     }
 
     /**
@@ -103,7 +102,7 @@ class Mage_Adminhtml_TagController extends Mage_Adminhtml_Controller_Action
     public function ajaxPendingGridAction()
     {
         $this->loadLayout();
-        $this->getResponse()->setBody($this->getLayout()->createBlock('adminhtml/tag_grid_pending')->toHtml());
+        $this->renderLayout();
     }
 
     /**
@@ -170,9 +169,10 @@ class Mage_Adminhtml_TagController extends Mage_Adminhtml_Controller_Action
             $model->addData($data);
 
             if (isset($postData['tag_assigned_products'])) {
-                $productIds = Mage::helper('adminhtml/js')->decodeGridSerializedInput($postData['tag_assigned_products']);
-                $tagRelationModel = Mage::getModel('tag/tag_relation');
-                $tagRelationModel->addRelations($model, $productIds);
+                $productIds = Mage::helper('adminhtml/js')->decodeGridSerializedInput(
+                    $postData['tag_assigned_products']
+                );
+                $model->setData('tag_assigned_products', $productIds);
             }
 
             try {
@@ -234,7 +234,6 @@ class Mage_Adminhtml_TagController extends Mage_Adminhtml_Controller_Action
         $this->_initAction()
             ->_addBreadcrumb(Mage::helper('adminhtml')->__('Pending Tags'), Mage::helper('adminhtml')->__('Pending Tags'))
             ->_setActiveMenu('catalog/tag/pending')
-            ->_addContent($this->getLayout()->createBlock('adminhtml/tag_pending'))
             ->renderLayout();
     }
 
@@ -269,7 +268,8 @@ class Mage_Adminhtml_TagController extends Mage_Adminhtml_Controller_Action
     public function productAction()
     {
         $this->_initTag();
-        $this->getResponse()->setBody($this->getLayout()->createBlock('adminhtml/tag_product_grid')->toHtml());
+        $this->loadLayout();
+        $this->renderLayout();
     }
 
     /**
@@ -279,7 +279,8 @@ class Mage_Adminhtml_TagController extends Mage_Adminhtml_Controller_Action
     public function customerAction()
     {
         $this->_initTag();
-        $this->getResponse()->setBody($this->getLayout()->createBlock('adminhtml/tag_customer_grid')->toHtml());
+        $this->loadLayout();
+        $this->renderLayout();
     }
 
     /**

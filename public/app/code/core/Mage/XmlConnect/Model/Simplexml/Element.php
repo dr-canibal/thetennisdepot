@@ -10,25 +10,26 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_XmlConnect
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
- *
  * XmlConnect fixed Varien SimpleXML Element class
  *
- * @author  Magento Core Team <core@magentocommerce.com>
+ * @category    Mage
+ * @package     Mage_XmlConnect
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_XmlConnect_Model_Simplexml_Element extends Varien_Simplexml_Element
 {
@@ -41,14 +42,7 @@ class Mage_XmlConnect_Model_Simplexml_Element extends Varien_Simplexml_Element
     public function appendChild($source)
     {
         if (sizeof($source->children())) {
-            /**
-             * @see http://bugs.php.net/bug.php?id=41867 , fixed in 5.2.4
-             */
-            if (version_compare(phpversion(), '5.2.4', '<')===true) {
-                $name = $source->children()->getName();
-            } else {
-                $name = $source->getName();
-            }
+            $name = $source->getName();
             $child = $this->addChild($name);
         } else {
             $child = $this->addChild($source->getName(), $this->xmlentities($source));
@@ -67,17 +61,54 @@ class Mage_XmlConnect_Model_Simplexml_Element extends Varien_Simplexml_Element
     }
 
     /**
+     * Escape xml entities
+     *
+     * @param mixed $data
+     * @param bool $stripTags
+     * @param array $allowedTags
+     * @return mixed
+     */
+    public function escapeXml($data, $stripTags = true, $allowedTags = null)
+    {
+        if (is_array($data)) {
+            $result = array();
+            foreach ($data as $item) {
+                if ($stripTags) {
+                    $item = Mage::helper('core')->stripTags($item, $allowedTags);
+                }
+                $result[] = $this->xmlentities($item);
+            }
+        } else {
+            if (is_null($data)) {
+                $data = $this;
+            }
+            $data = (string)$data;
+
+            if ($stripTags) {
+                $data = Mage::helper('core')->stripTags($data, $allowedTags);
+            }
+            $result = $this->xmlentities($data);
+        }
+        return $result;
+    }
+
+    /**
      * Converts meaningful xml character (") to xml attribute specification
      *
      * @param string $value
-     * @return string|this
+     * @param bool $stripTags
+     * @return string|Mage_XmlConnect_Model_Simplexml_Element|null
      */
-    public function xmlAttribute($value = null)
+    public function xmlAttribute($value = null, $stripTags = true)
     {
         if (is_null($value)) {
             $value = $this;
         }
         $value = (string)$value;
+
+        if ($stripTags) {
+            $value = Mage::helper('core')->stripTags($value);
+        }
         $value = str_replace(array('&', '"', '<', '>'), array('&amp;', '&quot;', '&lt;', '&gt;'), $value);
         return $value;
     }

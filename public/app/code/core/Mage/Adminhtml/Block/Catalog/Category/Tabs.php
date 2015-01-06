@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -104,8 +104,10 @@ class Mage_Adminhtml_Block_Catalog_Category_Tabs extends Mage_Adminhtml_Block_Wi
         }
 
         $attributeSetId     = $this->getCategory()->getDefaultAttributeSetId();
+        /** @var $groupCollection Mage_Eav_Model_Resource_Entity_Attribute_Group_Collection */
         $groupCollection    = Mage::getResourceModel('eav/entity_attribute_group_collection')
             ->setAttributeSetFilter($attributeSetId)
+            ->setSortOrder()
             ->load();
         $defaultGroupId = 0;
         foreach ($groupCollection as $group) {
@@ -143,32 +145,18 @@ class Mage_Adminhtml_Block_Catalog_Category_Tabs extends Mage_Adminhtml_Block_Wi
             ));
         }
 
-//        $this->addTab('general', array(
-//            'label'     => Mage::helper('catalog')->__('General Information'),
-//            'content'   => $this->getLayout()->createBlock('adminhtml/catalog_category_tab_general')->toHtml(),
-//            'active'    => true
-//        ));
-
         $this->addTab('products', array(
             'label'     => Mage::helper('catalog')->__('Category Products'),
-            'content'   => $this->getLayout()->createBlock('adminhtml/catalog_category_tab_product', 'category.product.grid')->toHtml(),
+            'content'   => $this->getLayout()->createBlock(
+                'adminhtml/catalog_category_tab_product',
+                'category.product.grid'
+            )->toHtml(),
         ));
 
         // dispatch event add custom tabs
         Mage::dispatchEvent('adminhtml_catalog_category_tabs', array(
             'tabs'  => $this
         ));
-
-        /**
-         * @todo Adding tab in observer
-         */
-        if (Mage::app()->getConfig()->getModuleConfig('Mage_GoogleOptimizer')->is('active', true)
-            && Mage::helper('googleoptimizer')->isOptimizerActive($this->getCategory()->getStoreId())) {
-            $this->addTab('googleoptimizer', array(
-                'label'     => Mage::helper('googleoptimizer')->__('Category View Optimization'),
-                'content'   => $this->getLayout()->createBlock('googleoptimizer/adminhtml_catalog_category_edit_tab_googleoptimizer')->toHtml(),
-            ));
-        }
 
         /*$this->addTab('features', array(
             'label'     => Mage::helper('catalog')->__('Feature Products'),

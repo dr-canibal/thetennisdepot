@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -31,7 +31,7 @@
  * @package    Mage_Adminhtml
  * @author      Magento Core Team <core@magentocommerce.com>
  */
-class Mage_Adminhtml_Block_Report_Shopcart_Abandoned_Grid extends Mage_Adminhtml_Block_Widget_Grid
+class Mage_Adminhtml_Block_Report_Shopcart_Abandoned_Grid extends Mage_Adminhtml_Block_Report_Grid_Shopcart
 {
 
     public function __construct()
@@ -42,16 +42,7 @@ class Mage_Adminhtml_Block_Report_Shopcart_Abandoned_Grid extends Mage_Adminhtml
 
     protected function _prepareCollection()
     {
-        if ($this->getRequest()->getParam('website')) {
-            $storeIds = Mage::app()->getWebsite($this->getRequest()->getParam('website'))->getStoreIds();
-        } else if ($this->getRequest()->getParam('group')) {
-            $storeIds = Mage::app()->getGroup($this->getRequest()->getParam('group'))->getStoreIds();
-        } else if ($this->getRequest()->getParam('store')) {
-            $storeIds = array((int)$this->getRequest()->getParam('store'));
-        } else {
-            $storeIds = '';
-        }
-
+        /** @var $collection Mage_Reports_Model_Resource_Quote_Collection */
         $collection = Mage::getResourceModel('reports/quote_collection');
 
         $filter = $this->getParam($this->getVarNameFilter(), array());
@@ -61,9 +52,9 @@ class Mage_Adminhtml_Block_Report_Shopcart_Abandoned_Grid extends Mage_Adminhtml
         }
 
         if (!empty($data)) {
-            $collection->prepareForAbandonedReport($storeIds, $data);
+            $collection->prepareForAbandonedReport($this->_storeIds, $data);
         } else {
-            $collection->prepareForAbandonedReport($storeIds);
+            $collection->prepareForAbandonedReport($this->_storeIds);
         }
 
         $this->setCollection($collection);
@@ -115,14 +106,27 @@ class Mage_Adminhtml_Block_Report_Shopcart_Abandoned_Grid extends Mage_Adminhtml
             'type'      =>'number'
         ));
 
+        if ($this->getRequest()->getParam('website')) {
+            $storeIds = Mage::app()->getWebsite($this->getRequest()->getParam('website'))->getStoreIds();
+        } else if ($this->getRequest()->getParam('group')) {
+            $storeIds = Mage::app()->getGroup($this->getRequest()->getParam('group'))->getStoreIds();
+        } else if ($this->getRequest()->getParam('store')) {
+            $storeIds = array((int)$this->getRequest()->getParam('store'));
+        } else {
+            $storeIds = array();
+        }
+        $this->setStoreIds($storeIds);
+        $currencyCode = $this->getCurrentCurrencyCode();
+
         $this->addColumn('subtotal', array(
-            'header'    =>Mage::helper('reports')->__('Subtotal'),
-            'width'     =>'80px',
-            'type'      =>'currency',
-            'currency_code' => $this->getCurrentCurrencyCode(),
-            'index'     =>'subtotal',
-            'sortable'  =>false,
-            'renderer'  =>'adminhtml/report_grid_column_renderer_currency'
+            'header'        => Mage::helper('reports')->__('Subtotal'),
+            'width'         => '80px',
+            'type'          => 'currency',
+            'currency_code' => $currencyCode,
+            'index'         => 'subtotal',
+            'sortable'      => false,
+            'renderer'      => 'adminhtml/report_grid_column_renderer_currency',
+            'rate'          => $this->getRate($currencyCode),
         ));
 
         $this->addColumn('coupon_code', array(

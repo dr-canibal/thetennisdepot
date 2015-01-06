@@ -10,23 +10,35 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_SalesRule
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-
+/**
+ * SalesRule Model Observer
+ *
+ * @category    Mage
+ * @package     Mage_SalesRule
+ * @author      Magento Core Team <core@magentocommerce.com>
+ */
 class Mage_SalesRule_Model_Observer
 {
+
+    /**
+     * Sales Rule Validator
+     *
+     * @var Mage_SalesRule_Model_Validator
+     */
     protected $_validator;
 
     /**
@@ -57,6 +69,11 @@ class Mage_SalesRule_Model_Observer
             ->process($observer->getEvent()->getItem());
     }
 
+    /**
+     * Registered callback: called after an order is placed
+     *
+     * @param Varien_Event_Observer $observer
+     */
     public function sales_order_afterPlace($observer)
     {
         $order = $observer->getEvent()->getOrder();
@@ -73,43 +90,44 @@ class Mage_SalesRule_Model_Observer
         $customerId = $order->getCustomerId();
 
         // use each rule (and apply to customer, if applicable)
-        foreach ($ruleIds as $ruleId) {
-            if (!$ruleId) {
-                continue;
-            }
-            $rule = Mage::getModel('salesrule/rule');
-            $rule->load($ruleId);
-            if ($rule->getId()) {
-                $rule->setTimesUsed($rule->getTimesUsed() + 1);
-                $rule->save();
+        if ($order->getDiscountAmount() != 0) {
+            foreach ($ruleIds as $ruleId) {
+                if (!$ruleId) {
+                    continue;
+                }
+                $rule = Mage::getModel('salesrule/rule');
+                $rule->load($ruleId);
+                if ($rule->getId()) {
+                    $rule->setTimesUsed($rule->getTimesUsed() + 1);
+                    $rule->save();
 
-                if ($customerId) {
-                    $ruleCustomer = Mage::getModel('salesrule/rule_customer');
-                    $ruleCustomer->loadByCustomerRule($customerId, $ruleId);
+                    if ($customerId) {
+                        $ruleCustomer = Mage::getModel('salesrule/rule_customer');
+                        $ruleCustomer->loadByCustomerRule($customerId, $ruleId);
 
-                    if ($ruleCustomer->getId()) {
-                        $ruleCustomer->setTimesUsed($ruleCustomer->getTimesUsed()+1);
+                        if ($ruleCustomer->getId()) {
+                            $ruleCustomer->setTimesUsed($ruleCustomer->getTimesUsed() + 1);
+                        }
+                        else {
+                            $ruleCustomer
+                            ->setCustomerId($customerId)
+                            ->setRuleId($ruleId)
+                            ->setTimesUsed(1);
+                        }
+                        $ruleCustomer->save();
                     }
-                    else {
-                        $ruleCustomer
-                        ->setCustomerId($customerId)
-                        ->setRuleId($ruleId)
-                        ->setTimesUsed(1);
-                    }
-                    $ruleCustomer->save();
                 }
             }
-        }
-
-        $coupon = Mage::getModel('salesrule/coupon');
-        /** @var Mage_SalesRule_Model_Coupon */
-        $coupon->load($order->getCouponCode(), 'code');
-        if ($coupon->getId()) {
-            $coupon->setTimesUsed($coupon->getTimesUsed() + 1);
-            $coupon->save();
-            if ($customerId) {
-                $couponUsage = Mage::getResourceModel('salesrule/coupon_usage');
-                $couponUsage->updateCustomerCouponTimesUsed($customerId, $coupon->getId());
+            $coupon = Mage::getModel('salesrule/coupon');
+            /** @var Mage_SalesRule_Model_Coupon */
+            $coupon->load($order->getCouponCode(), 'code');
+            if ($coupon->getId()) {
+                $coupon->setTimesUsed($coupon->getTimesUsed() + 1);
+                $coupon->save();
+                if ($customerId) {
+                    $couponUsage = Mage::getResourceModel('salesrule/coupon_usage');
+                    $couponUsage->updateCustomerCouponTimesUsed($customerId, $coupon->getId());
+                }
             }
         }
     }
@@ -239,6 +257,44 @@ class Mage_SalesRule_Model_Observer
             $result[$attribute['attribute_code']] = true;
         }
         $attributesTransfer->addData($result);
+        return $this;
+    }
+
+    /**
+     * Add coupon's rule name to order data
+     *
+     * @param Varien_Event_Observer $observer
+     * @return Mage_SalesRule_Model_Observer
+     */
+    public function addSalesRuleNameToOrder($observer)
+    {
+        $order = $observer->getOrder();
+        $couponCode = $order->getCouponCode();
+
+        if (empty($couponCode)) {
+            return $this;
+        }
+
+        /**
+         * @var Mage_SalesRule_Model_Coupon $couponModel
+         */
+        $couponModel = Mage::getModel('salesrule/coupon');
+        $couponModel->loadByCode($couponCode);
+
+        $ruleId = $couponModel->getRuleId();
+
+        if (empty($ruleId)) {
+            return $this;
+        }
+
+        /**
+         * @var Mage_SalesRule_Model_Rule $ruleModel
+         */
+        $ruleModel = Mage::getModel('salesrule/rule');
+        $ruleModel->load($ruleId);
+
+        $order->setCouponRuleName($ruleModel->getName());
+
         return $this;
     }
 }

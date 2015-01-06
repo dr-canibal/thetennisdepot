@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Api
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -45,6 +45,18 @@ class Mage_Api_Model_Wsdl_Config_Base extends Varien_Simplexml_Config
     public function __construct($sourceData=null)
     {
         $this->_elementClass = 'Mage_Api_Model_Wsdl_Config_Element';
+
+        // remove wsdl parameter from query
+        $queryParams = Mage::app()->getRequest()->getQuery();
+        unset($queryParams['wsdl']);
+
+        // set up default WSDL template variables
+        $this->_wsdlVariables = new Varien_Object(
+            array(
+                'name' => 'Magento',
+                'url'  => htmlspecialchars(Mage::getUrl('*/*/*', array('_query' => $queryParams)))
+            )
+        );
         parent::__construct($sourceData);
     }
 
@@ -78,20 +90,14 @@ class Mage_Api_Model_Wsdl_Config_Base extends Varien_Simplexml_Config
      */
     public function processFileData($text)
     {
+        /** @var $template Mage_Core_Model_Email_Template_Filter */
         $template = Mage::getModel('core/email_template_filter');
 
-        if (null === $this->_wsdlVariables) {
-            $this->_wsdlVariables = new Varien_Object();
-            $this->_wsdlVariables->setUrl(Mage::getUrl('*/*/*'));
-            $this->_wsdlVariables->setName('Magento');
-            $this->_wsdlVariables->setHandler($this->getHandler());
-        }
+        $this->_wsdlVariables->setHandler($this->getHandler());
 
         $template->setVariables(array('wsdl'=>$this->_wsdlVariables));
 
-        $text = $template->filter($text);
-
-        return $text;
+        return $template->filter($text);
     }
 
     public function addLoadedFile($file)
@@ -111,6 +117,20 @@ class Mage_Api_Model_Wsdl_Config_Base extends Varien_Simplexml_Config
         if ($res) {
             $this->addLoadedFile($file);
         }
+        return $this;
+    }
+
+    /**
+     * Set variable to be used in WSDL template processing
+     *
+     * @param string $key Varible key
+     * @param string $value Variable value
+     * @return Mage_Api_Model_Wsdl_Config_Base
+     */
+    public function setWsdlVariable($key, $value)
+    {
+        $this->_wsdlVariables->setData($key, $value);
+
         return $this;
     }
 }

@@ -83,6 +83,7 @@
  * --db_host                    // required, You can specify server port, ex.: localhost:3307
  *                              // If you are not using default UNIX socket, you can specify it
  *                              // here instead of host, ex.: /var/run/mysqld/mysqld.sock
+ * --db_model                   // Database type (mysql4 by default)
  * --db_name                    // required, Database Name
  * --db_user                    // required, Database User Name
  * --db_pass                    // required, Database User Password
@@ -120,7 +121,7 @@
 if (version_compare(phpversion(), '5.2.0', '<')===true) {
     die('ERROR: Whoops, it looks like you have an invalid PHP version. Magento supports PHP 5.2.0 or newer.');
 }
-
+set_include_path(dirname(__FILE__) . PATH_SEPARATOR . get_include_path());
 require 'app/Mage.php';
 
 try {

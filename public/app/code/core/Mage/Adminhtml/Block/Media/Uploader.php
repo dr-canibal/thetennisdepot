@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -195,11 +195,12 @@ class Mage_Adminhtml_Block_Media_Uploader extends Mage_Adminhtml_Block_Widget
     }
 
     /**
-     * Retrive full uploader SWF's file URL
+     * Retrieve full uploader SWF's file URL
      * Implemented to solve problem with cross domain SWFs
      * Now uploader can be only in the same URL where backend located
      *
-     * @param string url to uploader in current theme
+     * @param string $url url to uploader in current theme
+     *
      * @return string full URL
      */
     public function getUploaderUrl($url)
@@ -212,7 +213,7 @@ class Mage_Adminhtml_Block_Media_Uploader extends Mage_Adminhtml_Block_Widget
         if (empty($url) || !$design->validateFile($url, array('_type' => 'skin', '_theme' => $theme))) {
             $theme = $design->getDefaultTheme();
         }
-        return Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_SKIN) .
+        return Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . 'skin/' .
             $design->getArea() . '/' . $design->getPackageName() . '/' . $theme . '/' . $url;
     }
 }

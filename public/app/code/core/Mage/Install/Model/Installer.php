@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Install
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
@@ -142,7 +142,9 @@ class Mage_Install_Model_Installer extends Varien_Object
     public function installConfig($data)
     {
         $data['db_active'] = true;
-        Mage::getSingleton('install/installer_db')->checkDatabase($data);
+
+        $data = Mage::getSingleton('install/installer_db')->checkDbConnectionData($data);
+
         Mage::getSingleton('install/installer_config')
             ->setConfigData($data)
             ->install();
@@ -246,7 +248,7 @@ class Mage_Install_Model_Installer extends Varien_Object
     {
         $user = Mage::getModel('admin/user')
             ->load('admin', 'username');
-        if ($user && $user->getPassword()=='4297f44b13955235245b2497399d7a93') {
+        if ($user && $user->getPassword() == '4297f44b13955235245b2497399d7a93') {
             $user->delete();
         }
 
@@ -320,7 +322,7 @@ class Mage_Install_Model_Installer extends Varien_Object
         Mage::app()->cleanCache();
 
         $cacheData = array();
-        foreach (Mage::helper('core')->getCacheTypes() as $type=>$label) {
+        foreach (Mage::helper('core')->getCacheTypes() as $type => $label) {
             $cacheData[$type] = 1;
         }
         Mage::app()->saveUseCache($cacheData);

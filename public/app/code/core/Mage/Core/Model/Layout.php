@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Core
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
@@ -170,7 +170,8 @@ class Mage_Core_Model_Layout extends Varien_Simplexml_Config
                         if ($block->getAttribute('ignore') !== null) {
                             continue;
                         }
-                        if (($acl = (string)$attributes->acl) && Mage::getSingleton('admin/session')->isAllowed($acl)) {
+                        $acl = (string)$attributes->acl;
+                        if ($acl && Mage::getSingleton('admin/session')->isAllowed($acl)) {
                             continue;
                         }
                         if (!isset($block->attributes()->ignore)) {
@@ -361,13 +362,38 @@ class Mage_Core_Model_Layout extends Varien_Simplexml_Config
     protected function _translateLayoutNode($node, &$args)
     {
         if (isset($node['translate'])) {
-            $items = explode(' ', (string)$node['translate']);
-            foreach ($items as $arg) {
-                if (isset($node['module'])) {
-                    $args[$arg] = Mage::helper((string)$node['module'])->__($args[$arg]);
+            // Translate value by core module if module attribute was not set
+            $moduleName = (isset($node['module'])) ? (string)$node['module'] : 'core';
+
+            // Handle translations in arrays if needed
+            $translatableArguments = explode(' ', (string)$node['translate']);
+            foreach ($translatableArguments as $translatableArgumentName) {
+                /*
+                 * .(dot) character is used as a path separator in nodes hierarchy
+                 * e.g. info.title means that Magento needs to translate value of <title> node
+                 * that is a child of <info> node
+                 */
+                // @var $argumentHierarhy array - path to translatable item in $args array
+                $argumentHierarchy = explode('.', $translatableArgumentName);
+                $argumentStack = &$args;
+                $canTranslate = true;
+                while (is_array($argumentStack) && count($argumentStack) > 0) {
+                    $argumentName = array_shift($argumentHierarchy);
+                    if (isset($argumentStack[$argumentName])) {
+                        /*
+                         * Move to the next element in arguments hieracrhy
+                         * in order to find target translatable argument
+                         */
+                        $argumentStack = &$argumentStack[$argumentName];
+                    } else {
+                        // Target argument cannot be found
+                        $canTranslate = false;
+                        break;
+                    }
                 }
-                else {
-                    $args[$arg] = Mage::helper('core')->__($args[$arg]);
+                if ($canTranslate && is_string($argumentStack)) {
+                    // $argumentStack is now a reference to target translatable argument so it can be translated
+                    $argumentStack = Mage::helper($moduleName)->__($argumentStack);
                 }
             }
         }
@@ -401,7 +427,7 @@ class Mage_Core_Model_Layout extends Varien_Simplexml_Config
      * Block Factory
      *
      * @param     string $type
-     * @param     string $blockName
+     * @param     string $name
      * @param     array $attributes
      * @return    Mage_Core_Block_Abstract
      */

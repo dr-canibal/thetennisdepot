@@ -11,38 +11,41 @@
  * http://opensource.org/licenses/afl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_PaypalUk
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 -->
 <config>
     <modules>
         <Mage_PaypalUk>
-            <version>0.7.0</version>
+            <version>1.6.0.0</version>
         </Mage_PaypalUk>
     </modules>
     <global>
         <models>
             <paypaluk>
                 <class>Mage_PaypalUk_Model</class>
-                <resourceModel>paypaluk_mysql4</resourceModel>
+                <resourceModel>paypaluk_resource</resourceModel>
             </paypaluk>
-            <paypaluk_mysql4>
-                <class>Mage_PaypalUk_Model_Mysql4</class>
+            <paypaluk_resource>
+                <class>Mage_PaypalUk_Model_Resource</class>
+                <deprecatedNode>paypaluk_mysql4</deprecatedNode>
                 <entities>
-                    <api_debug><table>paypaluk_api_debug</table></api_debug>
+                    <api_debug>
+                        <table>paypaluk_api_debug</table>
+                    </api_debug>
                 </entities>
-            </paypaluk_mysql4>
+            </paypaluk_resource>
         </models>
         <helpers>
             <paypaluk>
@@ -57,7 +60,9 @@
             </paypaluk_setup>
         </resources>
         <blocks>
-            <paypaluk><class>Mage_PaypalUk_Block</class></paypaluk>
+            <paypaluk>
+                <class>Mage_PaypalUk_Block</class>
+            </paypaluk>
         </blocks>
     </global>
     <frontend>
@@ -69,7 +74,7 @@
                 <use>standard</use>
                 <args>
                     <module>Mage_PaypalUk</module>
-                    <frontName>paypaluk</frontName>
+                    <frontName>payflow</frontName>
                 </args>
             </paypaluk>
         </routers>
@@ -101,12 +106,16 @@
             </modules>
         </translate>
     </adminhtml>
-
     <default>
         <payment>
             <paypaluk_express>
                 <model>paypaluk/express</model>
             </paypaluk_express>
+            <paypaluk_express_bml>
+                <model>paypaluk/bml</model>
+                <title>Paypal Credit</title>
+                <group>paypal</group>
+            </paypaluk_express_bml>
             <paypaluk_direct>
                 <model>paypaluk/direct</model>
             </paypaluk_direct>

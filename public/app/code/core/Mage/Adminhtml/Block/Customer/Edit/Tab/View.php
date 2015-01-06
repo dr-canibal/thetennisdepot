@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -57,20 +57,29 @@ class Mage_Adminhtml_Block_Customer_Edit_Tab_View
         }
     }
 
+    /**
+     * Load Customer Log model
+     *
+     * @return Mage_Log_Model_Customer
+     */
     public function getCustomerLog()
     {
         if (!$this->_customerLog) {
             $this->_customerLog = Mage::getModel('log/customer')
-                ->load($this->getCustomer()->getId());
-
+                ->loadByCustomer($this->getCustomer()->getId());
         }
         return $this->_customerLog;
     }
 
+    /**
+     * Get customer creation date
+     *
+     * @return string
+     */
     public function getCreateDate()
     {
-        $date = Mage::app()->getLocale()->date($this->getCustomer()->getCreatedAtTimestamp());
-        return $this->formatDate($date, Mage_Core_Model_Locale::FORMAT_TYPE_MEDIUM, true);
+        return $this->_getCoreHelper()->formatDate($this->getCustomer()->getCreatedAt(),
+            Mage_Core_Model_Locale::FORMAT_TYPE_MEDIUM, true);
     }
 
     public function getStoreCreateDate()
@@ -89,11 +98,16 @@ class Mage_Adminhtml_Block_Customer_Edit_Tab_View
             ->getConfig(Mage_Core_Model_Locale::XML_PATH_DEFAULT_TIMEZONE);
     }
 
+    /**
+     * Get customer last login date
+     *
+     * @return string
+     */
     public function getLastLoginDate()
     {
-        if ($date = $this->getCustomerLog()->getLoginAtTimestamp()) {
-            $date = Mage::app()->getLocale()->date($date);
-            return $this->formatDate($date, Mage_Core_Model_Locale::FORMAT_TYPE_MEDIUM, true);
+        $date = $this->getCustomerLog()->getLoginAtTimestamp();
+        if ($date) {
+            return Mage::helper('core')->formatDate($date, Mage_Core_Model_Locale::FORMAT_TYPE_MEDIUM, true);
         }
         return Mage::helper('customer')->__('Never');
     }
@@ -197,4 +211,13 @@ class Mage_Adminhtml_Block_Customer_Edit_Tab_View
         return true;
     }
 
+    /**
+     * Return instance of core helper
+     *
+     * @return Mage_Core_Helper_Data
+     */
+    protected function _getCoreHelper()
+    {
+        return Mage::helper('core');
+    }
 }

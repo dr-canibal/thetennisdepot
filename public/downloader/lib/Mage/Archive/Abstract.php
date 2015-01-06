@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Archive
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -34,14 +34,16 @@
 class Mage_Archive_Abstract
 {
     /**
-     * Write data to file. If file can't be opened,
+     * Write data to file. If file can't be opened - throw exception
      *
      * @param string $destination
      * @param string $data
      * @return boolean
+     * @throws Mage_Exception
      */
     protected function _writeFile($destination, $data)
     {
+        $destination = trim($destination);
         if(false === file_put_contents($destination, $data)) {
             throw new Mage_Exception("Can't write to file: " . $destination);
         }
@@ -53,6 +55,7 @@ class Mage_Archive_Abstract
      *
      * @param string $source
      * @return string
+     * @throws Mage_Exception
      */
     protected function _readFile($source)
     {
@@ -70,7 +73,8 @@ class Mage_Archive_Abstract
      * Get file name from source (URI) without last extension.
      *
      * @param string $source
-     * @return string
+     * @param bool $withExtension
+     * @return mixed|string
      */
     public function getFilename($source, $withExtension=false)
     {
@@ -80,5 +84,4 @@ class Mage_Archive_Abstract
         }
         return $file;
     }
-
 }

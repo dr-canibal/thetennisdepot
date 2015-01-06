@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Core
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
@@ -110,9 +110,9 @@ class Mage_Core_Model_Resource_Transaction
     /**
      * Adding object for using in transaction
      *
-     * @param   Mage_Core_Model_Abstract $object
-     * @param   string $alias
-     * @return  Mage_Core_Model_Resource_Transaction
+     * @param Mage_Core_Model_Abstract $object
+     * @param string $alias
+     * @return Mage_Core_Model_Resource_Transaction
      */
     public function addObject(Mage_Core_Model_Abstract $object, $alias='')
     {
@@ -124,10 +124,10 @@ class Mage_Core_Model_Resource_Transaction
     }
 
     /**
-     * Add callback funtion which will be called befor commit transactions
+     * Add callback function which will be called before commit transactions
      *
-     * @param   callback $callback
-     * @return  Mage_Core_Model_Resource_Transaction
+     * @param callback $callback
+     * @return Mage_Core_Model_Resource_Transaction
      */
     public function addCommitCallback($callback)
     {
@@ -139,6 +139,7 @@ class Mage_Core_Model_Resource_Transaction
      * Initialize objects save transaction
      *
      * @return Mage_Core_Model_Resource_Transaction
+     * @throws Exception
      */
     public function save()
     {
@@ -175,11 +176,12 @@ class Mage_Core_Model_Resource_Transaction
      * Initialize objects delete transaction
      *
      * @return Mage_Core_Model_Resource_Transaction
+     * @throws Exception
      */
     public function delete()
     {
         $this->_startTransaction();
-        $error     = false;
+        $error = false;
 
         try {
             foreach ($this->_objects as $object) {

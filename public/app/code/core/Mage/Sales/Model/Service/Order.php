@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -77,30 +77,59 @@ class Mage_Sales_Model_Service_Order
     }
 
     /**
-     * Prepare order invoice based on order data and requested items qtys
+     * Updates numeric data taking into account locale
      *
      * @param array $data
+     * @return Mage_Sales_Model_Service_Order
+     */
+    public function updateLocaleNumbers(&$data)
+    {
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                if (is_string($value) || is_numeric($value)) {
+                    $data[$key] = $this->_getLocaleNumber($value);
+                }
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Perform numbers conversion according to locale
+     *
+     * @param mixed $value
+     * @return float
+     */
+    protected function _getLocaleNumber($value)
+    {
+        return Mage::app()->getLocale()->getNumber($value);
+    }
+
+    /**
+     * Prepare order invoice based on order data and requested items qtys. If $qtys is not empty - the function will
+     * prepare only specified items, otherwise all containing in the order.
+     *
+     * @param array $qtys
      * @return Mage_Sales_Model_Order_Invoice
      */
     public function prepareInvoice($qtys = array())
     {
+        $this->updateLocaleNumbers($qtys);
         $invoice = $this->_convertor->toInvoice($this->_order);
         $totalQty = 0;
         foreach ($this->_order->getAllItems() as $orderItem) {
-            if (!$this->_canInvoiceItem($orderItem, $qtys)) {
+            if (!$this->_canInvoiceItem($orderItem, array())) {
                 continue;
             }
             $item = $this->_convertor->itemToInvoiceItem($orderItem);
             if ($orderItem->isDummy()) {
                 $qty = $orderItem->getQtyOrdered() ? $orderItem->getQtyOrdered() : 1;
-            } else {
+            } else if (!empty($qtys)) {
                 if (isset($qtys[$orderItem->getId()])) {
                     $qty = (float) $qtys[$orderItem->getId()];
-                } elseif (!count($qtys)) {
-                    $qty = $orderItem->getQtyToInvoice();
-                } else {
-                    continue;
                 }
+            } else {
+                $qty = $orderItem->getQtyToInvoice();
             }
             $totalQty += $qty;
             $item->setQty($qty);
@@ -115,11 +144,12 @@ class Mage_Sales_Model_Service_Order
     /**
      * Prepare order shipment based on order items and requested items qty
      *
-     * @param array $data
+     * @param array $qtys
      * @return Mage_Sales_Model_Order_Shipment
      */
     public function prepareShipment($qtys = array())
     {
+        $this->updateLocaleNumbers($qtys);
         $totalQty = 0;
         $shipment = $this->_convertor->toShipment($this->_order);
         foreach ($this->_order->getAllItems() as $orderItem) {
@@ -128,8 +158,28 @@ class Mage_Sales_Model_Service_Order
             }
 
             $item = $this->_convertor->itemToShipmentItem($orderItem);
+
             if ($orderItem->isDummy(true)) {
-                $qty = 1;
+                $qty = 0;
+                if (isset($qtys[$orderItem->getParentItemId()])) {
+                    $productOptions = $orderItem->getProductOptions();
+                    if (isset($productOptions['bundle_selection_attributes'])) {
+                        $bundleSelectionAttributes = unserialize($productOptions['bundle_selection_attributes']);
+
+                        if ($bundleSelectionAttributes) {
+                            $qty = $bundleSelectionAttributes['qty'] * $qtys[$orderItem->getParentItemId()];
+                            $qty = min($qty, $orderItem->getSimpleQtyToShip());
+
+                            $item->setQty($qty);
+                            $shipment->addItem($item);
+                            continue;
+                        } else {
+                            $qty = 1;
+                        }
+                    }
+                } else {
+                    $qty = 1;
+                }
             } else {
                 if (isset($qtys[$orderItem->getId()])) {
                     $qty = min($qtys[$orderItem->getId()], $orderItem->getQtyToShip());
@@ -139,11 +189,11 @@ class Mage_Sales_Model_Service_Order
                     continue;
                 }
             }
-
             $totalQty += $qty;
             $item->setQty($qty);
             $shipment->addItem($item);
         }
+
         $shipment->setTotalQty($totalQty);
         return $shipment;
     }
@@ -159,6 +209,7 @@ class Mage_Sales_Model_Service_Order
         $totalQty = 0;
         $creditmemo = $this->_convertor->toCreditmemo($this->_order);
         $qtys = isset($data['qtys']) ? $data['qtys'] : array();
+        $this->updateLocaleNumbers($qtys);
 
         foreach ($this->_order->getAllItems() as $orderItem) {
             if (!$this->_canRefundItem($orderItem, $qtys)) {
@@ -168,6 +219,7 @@ class Mage_Sales_Model_Service_Order
             $item = $this->_convertor->itemToCreditmemoItem($orderItem);
             if ($orderItem->isDummy()) {
                 $qty = 1;
+                $orderItem->setLockedDoShip(true);
             } else {
                 if (isset($qtys[$orderItem->getId()])) {
                     $qty = (float) $qtys[$orderItem->getId()];
@@ -192,6 +244,7 @@ class Mage_Sales_Model_Service_Order
     /**
      * Prepare order creditmemo based on invoice items and requested requested params
      *
+     * @param Mage_Sales_Model_Order_Invoice $invoice
      * @param array $data
      * @return Mage_Sales_Model_Order_Creditmemo
      */
@@ -199,6 +252,8 @@ class Mage_Sales_Model_Service_Order
     {
         $totalQty = 0;
         $qtys = isset($data['qtys']) ? $data['qtys'] : array();
+        $this->updateLocaleNumbers($qtys);
+
         $creditmemo = $this->_convertor->toCreditmemo($this->_order);
         $creditmemo->setInvoice($invoice);
 
@@ -284,6 +339,7 @@ class Mage_Sales_Model_Service_Order
      */
     protected function _initCreditmemoData($creditmemo, $data)
     {
+        $this->updateLocaleNumbers($data);
         if (isset($data['shipping_amount'])) {
             $creditmemo->setBaseShippingAmount((float)$data['shipping_amount']);
         }
@@ -310,6 +366,8 @@ class Mage_Sales_Model_Service_Order
         if ($item->getLockedDoInvoice()) {
             return false;
         }
+        $this->updateLocaleNumbers($qtys);
+
         if ($item->isDummy()) {
             if ($item->getHasChildren()) {
                 foreach ($item->getChildrenItems() as $child) {
@@ -350,6 +408,8 @@ class Mage_Sales_Model_Service_Order
         if ($item->getIsVirtual() || $item->getLockedDoShip()) {
             return false;
         }
+        $this->updateLocaleNumbers($qtys);
+
         if ($item->isDummy(true)) {
             if ($item->getHasChildren()) {
                 if ($item->isShipSeparately()) {
@@ -393,6 +453,7 @@ class Mage_Sales_Model_Service_Order
      */
     protected function _canRefundItem($item, $qtys=array(), $invoiceQtysRefundLimits=array())
     {
+        $this->updateLocaleNumbers($qtys);
         if ($item->isDummy()) {
             if ($item->getHasChildren()) {
                 foreach ($item->getChildrenItems() as $child) {

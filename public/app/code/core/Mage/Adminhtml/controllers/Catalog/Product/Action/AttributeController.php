@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
@@ -51,6 +51,9 @@ class Mage_Adminhtml_Catalog_Product_Action_AttributeController extends Mage_Adm
         $this->renderLayout();
     }
 
+    /**
+     * Update product attributes
+     */
     public function saveAction()
     {
         if (!$this->_validateProducts()) {
@@ -77,7 +80,7 @@ class Mage_Adminhtml_Catalog_Product_Action_AttributeController extends Mage_Adm
 
                 foreach ($attributesData as $attributeCode => $value) {
                     $attribute = Mage::getSingleton('eav/config')
-                        ->getAttribute('catalog_product', $attributeCode);
+                        ->getAttribute(Mage_Catalog_Model_Product::ENTITY, $attributeCode);
                     if (!$attribute->getAttributeId()) {
                         unset($attributesData[$attributeCode]);
                         continue;
@@ -95,7 +98,13 @@ class Mage_Adminhtml_Catalog_Product_Action_AttributeController extends Mage_Adm
                             $value = null;
                         }
                         $attributesData[$attributeCode] = $value;
-                    } else if ($attribute->getFrontendInput() == 'multiselect') {
+                    } elseif ($attribute->getFrontendInput() == 'multiselect') {
+                        // Check if 'Change' checkbox has been checked by admin for this attribute
+                        $isChanged = (bool)$this->getRequest()->getPost($attributeCode . '_checkbox');
+                        if (!$isChanged) {
+                            unset($attributesData[$attributeCode]);
+                            continue;
+                        }
                         if (is_array($value)) {
                             $value = implode(',', $value);
                         }
@@ -107,7 +116,11 @@ class Mage_Adminhtml_Catalog_Product_Action_AttributeController extends Mage_Adm
                     ->updateAttributes($this->_getHelper()->getProductIds(), $attributesData, $storeId);
             }
             if ($inventoryData) {
+                /** @var $stockItem Mage_CatalogInventory_Model_Stock_Item */
                 $stockItem = Mage::getModel('cataloginventory/stock_item');
+                $stockItem->setProcessIndexEvents(false);
+                $stockItemSaved = false;
+                $changedProductIds = array();
 
                 foreach ($this->_getHelper()->getProductIds() as $productId) {
                     $stockItem->setData(array());
@@ -123,7 +136,20 @@ class Mage_Adminhtml_Catalog_Product_Action_AttributeController extends Mage_Adm
                     }
                     if ($stockDataChanged) {
                         $stockItem->save();
+                        $stockItemSaved = true;
+                        $changedProductIds[] = $productId;
                     }
+                }
+
+                if ($stockItemSaved) {
+                    Mage::getSingleton('index/indexer')->indexEvents(
+                        Mage_CatalogInventory_Model_Stock_Item::ENTITY,
+                        Mage_Index_Model_Event::TYPE_SAVE
+                    );
+
+                    Mage::dispatchEvent('catalog_product_stock_item_mass_change', array(
+                        'products' => $changedProductIds,
+                    ));
                 }
             }
 
@@ -139,21 +165,18 @@ class Mage_Adminhtml_Catalog_Product_Action_AttributeController extends Mage_Adm
                     $actionModel->updateWebsites($productIds, $websiteAddData, 'add');
                 }
 
-                /**
-                 * @deprecated since 1.3.2.2
-                 */
                 Mage::dispatchEvent('catalog_product_to_website_change', array(
                     'products' => $productIds
                 ));
 
-                $this->_getSession()->addNotice(
-                    $this->__('Please refresh "Catalog URL Rewrites" and "Product Attributes" in System -> <a href="%s">Index Management</a>', $this->getUrl('adminhtml/process/list'))
-                );
+                $notice = Mage::getConfig()->getNode('adminhtml/messages/website_chnaged_indexers/label');
+                if ($notice) {
+                    $this->_getSession()->addNotice($this->__((string)$notice, $this->getUrl('adminhtml/process/list')));
+                }
             }
 
             $this->_getSession()->addSuccess(
-                $this->__('Total of %d record(s) were updated',
-                count($this->_getHelper()->getProductIds()))
+                $this->__('Total of %d record(s) were updated', count($this->_getHelper()->getProductIds()))
             );
         }
         catch (Mage_Core_Exception $e) {

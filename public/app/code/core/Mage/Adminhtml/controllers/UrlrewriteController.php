@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -43,7 +43,7 @@ class Mage_Adminhtml_UrlrewriteController extends Mage_Adminhtml_Controller_Acti
         $this->_title($this->__('Rewrite Rules'));
 
         // initialize urlrewrite, product and category models
-        Mage::register('current_urlrewrite', Mage::getModel('core/url_rewrite')
+        Mage::register('current_urlrewrite', Mage::getSingleton('core/factory')->getUrlRewriteInstance()
             ->load($this->getRequest()->getParam('id', 0))
         );
         $productId  = $this->getRequest()->getParam('product', 0);
@@ -121,6 +121,7 @@ class Mage_Adminhtml_UrlrewriteController extends Mage_Adminhtml_Controller_Acti
         $this->_initRegistry();
 
         if ($data = $this->getRequest()->getPost()) {
+            $session = Mage::getSingleton('adminhtml/session');
             try {
                 // set basic urlrewrite data
                 $model = Mage::registry('current_urlrewrite');
@@ -162,7 +163,8 @@ class Mage_Adminhtml_UrlrewriteController extends Mage_Adminhtml_Controller_Acti
                         $rewrite = Mage::getResourceModel('catalog/url')
                             ->getRewriteByIdPath($idPath, $model->getStoreId());
                         if (!$rewrite) {
-                            Mage::throwException('Chosen product does not associated with the chosen store or category.');
+                            $exceptionTxt = 'Chosen product does not associated with the chosen store or category.';
+                            Mage::throwException($exceptionTxt);
                         }
                         if($rewrite->getId() && $rewrite->getId() != $model->getId()) {
                             $model->setIdPath($idPath);
@@ -179,17 +181,15 @@ class Mage_Adminhtml_UrlrewriteController extends Mage_Adminhtml_Controller_Acti
 
                 // save and redirect
                 $model->save();
-                Mage::getSingleton('adminhtml/session')->addSuccess(
-                    Mage::helper('adminhtml')->__('The URL Rewrite has been saved.')
-                );
+                $session->addSuccess(Mage::helper('adminhtml')->__('The URL Rewrite has been saved.'));
                 $this->_redirect('*/*/');
                 return;
-            }
-            catch (Exception $e) {
-                Mage::getSingleton('adminhtml/session')
-                    ->addError($e->getMessage())
-                    ->setUrlrewriteData($data)
-                ;
+            } catch (Mage_Core_Exception $e) {
+                $session->addError($e->getMessage())
+                    ->setUrlrewriteData($data);
+            } catch (Exception $e) {
+                $session->addException($e, Mage::helper('adminhtml')->__('An error occurred while saving URL Rewrite.'))
+                    ->setUrlrewriteData($data);
                 // return intentionally omitted
             }
         }
@@ -210,10 +210,10 @@ class Mage_Adminhtml_UrlrewriteController extends Mage_Adminhtml_Controller_Acti
                 Mage::getSingleton('adminhtml/session')->addSuccess(
                     Mage::helper('adminhtml')->__('The URL Rewrite has been deleted.')
                 );
-            }
-            catch (Exception $e) {
-                Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
-                $this->_redirectReferer();
+            } catch (Exception $e) {
+                Mage::getSingleton('adminhtml/session')
+                    ->addException($e, Mage::helper('adminhtml')->__('An error occurred while deleting URL Rewrite.'));
+                $this->_redirect('*/*/edit/', array('id'=>Mage::registry('current_urlrewrite')->getId()));
                 return;
             }
         }

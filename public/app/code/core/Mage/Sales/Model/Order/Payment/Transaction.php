@@ -10,24 +10,43 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * Payment transaction model
  * Tracks transaction history, allows to build transactions hierarchy
  * By default transactions are saved as closed.
+ *
+ * @method Mage_Sales_Model_Resource_Order_Payment_Transaction _getResource()
+ * @method Mage_Sales_Model_Resource_Order_Payment_Transaction getResource()
+ * @method int getParentId()
+ * @method Mage_Sales_Model_Order_Payment_Transaction setParentId(int $value)
+ * @method Mage_Sales_Model_Order_Payment_Transaction setOrderId(int $value)
+ * @method int getPaymentId()
+ * @method Mage_Sales_Model_Order_Payment_Transaction setPaymentId(int $value)
+ * @method string getTxnId()
+ * @method string getParentTxnId()
+ * @method string getTxnType()
+ * @method int getIsClosed()
+ * @method Mage_Sales_Model_Order_Payment_Transaction setIsClosed(int $value)
+ * @method string getCreatedAt()
+ * @method Mage_Sales_Model_Order_Payment_Transaction setCreatedAt(string $value)
+ *
+ * @category    Mage
+ * @package     Mage_Sales
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Sales_Model_Order_Payment_Transaction extends Mage_Core_Model_Abstract
 {
@@ -395,7 +414,10 @@ class Mage_Sales_Model_Order_Payment_Transaction extends Mage_Core_Model_Abstrac
     protected function _beforeLoadByTxnId($txnId)
     {
         $this->_verifyPaymentObject();
-        Mage::dispatchEvent($this->_eventPrefix . '_load_by_txn_id_before', $this->_getEventData() + array('txn_id' => $txnId));
+        Mage::dispatchEvent(
+            $this->_eventPrefix . '_load_by_txn_id_before',
+            $this->_getEventData() + array('txn_id' => $txnId)
+        );
         return $this;
     }
 
@@ -797,5 +819,16 @@ class Mage_Sales_Model_Order_Payment_Transaction extends Mage_Core_Model_Abstrac
             Mage::throwException(Mage::helper('sales')->__('This operation requires an existing transaction object.'));
         }
         $this->_verifyTxnType();
+    }
+
+    /**
+     * Get HTML format for transaction id
+     *
+     * @return string
+     */
+    public function getHtmlTxnId()
+    {
+        Mage::dispatchEvent('sales_html_txn_id', array('transaction' => $this, 'payment' => $this->_paymentObject));
+        return isset($this->_data['html_txn_id']) ? $this->_data['html_txn_id'] : $this->getTxnId();
     }
 }

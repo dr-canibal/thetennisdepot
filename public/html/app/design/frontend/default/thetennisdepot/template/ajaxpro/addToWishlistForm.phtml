@@ -1,8 +1,0 @@
-<?php if (Mage::getStoreConfig('ajax_pro/general/enabled') && Mage::getStoreConfig('ajax_pro/addToWishlist/enabledForm')) :?>
-<div id ="ajaxpro-addtowishlist-form" style="display:none">
-    <p class="ajaxpro-message"></p>
-	<button class="ajaxpro-continue-button button"><span><span><?php echo Mage::helper('ajaxpro')->__('Continue shopping')?></span></span></button>
-    <p class="ajaxpro-or"><?php echo Mage::helper('ajaxpro')->__('or')?></p>
-	<button class="ajaxpro-continue-button button" onclick="setLocation('<?php echo $this->helper('wishlist')->getListUrl() ?>"')"><span><span><?php echo Mage::helper('ajaxpro')->__('Go to Wishlist');?></span></span></button>
-</div>
-<?php endif;?>

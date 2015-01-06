@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Paypal
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -51,12 +51,22 @@ class Mage_Paypal_Model_Info
     const CENTINEL_VPAS  = 'centinel_vpas_result';
     const CENTINEL_ECI   = 'centinel_eci_result';
 
+    // Next two fields are required for Brazil
+    const BUYER_TAX_ID   = 'buyer_tax_id';
+    const BUYER_TAX_ID_TYPE = 'buyer_tax_id_type';
+
     const PAYMENT_STATUS = 'payment_status';
     const PENDING_REASON = 'pending_reason';
     const IS_FRAUD       = 'is_fraud_detected';
     const PAYMENT_STATUS_GLOBAL = 'paypal_payment_status';
     const PENDING_REASON_GLOBAL = 'paypal_pending_reason';
     const IS_FRAUD_GLOBAL       = 'paypal_is_fraud_detected';
+
+    /**
+     * Possible buyer's tax id types (Brazil only)
+     */
+    const BUYER_TAX_ID_TYPE_CPF = 'BR_CPF';
+    const BUYER_TAX_ID_TYPE_CNPJ = 'BR_CNPJ';
 
     /**
      * All payment information map
@@ -76,6 +86,8 @@ class Mage_Paypal_Model_Info
         self::CVV2_MATCH     => 'paypal_cvv2_match',
         self::CENTINEL_VPAS  => self::CENTINEL_VPAS,
         self::CENTINEL_ECI   => self::CENTINEL_ECI,
+        self::BUYER_TAX_ID   => self::BUYER_TAX_ID,
+        self::BUYER_TAX_ID_TYPE => self::BUYER_TAX_ID_TYPE,
     );
 
     /**
@@ -109,12 +121,35 @@ class Mage_Paypal_Model_Info
     const PAYMENTSTATUS_VOIDED       = 'voided';
 
     /**
+     * PayPal payment transaction type
+     */
+    const TXN_TYPE_ADJUSTMENT = 'adjustment';
+    const TXN_TYPE_NEW_CASE   = 'new_case';
+
+    /**
+     * PayPal payment reason code when payment_status is Reversed, Refunded, or Canceled_Reversal.
+     */
+    const PAYMENT_REASON_CODE_REFUND  = 'refund';
+
+    /**
+     * PayPal order status for Reverse payment status
+     */
+    const ORDER_STATUS_REVERSED = 'paypal_reversed';
+
+    /**
+     * PayPal order status for Canceled Reversal payment status
+     */
+    const ORDER_STATUS_CANCELED_REVERSAL = 'paypal_canceled_reversal';
+
+    /**
      * Map of payment information available to customer
      *
      * @var array
      */
     protected $_paymentPublicMap = array(
         'paypal_payer_email',
+        self::BUYER_TAX_ID,
+        self::BUYER_TAX_ID_TYPE
     );
 
     /**
@@ -316,26 +351,30 @@ class Mage_Paypal_Model_Info
      */
     public static function explainReasonCode($code)
     {
-        switch ($code) {
-            case 'chargeback':
-                return Mage::helper('paypal')->__('Chargeback by customer.');
-            case 'guarantee':
-                return Mage::helper('paypal')->__('Customer triggered a money-back guarantee.');
-            case 'buyer-complaint':
-                return Mage::helper('paypal')->__('Customer complaint.');
-            case 'refund':
-                return Mage::helper('paypal')->__('Refund issued by merchant.');
-            case 'adjustment_reversal':
-                return Mage::helper('paypal')->__('Reversal of an adjustment.');
-            case 'chargeback_reimbursement':
-                return Mage::helper('paypal')->__('Reimbursement for a chargeback.');
-            case 'chargeback_settlement':
-                return Mage::helper('paypal')->__('Settlement of a chargeback.');
-            case 'none': // break is intentionally omitted
-            case 'other':
-            default:
-                return Mage::helper('paypal')->__('Unknown reason. Please contact PayPal customer service.');
-        }
+        $comments = array(
+            'chargeback'               => Mage::helper('paypal')->__('A reversal has occurred on this transaction due to a chargeback by your customer.'),
+            'guarantee'                => Mage::helper('paypal')->__('A reversal has occurred on this transaction due to your customer triggering a money-back guarantee.'),
+            'buyer-complaint'          => Mage::helper('paypal')->__('A reversal has occurred on this transaction due to a complaint about the transaction from your customer.'),
+            'buyer_complaint'          => Mage::helper('paypal')->__('A reversal has occurred on this transaction due to a complaint about the transaction from your customer.'),
+            'refund'                   => Mage::helper('paypal')->__('A reversal has occurred on this transaction because you have given the customer a refund.'),
+            'adjustment_reversal'      => Mage::helper('paypal')->__('Reversal of an adjustment.'),
+            'admin_fraud_reversal'     => Mage::helper('paypal')->__('Transaction reversal due to fraud detected by PayPal administrators.'),
+            'admin_reversal'           => Mage::helper('paypal')->__('Transaction reversal by PayPal administrators.'),
+            'chargeback_reimbursement' => Mage::helper('paypal')->__('Reimbursement for a chargeback.'),
+            'chargeback_settlement'    => Mage::helper('paypal')->__('Settlement of a chargeback.'),
+            'unauthorized_spoof'       => Mage::helper('paypal')->__('A reversal has occurred on this transaction because of a customer dispute suspecting unauthorized spoof.'),
+            'non_receipt'              => Mage::helper('paypal')->__('Buyer claims that he did not receive goods or service.'),
+            'not_as_described'         => Mage::helper('paypal')->__('Buyer claims that the goods or service received differ from merchant’s description of the goods or service.'),
+            'unauthorized'             => Mage::helper('paypal')->__('Buyer claims that he/she did not authorize transaction.'),
+            'adjustment_reimburse'     => Mage::helper('paypal')->__('A case that has been resolved and close requires a reimbursement.'),
+            'duplicate'                => Mage::helper('paypal')->__('Buyer claims that a possible duplicate payment was made to the merchant.'),
+            'merchandise'              => Mage::helper('paypal')->__('Buyer claims that the received merchandise is unsatisfactory, defective, or damaged.'),
+        );
+        $value = (array_key_exists($code, $comments) && !empty($comments[$code]))
+            ? $comments[$code]
+            : Mage::helper('paypal')->__('Unknown reason. Please contact PayPal customer service.'
+        );
+        return $value;
     }
 
     /**
@@ -351,6 +390,7 @@ class Mage_Paypal_Model_Info
             case 'other':
             case 'chargeback':
             case 'buyer-complaint':
+            case 'buyer_complaint':
             case 'adjustment_reversal':
                 return true;
             case 'guarantee':
@@ -425,12 +465,33 @@ class Mage_Paypal_Model_Info
                 return Mage::helper('paypal')->__('Address Verification System Response');
             case 'paypal_cvv2_match':
                 return Mage::helper('paypal')->__('CVV2 Check Result by PayPal');
+            case self::BUYER_TAX_ID :
+                return Mage::helper('paypal')->__('Buyer\'s Tax ID');
+            case self::BUYER_TAX_ID_TYPE :
+                return Mage::helper('paypal')->__('Buyer\'s Tax ID Type');
             case self::CENTINEL_VPAS:
                 return Mage::helper('paypal')->__('PayPal/Centinel Visa Payer Authentication Service Result');
             case self::CENTINEL_ECI:
                 return Mage::helper('paypal')->__('PayPal/Centinel Electronic Commerce Indicator');
         }
         return '';
+    }
+
+    /**
+     * Get case type label
+     *
+     * @param string $key
+     * @return string
+     */
+    public static function getCaseTypeLabel($key)
+    {
+        $labels = array(
+            'chargeback' => Mage::helper('paypal')->__('Chargeback'),
+            'complaint'  => Mage::helper('paypal')->__('Complaint'),
+            'dispute'    => Mage::helper('paypal')->__('Dispute')
+        );
+        $value = (array_key_exists($key, $labels) && !empty($labels[$key])) ? $labels[$key] : '';
+        return $value;
     }
 
     /**
@@ -456,6 +517,8 @@ class Mage_Paypal_Model_Info
             case self::CENTINEL_ECI:
                 $label = $this->_getCentinelEciLabel($value);
                 break;
+            case self::BUYER_TAX_ID_TYPE :
+                $value = $this->_getBuyerIdTypeValue($value);
             default:
                 return $value;
         }
@@ -619,5 +682,25 @@ class Mage_Paypal_Model_Info
             default:
                 return $value;
         }
+    }
+
+    /**
+     * Retrieve buyer id type value based on code received from PayPal (Brazil only)
+     *
+     * @param string $code
+     * @return string
+     */
+    protected function _getBuyerIdTypeValue($code)
+    {
+        $value = '';
+        switch ($code) {
+            case self::BUYER_TAX_ID_TYPE_CNPJ :
+                $value = Mage::helper('paypal')->__('CNPJ');
+                break;
+            case self::BUYER_TAX_ID_TYPE_CPF :
+                $value = Mage::helper('paypal')->__('CPF');
+                break;
+        }
+        return $value;
     }
 }

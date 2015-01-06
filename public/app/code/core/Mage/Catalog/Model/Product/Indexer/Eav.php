@@ -10,26 +10,37 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Catalog
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
 /**
  * Catalog Product Eav Indexer Model
  *
- * @category   Mage
- * @package    Mage_Catalog
+ * @method Mage_Catalog_Model_Resource_Product_Indexer_Eav _getResource()
+ * @method Mage_Catalog_Model_Resource_Product_Indexer_Eav getResource()
+ * @method Mage_Catalog_Model_Product_Indexer_Eav setEntityId(int $value)
+ * @method int getAttributeId()
+ * @method Mage_Catalog_Model_Product_Indexer_Eav setAttributeId(int $value)
+ * @method int getStoreId()
+ * @method Mage_Catalog_Model_Product_Indexer_Eav setStoreId(int $value)
+ * @method int getValue()
+ * @method Mage_Catalog_Model_Product_Indexer_Eav setValue(int $value)
+ *
+ * @category    Mage
+ * @package     Mage_Catalog
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Catalog_Model_Product_Indexer_Eav extends Mage_Index_Model_Indexer_Abstract
 {
@@ -48,6 +59,15 @@ class Mage_Catalog_Model_Product_Indexer_Eav extends Mage_Index_Model_Indexer_Ab
         Mage_Catalog_Model_Convert_Adapter_Product::ENTITY => array(
             Mage_Index_Model_Event::TYPE_SAVE
         )
+    );
+
+    /**
+     * The list of attributes that have an effect on other attributes
+     *
+     * @var array
+     */
+    protected $_dependentAttributes = array(
+        'status'
     );
 
     /**
@@ -123,10 +143,25 @@ class Mage_Catalog_Model_Product_Indexer_Eav extends Mage_Index_Model_Indexer_Ab
     {
         if (!$attribute instanceof Mage_Catalog_Model_Resource_Eav_Attribute) {
             $attribute = Mage::getSingleton('eav/config')
-                ->getAttribute('catalog_product', $attribute);
+                ->getAttribute(Mage_Catalog_Model_Product::ENTITY, $attribute);
         }
 
         return $attribute->isIndexable();
+    }
+
+    /**
+     * Check that attribute has an effects on other attributes
+     *
+     * @param Mage_Catalog_Model_Resource_Eav_Attribute|string $attribute
+     * @return bool
+     */
+    protected function _attributeIsDependent($attribute)
+    {
+        if ($attribute instanceof Mage_Catalog_Model_Resource_Eav_Attribute) {
+            $attribute = $attribute->getAttributeCode();
+        }
+
+        return in_array($attribute, $this->_dependentAttributes);
     }
 
     /**
@@ -143,7 +178,9 @@ class Mage_Catalog_Model_Product_Indexer_Eav extends Mage_Index_Model_Indexer_Ab
         $reindexEav = $product->getForceReindexRequired();
         foreach ($attributes as $attribute) {
             $attributeCode = $attribute->getAttributeCode();
-            if ($this->_attributeIsIndexable($attribute) && $product->dataHasChangedFor($attributeCode)) {
+            if (($this->_attributeIsIndexable($attribute) || $this->_attributeIsDependent($attribute))
+                && $product->dataHasChangedFor($attributeCode)
+            ) {
                 $reindexEav = true;
                 break;
             }
@@ -183,15 +220,20 @@ class Mage_Catalog_Model_Product_Indexer_Eav extends Mage_Index_Model_Indexer_Ab
      */
     protected function _registerCatalogProductMassActionEvent(Mage_Index_Model_Event $event)
     {
-        $reindexEav = false;
-
         /* @var $actionObject Varien_Object */
         $actionObject = $event->getDataObject();
+        $attrData     = $actionObject->getAttributesData();
+        $reindexEav   = false;
+
+        // check if force reindex required
+        if (isset($attrData['force_reindex_required']) && $attrData['force_reindex_required']) {
+            $reindexEav = true;
+        }
+
         // check if attributes changed
-        $attrData = $actionObject->getAttributesData();
         if (is_array($attrData)) {
             foreach (array_keys($attrData) as $attributeCode) {
-                if ($this->_attributeIsIndexable($attributeCode)) {
+                if ($this->_attributeIsIndexable($attributeCode) || $this->_attributeIsDependent($attributeCode)) {
                     $reindexEav = true;
                     break;
                 }

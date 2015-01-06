@@ -9,17 +9,17 @@
  * http://opensource.org/licenses/afl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 var AdminOrder = new Class.create();
@@ -42,6 +42,59 @@ AdminOrder.prototype = {
         this.giftMessageDataChanged = false;
         this.productConfigureAddFields = {};
         this.productPriceBase = {};
+        this.collectElementsValue = true;
+        Event.observe(window, 'load',  (function(){
+            this.dataArea = new OrderFormArea('data', $(this.getAreaId('data')), this);
+            this.itemsArea = Object.extend(new OrderFormArea('items', $(this.getAreaId('items')), this), {
+                addControlButton: function(button){
+                    var controlButtonArea = $(this.node).select('.form-buttons')[0];
+                    if (typeof controlButtonArea != 'undefined') {
+                        var buttons = controlButtonArea.childElements();
+                        for (var i = 0; i < buttons.length; i++) {
+                            if (buttons[i].innerHTML.include(button.label)) {
+                                return ;
+                            }
+                        }
+                        button.insertIn(controlButtonArea, 'top');
+                    }
+                }
+            });
+
+            var searchButton = new ControlButton(Translator.translate('Add Products')),
+                searchAreaId = this.getAreaId('search');
+            searchButton.onClick = function() {
+                $(searchAreaId).show();
+                var el = this;
+                window.setTimeout(function () {
+                    el.remove();
+                }, 10);
+            }
+
+            this.dataArea.onLoad = this.dataArea.onLoad.wrap(function(proceed) {
+                proceed();
+                this._parent.itemsArea.setNode($(this._parent.getAreaId('items')));
+                this._parent.itemsArea.onLoad();
+            });
+
+            this.itemsArea.onLoad = this.itemsArea.onLoad.wrap(function(proceed) {
+                proceed();
+                if (!$(searchAreaId).visible()) {
+                    this.addControlButton(searchButton);
+                }
+            });
+            this.areasLoaded();
+            this.itemsArea.onLoad();
+        }).bind(this));
+    },
+
+    areasLoaded: function(){
+    },
+
+    itemsLoaded: function(){
+    },
+
+    dataLoaded: function(){
+        this.dataShow();
     },
 
     setLoadBaseUrl : function(url){
@@ -63,7 +116,7 @@ AdminOrder.prototype = {
     setCustomerAfter : function () {
         this.customerSelectorHide();
         if (this.storeId) {
-            $(this.getAreaId('data')).callback = 'dataShow';
+            $(this.getAreaId('data')).callback = 'dataLoaded';
             this.loadArea(['data'], true);
         }
         else {
@@ -124,7 +177,7 @@ AdminOrder.prototype = {
     },
 
     bindAddressFields : function(container) {
-        var fields = $(container).select('input', 'select');
+        var fields = $(container).select('input', 'select', 'textarea');
         for(var i=0;i<fields.length;i++){
             Event.observe(fields[i], 'change', this.changeAddressField.bind(this));
         }
@@ -134,6 +187,11 @@ AdminOrder.prototype = {
         var field = Event.element(event);
         var re = /[^\[]*\[([^\]]*)_address\]\[([^\]]*)\](\[(\d)\])?/;
         var matchRes = field.name.match(re);
+
+        if (!matchRes) {
+            return;
+        }
+
         var type = matchRes[1];
         var name = matchRes[2];
         var data;
@@ -146,23 +204,38 @@ AdminOrder.prototype = {
         }
         data = data.toObject();
 
-        if( (type == 'billing' && this.shippingAsBilling)
-            || (type == 'shipping' && !this.shippingAsBilling) ) {
+        if( (type == 'billing' && this.shippingAsBilling && !this.isShippingMethodReseted)
+            || (type == 'shipping' && !this.shippingAsBilling && !this.isShippingMethodReseted) ) {
             data['reset_shipping'] = true;
         }
 
         data['order['+type+'_address][customer_address_id]'] = $('order-'+type+'_address_customer_address_id').value;
 
+        if (type == 'billing' && this.shippingAsBilling) {
+            this.copyDataFromBillingToShipping(field);
+        }
+
         if (data['reset_shipping']) {
             this.resetShippingMethod(data);
-        }
-        else {
+        } else {
             this.saveData(data);
-            if (name == 'country_id' || name == 'customer_address_id') {
+            if (!this.isShippingMethodReseted && (name == 'country_id' || name == 'customer_address_id')) {
                 this.loadArea(['shipping_method', 'billing_method', 'totals', 'items'], true, data);
             }
-            // added for reloading of default sender and default recipient for giftmessages
-            //this.loadArea(['giftmessage'], true, data);
+        }
+    },
+
+    copyDataFromBillingToShipping : function(field) {
+        var shippingId = $(field).identify().replace('-billing_', '-shipping_');
+        var inputField = $(shippingId);
+        if (inputField) {
+            inputField.setValue($(field).getValue());
+            if (inputField.changeUpdater) {
+                inputField.changeUpdater();
+            }
+            $(this.shippingAddressContainer).select('select').each(function(el){
+                el.disable();
+            });
         }
     },
 
@@ -170,7 +243,7 @@ AdminOrder.prototype = {
         var regionIdElem = false;
         var regionIdElemValue = false;
 
-        var fields = $(container).select('input', 'select');
+        var fields = $(container).select('input', 'select', 'textarea');
         var re = /[^\[]*\[[^\]]*\]\[([^\]]*)\](\[(\d)\])?/;
         for(var i=0;i<fields.length;i++){
             // skip input type file @Security error code: 1000
@@ -214,14 +287,38 @@ AdminOrder.prototype = {
         }
     },
 
-    disableShippingAddress : function(flag){
+    disableShippingAddress : function(flag) {
         this.shippingAsBilling = flag;
-        if($('order-shipping_address_customer_address_id')) {
-            $('order-shipping_address_customer_address_id').disabled=flag;
+        if ($('order-shipping_address_customer_address_id')) {
+            $('order-shipping_address_customer_address_id').disabled = flag;
         }
-        if($(this.shippingAddressContainer)){
-            var dataFields = $(this.shippingAddressContainer).select('input', 'select');
-            for(var i=0;i<dataFields.length;i++) dataFields[i].disabled = flag;
+
+        if ($(this.shippingAddressContainer)) {
+            var dataFields = $(this.shippingAddressContainer).select('input', 'select', 'textarea');
+            for (var i = 0; i < dataFields.length; i++) {
+                dataFields[i].disabled = flag;
+            }
+            var buttons = $(this.shippingAddressContainer).select('button');
+            // Add corresponding class to buttons while disabling them
+            for (i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = flag;
+                if (flag) {
+                    buttons[i].addClassName('disabled');
+                } else {
+                    buttons[i].removeClassName('disabled');
+                }
+            }
+        }
+    },
+
+    turnOffShippingFields : function() {
+        if ($(this.shippingAddressContainer)) {
+            var dataFields = $(this.shippingAddressContainer).select('input', 'select', 'textarea', 'button');
+            for (var i = 0; i < dataFields.length; i++) {
+                dataFields[i].removeAttribute('name');
+                dataFields[i].removeAttribute('id');
+                dataFields[i].readOnly = true;
+            }
         }
     },
 
@@ -242,7 +339,7 @@ AdminOrder.prototype = {
     resetShippingMethod : function(data){
         data['reset_shipping'] = 1;
         this.isShippingMethodReseted = true;
-        this.loadArea(['shipping_method', 'billing_method', 'shipping_address', 'totals', 'giftmessage', 'items'], true, data);
+        this.loadArea(['shipping_method', 'billing_method', 'totals', 'giftmessage', 'items'], true, data);
     },
 
     loadShippingRates : function(){
@@ -270,7 +367,7 @@ AdminOrder.prototype = {
                 var block = $(el);
                 if (block) {
                     block.hide();
-                    block.select('input', 'select').each(function(field) {
+                    block.select('input', 'select', 'textarea').each(function(field) {
                         field.disabled = true;
                     });
                 }
@@ -278,7 +375,7 @@ AdminOrder.prototype = {
         }
 
         if(!this.paymentMethod || method){
-            $('order-billing_method_form').select('input', 'select').each(function(elem){
+            $('order-billing_method_form').select('input', 'select', 'textarea').each(function(elem){
                 if(elem.type != 'radio') elem.disabled = true;
             })
         }
@@ -290,11 +387,11 @@ AdminOrder.prototype = {
                 var block = $(el);
                 if (block) {
                    block.show();
-                   block.select('input', 'select').each(function(field) {
+                   block.select('input', 'select', 'textarea').each(function(field) {
                        field.disabled = false;
                        if (!el.include('_before') && !el.include('_after') && !field.bindChange) {
                            field.bindChange = true;
-                           field.paymentContainer = form; //@deprecated after 1.4.0.0-rc1
+                           field.paymentContainer = form; /** @deprecated after 1.4.0.0-rc1 */
                            field.method = method;
                            field.observe('change', this.changePaymentData.bind(this))
                         }
@@ -422,7 +519,7 @@ AdminOrder.prototype = {
                     var listType = confLink.readAttribute('list_type');
                     var productId = confLink.readAttribute('product_id');
                     if (typeof this.productPriceBase[productId] == 'undefined') {
-                        var priceBase = priceColl.innerHTML.match(/.*?([0-9\.,]+)/);
+                        var priceBase = priceColl.innerHTML.match(/.*?([\d,]+\.?\d*)/);
                         if (!priceBase) {
                             this.productPriceBase[productId] = 0;
                         } else {
@@ -593,13 +690,27 @@ AdminOrder.prototype = {
         this.showArea('data');
     },
 
-    sidebarApplyChanges : function(){
-        if($(this.getAreaId('sidebar'))){
-            var data  = {};
-            var elems = $(this.getAreaId('sidebar')).select('input');
-            for(var i=0; i<elems.length; i++){
-                if(elems[i].getValue()){
-                    data[elems[i].name] = elems[i].getValue();
+    clearShoppingCart : function(confirmMessage){
+        if (confirm(confirmMessage)) {
+            this.collectElementsValue = false;
+            order.sidebarApplyChanges({'sidebar[empty_customer_cart]': 1});
+        }
+    },
+
+    sidebarApplyChanges : function(auxiliaryParams) {
+        if ($(this.getAreaId('sidebar'))) {
+            var data = {};
+            if (this.collectElementsValue) {
+                var elems = $(this.getAreaId('sidebar')).select('input');
+                for (var i=0; i < elems.length; i++) {
+                    if (elems[i].getValue()) {
+                        data[elems[i].name] = elems[i].getValue();
+                    }
+                }
+            }
+            if (auxiliaryParams instanceof Object) {
+                for (var paramName in auxiliaryParams) {
+                    data[paramName] = String(auxiliaryParams[paramName]);
                 }
             }
             data.reset_shipping = true;
@@ -766,7 +877,7 @@ AdminOrder.prototype = {
 
     accountFieldsBind : function(container){
         if($(container)){
-            var fields = $(container).select('input', 'select');
+            var fields = $(container).select('input', 'select', 'textarea');
             for(var i=0; i<fields.length; i++){
                 if(fields[i].id == 'group_id'){
                     fields[i].observe('change', this.accountGroupChange.bind(this))
@@ -850,7 +961,7 @@ AdminOrder.prototype = {
         else {
             new Ajax.Request(url, {parameters:params,loaderArea: indicator});
         }
-        if (typeof productConfigure != 'undefined' && area instanceof Array && area.indexOf('items' != -1)) {
+        if (typeof productConfigure != 'undefined' && area instanceof Array && area.indexOf('items') != -1) {
             productConfigure.clean('quote_items');
         }
     },
@@ -868,14 +979,17 @@ AdminOrder.prototype = {
         if(typeof this.loadingAreas == 'string'){
             this.loadingAreas = [this.loadingAreas];
         }
-        if(this.loadingAreas.indexOf('message'==-1)) this.loadingAreas.push('message');
+        if(this.loadingAreas.indexOf('message') == -1) {
+            this.loadingAreas.push('message');
+        }
+
         for(var i=0; i<this.loadingAreas.length; i++){
             var id = this.loadingAreas[i];
             if($(this.getAreaId(id))){
                 if ('message' != id || response[id]) {
                     var wrapper = new Element('div');
                     wrapper.update(response[id] ? response[id] : '');
-                    $(this.getAreaId(id)).update(wrapper);
+                    $(this.getAreaId(id)).update(Prototype.Browser.IE ? wrapper.outerHTML : wrapper);
                 }
                 if ($(this.getAreaId(id)).callback) {
                     this[$(this.getAreaId(id)).callback]();
@@ -1021,7 +1135,6 @@ AdminOrder.prototype = {
         }
 
         var parentEl = el.up(1);
-        var parentPos = Element.cumulativeOffset(parentEl);
         if (show) {
             parentEl.removeClassName('ignore-validate');
         }
@@ -1041,6 +1154,7 @@ AdminOrder.prototype = {
             });
         }
 
+        parentEl.setStyle({position: 'relative'});
         el.setStyle({
             display: show ? 'none' : '',
             position: 'absolute',
@@ -1048,8 +1162,131 @@ AdminOrder.prototype = {
             opacity: 0.8,
             width: parentEl.getWidth() + 'px',
             height: parentEl.getHeight() + 'px',
-            top: parentPos[1] + 'px',
-            left: parentPos[0] + 'px'
+            top: 0,
+            left: 0
         });
+    },
+
+    validateVat: function(parameters)
+    {
+        var params = {
+            country: $(parameters.countryElementId).value,
+            vat: $(parameters.vatElementId).value
+        };
+
+        if (this.storeId !== false) {
+            params.store_id = this.storeId;
+        }
+
+        var currentCustomerGroupId = $(parameters.groupIdHtmlId).value;
+
+        new Ajax.Request(parameters.validateUrl, {
+            parameters: params,
+            onSuccess: function(response) {
+                var message = '';
+                var groupChangeRequired = false;
+                try {
+                    response = response.responseText.evalJSON();
+
+                    if (true === response.valid) {
+                        message = parameters.vatValidMessage;
+                        if (currentCustomerGroupId != response.group) {
+                            message = parameters.vatValidAndGroupChangeMessage;
+                            groupChangeRequired = true;
+                        }
+                    } else if (response.success) {
+                        message = parameters.vatInvalidMessage.replace(/%s/, params.vat);
+                        groupChangeRequired = true;
+                    } else {
+                        message = parameters.vatValidationFailedMessage;
+                        groupChangeRequired = true;
+                    }
+
+                } catch (e) {
+                    message = parameters.vatErrorMessage;
+                }
+                if (!groupChangeRequired) {
+                    alert(message);
+                }
+                else {
+                    this.processCustomerGroupChange(parameters.groupIdHtmlId, message, response.group);
+                }
+            }.bind(this)
+        });
+    },
+
+    processCustomerGroupChange: function(groupIdHtmlId, message, groupId)
+    {
+        var currentCustomerGroupId = $(groupIdHtmlId).value;
+        var currentCustomerGroupTitle = $$('#' + groupIdHtmlId + ' > option[value=' + currentCustomerGroupId + ']')[0].text;
+        var customerGroupOption = $$('#' + groupIdHtmlId + ' > option[value=' + groupId + ']')[0];
+        var confirmText = message.replace(/%s/, customerGroupOption.text);
+        confirmText = confirmText.replace(/%s/, currentCustomerGroupTitle);
+        if (confirm(confirmText)) {
+            $$('#' + groupIdHtmlId + ' option').each(function(o) {
+                o.selected = o.readAttribute('value') == groupId;
+            });
+            this.accountGroupChange();
+        }
     }
-}
+};
+
+var OrderFormArea = Class.create();
+OrderFormArea.prototype = {
+    _name: null,
+    _node: null,
+    _parent: null,
+    _callbackName: null,
+
+    initialize: function(name, node, parent){
+        this._name = name;
+        this._parent = parent;
+        this._callbackName = node.callback;
+        if (typeof this._callbackName == 'undefined') {
+            this._callbackName = name + 'Loaded';
+            node.callback = this._callbackName;
+        }
+        parent[this._callbackName] = parent[this._callbackName].wrap((function (proceed){
+            proceed();
+            this.onLoad();
+        }).bind(this));
+
+        this.setNode(node);
+    },
+
+    setNode: function(node){
+        if (!node.callback) {
+            node.callback = this._callbackName;
+        }
+        this.node = node;
+    },
+
+    onLoad: function(){
+    }
+};
+
+var ControlButton = Class.create();
+ControlButton.prototype = {
+    _label: '',
+    _node: null,
+
+    initialize: function(label){
+        this._label = label;
+        this._node = new Element('button', {
+            'class': 'scalable add',
+            'type':  'button'
+        });
+    },
+
+    onClick: function(){
+    },
+
+    insertIn: function(element, position){
+        var node = Object.extend(this._node),
+            content = {};
+        node.observe('click', this.onClick);
+        node.update('<span>' + this._label + '</span>');
+        content[position] = node;
+        Element.insert(element, content);
+    }
+};

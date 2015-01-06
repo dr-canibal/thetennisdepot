@@ -14,7 +14,7 @@
  *
  * @category    Phoenix
  * @package     Phoenix_Moneybookers
- * @copyright   Copyright (c) 2009 Phoenix Medien GmbH & Co. KG (http://www.phoenix-medien.de)
+ * @copyright   Copyright (c) 2014 Phoenix Medien GmbH & Co. KG (http://www.phoenix-medien.de)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 abstract class Phoenix_Moneybookers_Model_Abstract extends Mage_Payment_Model_Method_Abstract
@@ -204,20 +204,5 @@ abstract class Phoenix_Moneybookers_Model_Abstract extends Mage_Payment_Model_Me
     {
         $paymentAction = $this->getConfigData('payment_action');
         return empty($paymentAction) ? true : $paymentAction;
-    }
-
-    /**
-     * Retrieve information from payment configuration
-     *
-     * @param   string $field
-     * @return  mixed
-     */
-    public function getConfigData($field, $storeId = null)
-    {
-        if (null === $storeId) {
-            $storeId = $this->getStore();
-        }
-        $path = 'moneybookers/'.$this->getCode().'/'.$field;
-        return Mage::getStoreConfig($path, $storeId);
     }
 }

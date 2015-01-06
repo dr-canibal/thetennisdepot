@@ -10,26 +10,26 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_XmlConnect
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * Credit Card (Authorize.net) Payment method xml renderer
  *
- * @category   Mage
- * @package    Mage_XmlConnect
- * @author     Magento Core Team <core@magentocommerce.com>
+ * @category    Mage
+ * @package     Mage_XmlConnect
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_XmlConnect_Block_Checkout_Payment_Method_Authorizenet extends Mage_Payment_Block_Form_Ccsave
 {
@@ -87,39 +87,42 @@ class Mage_XmlConnect_Block_Checkout_Payment_Method_Authorizenet extends Mage_Pa
             $cvnText = $this->__('Card Verification Number');
             $cvnValidationText = $this->__('Card verification number is wrong');
             $verification =
-            '<field name="payment[cc_cid]" type="text" label="' . $cvnText . '" required="true">
+        '<field name="payment[cc_cid]" type="text" label="' . $cvnText . '" required="true">
             <validators>
                 <validator relation="payment[cc_type]" type="credit_card_svn" message="' . $cvnValidationText . '"/>
             </validators>
-            </field>';
+        </field>';
         }
 
+        $cvnValidationText = $this->__('Credit card number does not match credit card type.');
+        $expMonthText = $this->__('Expiration Date - Month');
+        $expYearText = $this->__('Expiration Date - Year');
         $xml = <<<EOT
-    <fieldset>
-        <field name="payment[cc_type]" type="select" label="{$this->__('Credit Card Type')}" required="true">
-            <values>
-                $ccTypes
-            </values>
-        </field>
-        <field name="payment[cc_number]" type="text" label="{$this->__('Credit Card Number')}" required="true">
-            <validators>
-                <validator relation="payment[cc_type]" type="credit_card" message="{$this->__('Credit card number does not match credit card type.')}"/>
-            </validators>
-        </field>
-        <field name="payment[cc_exp_month]" type="select" label="{$this->__('Expiration Date - Month')}" required="true">
-            <values>
-                $ccMonths
-            </values>
-        </field>
-        <field name="payment[cc_exp_year]" type="select" label="{$this->__('Expiration Date - Year')}" required="true">
-            <values>
-                $ccYears
-            </values>
-        </field>
-        $verification
-    </fieldset>
+<fieldset>
+    <field name="payment[cc_type]" type="select" label="{$this->__('Credit Card Type')}" required="true">
+        <values>
+            {$ccTypes}
+        </values>
+    </field>
+    <field name="payment[cc_number]" type="text" label="{$this->__('Credit Card Number')}" required="true">
+        <validators>
+            <validator relation="payment[cc_type]" type="credit_card" message="{$cvnValidationText}"/>
+        </validators>
+    </field>
+    <field name="payment[cc_exp_month]" type="select" label="{$expMonthText}" required="true">
+        <values>
+            {$ccMonths}
+        </values>
+    </field>
+    <field name="payment[cc_exp_year]" type="select" label="{$expYearText}" required="true">
+        <values>
+            {$ccYears}
+        </values>
+    </field>
+    {$verification}
+</fieldset>
 EOT;
-        $fieldsetXmlObj = new Mage_XmlConnect_Model_Simplexml_Element($xml);
+        $fieldsetXmlObj = Mage::getModel('xmlconnect/simplexml_element', $xml);
         $formXmlObj->appendChild($fieldsetXmlObj);
     }
 }

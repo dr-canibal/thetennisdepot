@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Checkout
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -30,6 +30,9 @@
  * @category    Mage
  * @package     Mage_Checkout
  * @author      Magento Core Team <core@magentocommerce.com>
+ *
+ * @method Mage_Checkout_Block_Cart_Item_Renderer setProductName(string)
+ * @method Mage_Checkout_Block_Cart_Item_Renderer setDeleteUrl(string)
  */
 class Mage_Checkout_Block_Cart_Item_Renderer extends Mage_Core_Block_Template
 {
@@ -38,6 +41,20 @@ class Mage_Checkout_Block_Cart_Item_Renderer extends Mage_Core_Block_Template
     protected $_item;
     protected $_productUrl = null;
     protected $_productThumbnail = null;
+
+    /**
+     * Whether qty will be converted to number
+     *
+     * @var bool
+     */
+    protected $_strictQtyMode = true;
+
+    /**
+     * Check, whether product URL rendering should be ignored
+     *
+     * @var bool
+     */
+    protected $_ignoreProductUrl = false;
 
     /**
      * Set item for render
@@ -99,10 +116,13 @@ class Mage_Checkout_Block_Cart_Item_Renderer extends Mage_Core_Block_Template
     /**
      * Check Product has URL
      *
-     * @return this
+     * @return bool
      */
     public function hasProductUrl()
     {
+        if ($this->_ignoreProductUrl) {
+            return false;
+        }
         if ($this->_productUrl || $this->getItem()->getRedirectUrl()) {
             return true;
         }
@@ -112,19 +132,9 @@ class Mage_Checkout_Block_Cart_Item_Renderer extends Mage_Core_Block_Template
         if ($option) {
             $product = $option->getProduct();
         }
-
         if ($product->isVisibleInSiteVisibility()) {
             return true;
         }
-        else {
-            if ($product->hasUrlDataObject()) {
-                $data = $product->getUrlDataObject();
-                if (in_array($data->getVisibility(), $product->getVisibleInSiteVisibilities())) {
-                    return true;
-                }
-            }
-        }
-
         return false;
     }
 
@@ -158,6 +168,9 @@ class Mage_Checkout_Block_Cart_Item_Renderer extends Mage_Core_Block_Template
      */
     public function getProductName()
     {
+        if ($this->hasProductName()) {
+            return $this->getData('product_name');
+        }
         return $this->getProduct()->getName();
     }
 
@@ -203,6 +216,10 @@ class Mage_Checkout_Block_Cart_Item_Renderer extends Mage_Core_Block_Template
      */
     public function getDeleteUrl()
     {
+        if ($this->hasDeleteUrl()) {
+            return $this->getData('delete_url');
+        }
+
         return $this->getUrl(
             'checkout/cart/delete',
             array(
@@ -213,13 +230,49 @@ class Mage_Checkout_Block_Cart_Item_Renderer extends Mage_Core_Block_Template
     }
 
     /**
+     * Get item ajax delete url
+     *
+     * @return string
+     */
+    public function getAjaxDeleteUrl()
+    {
+        return $this->getUrl(
+            'checkout/cart/ajaxDelete',
+            array(
+                'id'=>$this->getItem()->getId(),
+                Mage_Core_Controller_Front_Action::PARAM_NAME_URL_ENCODED => $this->helper('core/url')->getEncodedUrl(),
+                '_secure' => $this->_getApp()->getStore()->isCurrentlySecure(),
+            )
+        );
+    }
+
+    /**
+     * Get item ajax update url
+     *
+     * @return string
+     */
+    public function getAjaxUpdateUrl()
+    {
+        return $this->getUrl(
+            'checkout/cart/ajaxUpdate',
+            array(
+                'id'=>$this->getItem()->getId(),
+                Mage_Core_Controller_Front_Action::PARAM_NAME_URL_ENCODED => $this->helper('core/url')->getEncodedUrl(),
+                '_secure' => $this->_getApp()->getStore()->isCurrentlySecure(),
+            )
+        );
+    }
+    /**
      * Get quote item qty
      *
-     * @return mixed
+     * @return float|int|string
      */
     public function getQty()
     {
-        return $this->getItem()->getQty()*1;
+        if (!$this->_strictQtyMode && (string)$this->getItem()->getQty() == '') {
+            return '';
+        }
+        return $this->getItem()->getQty() * 1;
     }
 
     /**
@@ -345,5 +398,98 @@ class Mage_Checkout_Block_Cart_Item_Renderer extends Mage_Core_Block_Template
     public function getProductAdditionalInformationBlock()
     {
         return $this->getLayout()->getBlock('additional.product.info');
+    }
+
+    /**
+     * Get html for MAP product enabled
+     *
+     * @param Mage_Sales_Model_Quote_Item $item
+     * @return string
+     */
+    public function getMsrpHtml($item)
+    {
+        return $this->getLayout()->createBlock('catalog/product_price')
+            ->setTemplate('catalog/product/price_msrp_item.phtml')
+            ->setProduct($item->getProduct())
+            ->toHtml();
+    }
+
+    /**
+     * Set qty mode to be strict or not
+     *
+     * @param bool $strict
+     * @return Mage_Checkout_Block_Cart_Item_Renderer
+     */
+    public function setQtyMode($strict)
+    {
+        $this->_strictQtyMode = $strict;
+        return $this;
+    }
+
+    /**
+     * Set ignore product URL rendering
+     *
+     * @param bool $ignore
+     * @return Mage_Checkout_Block_Cart_Item_Renderer
+     */
+    public function setIgnoreProductUrl($ignore = true)
+    {
+        $this->_ignoreProductUrl = $ignore;
+        return $this;
+    }
+
+    /**
+     * Common code to be called by product renders of gift registry to create a block, which is be used to
+     * generate html for mrsp price
+     *
+     * @param Mage_Catalog_Model_Product $product
+     * @return Mage_Catalog_Block_Product_Price
+     */
+    protected function _preparePriceBlock($product)
+    {
+        return $this->getLayout()
+            ->createBlock('catalog/product_price')
+            ->setTemplate('catalog/product/price.phtml')
+            ->setIdSuffix($this->getIdSuffix())
+            ->setProduct($product);
+    }
+
+    /**
+     *  Common code to be called by product renders of gift registry to  generate final html block
+     *
+     * @param Mage_Catalog_Model_Product $product
+     * @return string
+     */
+    protected function _getPriceContent($product)
+    {
+        return $this->getLayout()->createBlock('catalog/product_price')
+            ->setTemplate('catalog/product/price_msrp.phtml')
+            ->setProduct($product)
+            ->toHtml();
+    }
+
+    /**
+     * Retrieve block cache tags
+     *
+     * @return array
+     */
+    public function getCacheTags()
+    {
+        $tags = $this->getProduct()->getCacheIdTags();
+        $tags = is_array($tags) ? $tags : array();
+
+        return array_merge(parent::getCacheTags(), $tags);
+    }
+
+    /**
+     * Returns true if user is going through checkout process now.
+     *
+     * @return bool
+     */
+    public function isOnCheckoutPage()
+    {
+        $module = $this->getRequest()->getModuleName();
+        $controller = $this->getRequest()->getControllerName();
+        return $module == 'checkout' && ($controller == 'onepage' || $controller == 'multishipping');
     }
 }

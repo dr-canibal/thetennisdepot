@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -61,8 +61,7 @@ class Mage_Adminhtml_Tax_RateController extends Mage_Adminhtml_Controller_Action
      */
     public function addAction()
     {
-        $rateModel = Mage::getSingleton('tax/calculation_rate')
-            ->load(null);
+        $rateModel = Mage::getSingleton('tax/calculation_rate')->load(null);
 
         $this->_title($this->__('Sales'))
              ->_title($this->__('Tax'))
@@ -70,8 +69,11 @@ class Mage_Adminhtml_Tax_RateController extends Mage_Adminhtml_Controller_Action
 
         $this->_title($this->__('New Rate'));
 
-        //This line substitutes in the form the previously entered by the user values, if any of them were wrong.
         $rateModel->setData(Mage::getSingleton('adminhtml/session')->getFormData(true));
+
+        if ($rateModel->getZipIsRange() && !$rateModel->hasTaxPostcode()) {
+            $rateModel->setTaxPostcode($rateModel->getZipFrom() . '-' . $rateModel->getZipTo());
+        }
 
         $this->_initAction()
             ->_addBreadcrumb(Mage::helper('tax')->__('Manage Tax Rates'), Mage::helper('tax')->__('Manage Tax Rates'), $this->getUrl('*/tax_rate'))
@@ -93,14 +95,6 @@ class Mage_Adminhtml_Tax_RateController extends Mage_Adminhtml_Controller_Action
     {
         $ratePost = $this->getRequest()->getPost();
         if ($ratePost) {
-            //filter tags in titles
-            /** @var $helper Mage_Adminhtml_Helper_Data */
-            $helper = Mage::helper('adminhtml');
-            $ratePost['code'] = $helper->stripTags($ratePost['code']);
-            foreach ($ratePost['title'] as &$title) {
-                $title = $helper->stripTags($title);
-            }
-
             $rateId = $this->getRequest()->getParam('tax_calculation_rate_id');
             if ($rateId) {
                 $rateModel = Mage::getSingleton('tax/calculation_rate')->load($rateId);
@@ -118,11 +112,9 @@ class Mage_Adminhtml_Tax_RateController extends Mage_Adminhtml_Controller_Action
                 $this->getResponse()->setRedirect($this->getUrl("*/*/"));
                 return true;
             } catch (Mage_Core_Exception $e) {
-                //save entered by the user values in session, for re-rendering of form.
                 Mage::getSingleton('adminhtml/session')->setFormData($ratePost);
                 Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
             } catch (Exception $e) {
-                //Mage::getSingleton('adminhtml/session')->addError(Mage::helper('tax')->__('An error occurred while saving this rate.'));
                 Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
             }
 
@@ -143,10 +135,19 @@ class Mage_Adminhtml_Tax_RateController extends Mage_Adminhtml_Controller_Action
              ->_title($this->__('Manage Tax Zones and Rates'));
 
         $rateId = (int)$this->getRequest()->getParam('rate');
-        $rateModel = Mage::getSingleton('tax/calculation_rate')->load($rateId);
+        $rateModel = Mage::getSingleton('tax/calculation_rate')->load(null);
+        $rateModel->setData(Mage::getSingleton('adminhtml/session')->getFormData(true));
+        if ($rateModel->getId() != $rateId) {
+            $rateModel->load($rateId);
+        }
+
         if (!$rateModel->getId()) {
             $this->getResponse()->setRedirect($this->getUrl("*/*/"));
-            return ;
+            return;
+        }
+
+        if ($rateModel->getZipIsRange() && !$rateModel->hasTaxPostcode()) {
+            $rateModel->setTaxPostcode($rateModel->getZipFrom() . '-' . $rateModel->getZipTo());
         }
 
         $this->_title(sprintf("%s", $rateModel->getCode()));
@@ -290,14 +291,19 @@ class Mage_Adminhtml_Tax_RateController extends Mage_Adminhtml_Controller_Action
             1   => Mage::helper('tax')->__('Country'),
             2   => Mage::helper('tax')->__('State'),
             3   => Mage::helper('tax')->__('Zip/Post Code'),
-            4   => Mage::helper('tax')->__('Rate')
+            4   => Mage::helper('tax')->__('Rate'),
+            5   => Mage::helper('tax')->__('Zip/Post is Range'),
+            6   => Mage::helper('tax')->__('Range From'),
+            7   => Mage::helper('tax')->__('Range To')
         );
 
 
         $stores = array();
         $unset = array();
         $storeCollection = Mage::getModel('core/store')->getCollection()->setLoadDefault(false);
-        for ($i = 5; $i < count($csvData[0]); $i++) {
+        $cvsFieldsNum = count($csvFields);
+        $cvsDataNum   = count($csvData[0]);
+        for ($i = $cvsFieldsNum; $i < $cvsDataNum; $i++) {
             $header = $csvData[0][$i];
             $found = false;
             foreach ($storeCollection as $store) {
@@ -362,11 +368,14 @@ class Mage_Adminhtml_Tax_RateController extends Mage_Adminhtml_Controller_Action
 
                 if (!empty($regions[$v[1]][$v[2]])) {
                     $rateData  = array(
-                        'code'           => $helper->stripTags($v[0]),
+                        'code'           => $v[0],
                         'tax_country_id' => $v[1],
                         'tax_region_id'  => ($regions[$v[1]][$v[2]] == '*') ? 0 : $regions[$v[1]][$v[2]],
                         'tax_postcode'   => (empty($v[3]) || $v[3]=='*') ? null : $v[3],
                         'rate'           => $v[4],
+                        'zip_is_range'   => $v[5],
+                        'zip_from'       => $v[6],
+                        'zip_to'         => $v[7]
                     );
 
                     $rateModel = Mage::getModel('tax/calculation_rate')->loadByCode($rateData['code']);
@@ -377,11 +386,6 @@ class Mage_Adminhtml_Tax_RateController extends Mage_Adminhtml_Controller_Action
                     $titles = array();
                     foreach ($stores as $field=>$id) {
                         $titles[$id] = $v[$field];
-                    }
-
-                    //filter tags in titles
-                    foreach ($titles as &$title) {
-                        $title = $helper->stripTags($title);
                     }
 
                     $rateModel->setTitle($titles);
@@ -405,9 +409,13 @@ class Mage_Adminhtml_Tax_RateController extends Mage_Adminhtml_Controller_Action
             'country_name' => Mage::helper('tax')->__('Country'),
             'region_name'  => Mage::helper('tax')->__('State'),
             'tax_postcode' => Mage::helper('tax')->__('Zip/Post Code'),
-            'rate'         => Mage::helper('tax')->__('Rate')
+            'rate'         => Mage::helper('tax')->__('Rate'),
+            'zip_is_range' => Mage::helper('tax')->__('Zip/Post is Range'),
+            'zip_from'     => Mage::helper('tax')->__('Range From'),
+            'zip_to'       => Mage::helper('tax')->__('Range To')
         ));
-        $template = '"{{code}}","{{country_name}}","{{region_name}}","{{tax_postcode}}","{{rate}}"';
+        $template = '"{{code}}","{{country_name}}","{{region_name}}","{{tax_postcode}}","{{rate}}"'
+                . ',"{{zip_is_range}}","{{zip_from}}","{{zip_to}}"';
         $content = $headers->toString($template);
 
         $storeTaxTitleTemplate       = array();

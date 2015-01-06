@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_XmlConnect
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -33,10 +33,7 @@
  */
 class Mage_XmlConnect_Block_Adminhtml_Queue_Grid extends Mage_Adminhtml_Block_Widget_Grid
 {
-
     /**
-     * Constructor
-     *
      * Setting grid_id, sort order and sort direction
      */
     public function __construct()
@@ -57,7 +54,9 @@ class Mage_XmlConnect_Block_Adminhtml_Queue_Grid extends Mage_Adminhtml_Block_Wi
     {
         $collection = Mage::getModel('xmlconnect/queue')->getCollection();
 
-        $collection->addFieldToFilter('main_table.status', array('neq' => Mage_XmlConnect_Model_Queue::STATUS_DELETED));
+        $collection->addFieldToFilter(
+            'main_table.status', array('neq' => Mage_XmlConnect_Model_Queue::STATUS_DELETED)
+        );
         $this->setCollection($collection);
         return parent::_prepareCollection();
     }
@@ -69,10 +68,10 @@ class Mage_XmlConnect_Block_Adminhtml_Queue_Grid extends Mage_Adminhtml_Block_Wi
      */
     protected function _prepareColumns()
     {
-        $this->addColumn('id', array(
+        $this->addColumn('queue_id', array(
             'header'    => $this->__('ID'),
             'align'     => 'center',
-            'index'     => 'main_table.id',
+            'index'     => 'main_table.queue_id',
             'width'     => '40px',
             'renderer'  => 'xmlconnect/adminhtml_queue_grid_renderer_id'
         ));
@@ -88,7 +87,7 @@ class Mage_XmlConnect_Block_Adminhtml_Queue_Grid extends Mage_Adminhtml_Block_Wi
         $this->addColumn('app_code', array(
             'header'    => $this->__('Application Name'),
             'align'     => 'left',
-            'index'     => 'main_table.app_code',
+            'index'     => 'app.code',
             'type'      => 'options',
             'options'   => Mage::helper('xmlconnect')->getApplications(),
             'renderer'  => 'xmlconnect/adminhtml_queue_grid_renderer_application'
@@ -159,13 +158,13 @@ class Mage_XmlConnect_Block_Adminhtml_Queue_Grid extends Mage_Adminhtml_Block_Wi
         $this->getMassactionBlock()->addItem('delete', array(
              'label'    => $this->__('Delete'),
              'url'      => $this->getUrl('*/*/massDeleteQueue'),
-             'confirm'  => $this->__('Are you sure you what to delete selected records?')
+             'confirm'  => $this->__('Are you sure you want to delete selected records?')
         ));
 
         $this->getMassactionBlock()->addItem('cancel', array(
              'label'    => $this->__('Cancel'),
              'url'      => $this->getUrl('*/*/massCancelQueue'),
-             'confirm'  => $this->__('Are you sure you what to cancel selected records?')
+             'confirm'  => $this->__('Are you sure you want to cancel selected records?')
         ));
         return $this;
     }

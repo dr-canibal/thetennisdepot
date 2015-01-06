@@ -10,24 +10,31 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_XmlConnect
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+/**
+ * XmlConnect font form element
+ *
+ * @category    Mage
+ * @package     Mage_XmlConnect
+ * @author      Magento Core Team <core@magentocommerce.com>
+ */
 class Mage_XmlConnect_Block_Adminhtml_Mobile_Form_Element_Font extends Varien_Data_Form_Element_Abstract
 {
     /**
-     * Constructor...
+     * Init font element
      *
      * @param array $attributes
      */
@@ -68,13 +75,13 @@ class Mage_XmlConnect_Block_Adminhtml_Mobile_Form_Element_Font extends Varien_Da
      * Add form element
      *
      * @param Varien_Data_Form_Element_Abstract $element
-     * @param boolean|'^'|string $after
+     * @param bool|string $after also can be '^'
      * @return Varien_Data_Form
      */
-    public function addElement(Varien_Data_Form_Element_Abstract $element, $after=false)
+    public function addElement(Varien_Data_Form_Element_Abstract $element, $after = false)
     {
         $element->setId($element->getData('name'));
-        $element->setNoSpan(TRUE);
+        $element->setNoSpan(true);
         parent::addElement($element, $after);
     }
 
@@ -85,10 +92,11 @@ class Mage_XmlConnect_Block_Adminhtml_Mobile_Form_Element_Font extends Varien_Da
      */
     public function getElementHtml()
     {
-        $el = array();
+        $elementsArray = array();
         foreach ($this->getElements() as $element) {
-            $el[] .= $element->toHtml();
+            $elementsArray[] .= $element->toHtml();
         }
-        return $el[0] . $el[1] . '</td><td class="label" style="width: 2em !important">' . $el[2];
+        return $elementsArray[0] . $elementsArray[1] . '</td><td class="label" style="width: 2em !important">'
+            . $elementsArray[2];
     }
 }

@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -33,7 +33,16 @@
  */
 class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Grid extends Mage_Adminhtml_Block_Widget_Grid
 {
+    /**
+     * Config attribute codes
+     *
+     * @var null|array
+     */
+    protected $_configAttributeCodes = null;
 
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         parent::__construct();
@@ -41,7 +50,7 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Grid extends Ma
         $this->setId('super_product_links');
 
         if ($this->_getProduct()->getId()) {
-            $this->setDefaultFilter(array('in_products'=>1));
+            $this->setDefaultFilter(array('in_products' => 1));
         }
     }
 
@@ -102,10 +111,15 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Grid extends Ma
         return $products;
     }
 
+    /**
+     * Prepare collection
+     *
+     * @return Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Grid
+     */
     protected function _prepareCollection()
     {
         $allowProductTypes = array();
-        foreach (Mage::getConfig()->getNode('global/catalog/product/type/configurable/allow_product_types')->children() as $type) {
+        foreach (Mage::helper('catalog/product_configuration')->getConfigurableAllowedTypes() as $type) {
             $allowProductTypes[] = $type->getName();
         }
 
@@ -118,13 +132,16 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Grid extends Ma
             ->addAttributeToSelect('price')
             ->addFieldToFilter('attribute_set_id',$product->getAttributeSetId())
             ->addFieldToFilter('type_id', $allowProductTypes)
-            ->addFilterByRequiredOptions();
+            ->addFilterByRequiredOptions()
+            ->joinAttribute('name', 'catalog_product/name', 'entity_id', null, 'inner');
 
-        Mage::getModel('cataloginventory/stock_item')->addCatalogInventoryToProductCollection($collection);
+        if (Mage::helper('catalog')->isModuleEnabled('Mage_CatalogInventory')) {
+            Mage::getModel('cataloginventory/stock_item')->addCatalogInventoryToProductCollection($collection);
+        }
 
         foreach ($product->getTypeInstance(true)->getUsedProductAttributes($product) as $attribute) {
             $collection->addAttributeToSelect($attribute->getAttributeCode());
-            $collection->addAttributeToFilter($attribute->getAttributeCode(), array('nin'=>array(null)));
+            $collection->addAttributeToFilter($attribute->getAttributeCode(), array('notnull'=>1));
         }
 
         $this->setCollection($collection);
@@ -153,7 +170,10 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Grid extends Ma
      */
     public function isReadonly()
     {
-         return $this->_getProduct()->getCompositeReadonly();
+        if ($this->hasData('is_readonly')) {
+            return $this->getData('is_readonly');
+        }
+        return $this->_getProduct()->getCompositeReadonly();
     }
 
     protected function _prepareColumns()
@@ -263,10 +283,19 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Grid extends Ma
         );
     }
 
+    /**
+     * Retrieve Required attributes Ids (comma separated)
+     *
+     * @return string
+     */
     protected function _getRequiredAttributesIds()
     {
         $attributesIds = array();
-        foreach ($this->_getProduct()->getTypeInstance(true)->getConfigurableAttributes($this->_getProduct()) as $attribute) {
+        foreach (
+            $this->_getProduct()
+                ->getTypeInstance(true)
+                ->getConfigurableAttributes($this->_getProduct()) as $attribute
+        ) {
             $attributesIds[] = $attribute->getProductAttribute()->getId();
         }
 
@@ -289,4 +318,87 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Grid extends Ma
         return $this->getUrl('*/*/superConfig', array('_current'=>true));
     }
 
+    /**
+     * Retrieving configurable attributes
+     *
+     * @return array
+     */
+    protected function _getConfigAttributeCodes()
+    {
+        if (is_null($this->_configAttributeCodes)) {
+            $product = $this->_getProduct();
+            $attributes = $product->getTypeInstance(true)->getConfigurableAttributes($product);
+            $attributeCodes = array();
+            foreach ($attributes as $attribute) {
+                $productAttribute = $attribute->getProductAttribute();
+                $attributeCodes[] = $productAttribute->getAttributeCode();
+            }
+            $this->_configAttributeCodes = $attributeCodes;
+        }
+        return $this->_configAttributeCodes;
+    }
+
+    /**
+     * Retrieve item row configurable attribute data
+     *
+     * @param Varien_Object $item
+     * @return array
+     */
+    protected function _retrieveRowData(Varien_Object $item)
+    {
+        $attributeValues = array();
+        foreach ($this->_getConfigAttributeCodes() as $attributeCode) {
+            $data = $item->getData($attributeCode);
+            if ($data) {
+                $attributeValues[$attributeCode] = $data;
+            }
+        }
+        return $attributeValues;
+    }
+
+    /**
+     * Checking the data contains the same value of data after collection
+     *
+     * @return Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Grid
+     */
+    protected function _afterLoadCollection()
+    {
+        parent::_afterLoadCollection();
+
+        $attributeCodes = $this->_getConfigAttributeCodes();
+        if (!$attributeCodes) {
+            return $this;
+        }
+
+        $disableMultiSelect = false;
+        $ids = array();
+        foreach ($this->_collection as $item) {
+            $ids[] = $item->getId();
+            $needleAttributeValues = $this->_retrieveRowData($item);
+            foreach($this->_collection as $item2) {
+                // Skip the data if already checked
+                if (in_array($item2->getId(), $ids)) {
+                   continue;
+                }
+                $attributeValues = $this->_retrieveRowData($item2);
+                $disableMultiSelect = ($needleAttributeValues == $attributeValues);
+                if ($disableMultiSelect) {
+                   break;
+                }
+            }
+            if ($disableMultiSelect) {
+                break;
+            }
+        }
+
+        // Disable multiselect column
+        if ($disableMultiSelect) {
+            $selectAll = $this->getColumn('in_products');
+            if ($selectAll) {
+                $selectAll->setDisabled(true);
+            }
+        }
+
+        return $this;
+    }
 }

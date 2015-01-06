@@ -1,8 +1,0 @@
-<config>
-	<modules>
-		<Flagbit_ChangeAttributeSet>
-			<active>true</active>
-			<codePool>community</codePool>
-		</Flagbit_ChangeAttributeSet>
-	</modules>
-</config>

@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -31,7 +31,8 @@
  * @package    Mage_Adminhtml
  * @author      Magento Core Team <core@magentocommerce.com>
  */
-class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Simple extends Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Attributes
+class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Simple
+    extends Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Attributes
 {
     /**
      * Link to currently editing product
@@ -56,7 +57,7 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Simple extends 
             'additional'   => array('name', 'sku', 'visibility', 'status')
         );
 
-        $availableTypes = array('text', 'select', 'multiselect', 'textarea', 'price');
+        $availableTypes = array('text', 'select', 'multiselect', 'textarea', 'price', 'weight');
 
         $attributes = Mage::getModel('catalog/product')
             ->setTypeId(Mage_Catalog_Model_Product_Type::TYPE_SIMPLE)
@@ -70,10 +71,12 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Simple extends 
                 // If not applied to configurable
                 && !in_array(Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE, $attribute->getApplyTo())
                 // If not used in configurable
-                && !in_array($attribute->getId(),$this->_getProduct()->getTypeInstance(true)->getUsedProductAttributeIds($this->_getProduct())))
+                && !in_array($attribute->getId(),
+                    $this->_getProduct()->getTypeInstance(true)->getUsedProductAttributeIds($this->_getProduct()))
+                )
                 // Or in additional
-                || in_array($attribute->getAttributeCode(), $attributesConfig['additional'])) {
-
+                || in_array($attribute->getAttributeCode(), $attributesConfig['additional'])
+            ) {
                 $inputType = $attribute->getFrontend()->getInputType();
                 if (!in_array($inputType, $availableTypes)) {
                     continue;
@@ -112,7 +115,8 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Simple extends 
         }
 
         /* Configurable attributes */
-        foreach ($this->_getProduct()->getTypeInstance(true)->getUsedProductAttributes($this->_getProduct()) as $attribute) {
+        $usedAttributes = $this->_getProduct()->getTypeInstance(true)->getUsedProductAttributes($this->_getProduct());
+        foreach ($usedAttributes as $attribute) {
             $attributeCode =  $attribute->getAttributeCode();
             $fieldset->addField( 'simple_product_' . $attributeCode, 'select',  array(
                 'label' => $attribute->getFrontend()->getLabel(),
@@ -175,8 +179,6 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Simple extends 
                 'save'
             )
         ));
-
-
 
         $this->setForm($form);
     }

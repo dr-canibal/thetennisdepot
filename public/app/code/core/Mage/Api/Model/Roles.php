@@ -10,22 +10,54 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Api
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+/**
+ * Enter description here ...
+ *
+ * @method Mage_Api_Model_Resource_Roles _getResource()
+ * @method Mage_Api_Model_Resource_Roles getResource()
+ * @method int getParentId()
+ * @method Mage_Api_Model_Roles setParentId(int $value)
+ * @method int getTreeLevel()
+ * @method Mage_Api_Model_Roles setTreeLevel(int $value)
+ * @method int getSortOrder()
+ * @method Mage_Api_Model_Roles setSortOrder(int $value)
+ * @method string getRoleType()
+ * @method Mage_Api_Model_Roles setRoleType(string $value)
+ * @method int getUserId()
+ * @method Mage_Api_Model_Roles setUserId(int $value)
+ * @method string getRoleName()
+ * @method Mage_Api_Model_Roles setRoleName(string $value)
+ * @method string getName()
+ * @method Mage_Api_Model_Role setName() setName(string $name)
+ *
+ * @category    Mage
+ * @package     Mage_Api
+ * @author      Magento Core Team <core@magentocommerce.com>
+ */
 class Mage_Api_Model_Roles extends Mage_Core_Model_Abstract
 {
+    /**
+     * Filters
+     *
+     * @var array
+     */
+    protected $_filters;
+
+
     protected function _construct()
     {
         $this->_init('api/roles');
@@ -62,8 +94,10 @@ class Mage_Api_Model_Roles extends Mage_Core_Model_Abstract
         return $this->getResource()->getRoleUsers($this);
     }
 
-    protected function _buildResourcesArray(Varien_Simplexml_Element $resource=null, $parentName=null, $level=0, $represent2Darray=null, $rawNodes = false, $module = 'adminhtml')
-    {
+    protected function _buildResourcesArray(
+        Varien_Simplexml_Element $resource = null, $parentName = null, $level = 0, $represent2Darray = null,
+        $rawNodes = false, $module = 'adminhtml'
+    ) {
         static $result;
 
         if (is_null($resource)) {
@@ -72,7 +106,9 @@ class Mage_Api_Model_Roles extends Mage_Core_Model_Abstract
             $level = -1;
         } else {
             $resourceName = $parentName;
-            if ($resource->getName()!='title' && $resource->getName()!='sort_order' && $resource->getName() != 'children') {
+            if ($resource->getName()!='title' && $resource->getName()!='sort_order'
+                && $resource->getName() != 'children'
+            ) {
                 $resourceName = (is_null($parentName) ? '' : $parentName.'/').$resource->getName();
 
                 //assigning module for its' children nodes
@@ -113,4 +149,33 @@ class Mage_Api_Model_Roles extends Mage_Core_Model_Abstract
         }
     }
 
+    /**
+     * Filter data before save
+     *
+     * @return Mage_Api_Model_Roles
+     */
+    protected function _beforeSave()
+    {
+        $this->filter();
+        parent::_beforeSave();
+        return $this;
+    }
+
+    /**
+     * Filter set data
+     *
+     * @return Mage_Api_Model_Roles
+     */
+    public function filter()
+    {
+        $data = $this->getData();
+        if (!$this->_filters || !$data) {
+            return $this;
+        }
+        /** @var $filter Mage_Core_Model_Input_Filter */
+        $filter = Mage::getModel('core/input_filter');
+        $filter->setFilters($this->_filters);
+        $this->setData($filter->filter($data));
+        return $this;
+    }
 }

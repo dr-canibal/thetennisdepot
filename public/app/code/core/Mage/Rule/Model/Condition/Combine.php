@@ -10,23 +10,82 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Rule
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-
+/**
+ * @method string getAggregator()
+ */
 class Mage_Rule_Model_Condition_Combine extends Mage_Rule_Model_Condition_Abstract
 {
+    /**
+     * Store all used condition models
+     *
+     * @var array
+     */
+    static protected $_conditionModels = array();
+
+    /**
+     * Prepare sql where by condition
+     *
+     * @return string
+     */
+    public function prepareConditionSql()
+    {
+        $wheres = array();
+        foreach ($this->getConditions() as $condition) {
+            /** @var $condition Mage_Rule_Model_Condition_Abstract */
+            $wheres[] = $condition->prepareConditionSql();
+        }
+
+        if (empty($wheres)) {
+            return '';
+        }
+        $delimiter = $this->getAggregator() == "all" ? ' AND ' : ' OR ';
+        return ' (' . implode($delimiter, $wheres) . ') ';
+    }
+
+    /**
+     * Retrieve new object for each requested model.
+     * If model is requested first time, store it at static array.
+     *
+     * It's made by performance reasons to avoid initialization of same models each time when rules are being processed.
+     *
+     * @param  string $modelClass
+     * @return Mage_Rule_Model_Condition_Abstract|bool
+     */
+    protected function _getNewConditionModelInstance($modelClass)
+    {
+        if (empty($modelClass)) {
+            return false;
+        }
+
+        if (!array_key_exists($modelClass, self::$_conditionModels)) {
+            $model = Mage::getModel($modelClass);
+            self::$_conditionModels[$modelClass] = $model;
+        } else {
+            $model = self::$_conditionModels[$modelClass];
+        }
+
+        if (!$model) {
+            return false;
+        }
+
+        $newModel = clone $model;
+        return $newModel;
+    }
+
     public function __construct()
     {
         parent::__construct();
@@ -165,8 +224,8 @@ class Mage_Rule_Model_Condition_Combine extends Mage_Rule_Model_Condition_Abstra
         if (!empty($arr[$key]) && is_array($arr[$key])) {
             foreach ($arr[$key] as $condArr) {
                 try {
-                    $cond = @Mage::getModel($condArr['type']);
-                    if (!empty($cond)) {
+                    $cond = $this->_getNewConditionModelInstance($condArr['type']);
+                    if ($cond) {
                         $this->addCondition($cond);
                         $cond->loadArray($condArr, $key);
                     }
@@ -194,11 +253,8 @@ class Mage_Rule_Model_Condition_Combine extends Mage_Rule_Model_Condition_Abstra
     public function asHtml()
     {
            $html = $this->getTypeElement()->getHtml().
-               Mage::helper('rule')->__("If %s of these conditions are %s:",
-                   $this->getAggregatorElement()->getHtml(),
-                   $this->getValueElement()->getHtml()
-               );
-           if ($this->getId()!='1') {
+               Mage::helper('rule')->__('If %s of these conditions are %s:', $this->getAggregatorElement()->getHtml(), $this->getValueElement()->getHtml());
+           if ($this->getId() != '1') {
                $html.= $this->getRemoveLinkHtml();
            }
         return $html;

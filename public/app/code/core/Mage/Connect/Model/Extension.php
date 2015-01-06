@@ -10,21 +10,20 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Connect
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-require_once 'Mage/Connect/Package.php'; // TODO
 
 /**
  * Extension model
@@ -158,8 +157,9 @@ class Mage_Connect_Model_Extension extends Varien_Object
     */
     protected function _setDependencies()
     {
-        $this->getPackage()->clearDependencies();
-        $this->getPackage()->setDependencyPhpVersion($this->getData('depends_php_min'), $this->getData('depends_php_max'));
+        $this->getPackage()
+            ->clearDependencies()
+            ->setDependencyPhpVersion($this->getData('depends_php_min'), $this->getData('depends_php_max'));
 
         foreach ($this->getData('depends') as $deptype=>$deps) {
             foreach ($deps['name'] as $i=>$type) {
@@ -174,7 +174,9 @@ class Mage_Connect_Model_Extension extends Varien_Object
                 $packageFiles = $this->packageFilesToArray($files);
 
                 if ($deptype !== 'extension') {
-                    $channel = !empty($deps['channel'][$i]) ? $deps['channel'][$i] : 'connect.magentocommerce.com/core';
+                    $channel = !empty($deps['channel'][$i])
+                        ? $deps['channel'][$i]
+                        : 'connect.magentocommerce.com/core';
                 }
                 switch ($deptype) {
                     case 'package':

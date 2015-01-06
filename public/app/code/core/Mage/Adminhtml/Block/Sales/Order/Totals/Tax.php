@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -42,33 +42,23 @@ class Mage_Adminhtml_Block_Sales_Order_Totals_Tax extends Mage_Tax_Block_Sales_O
     {
         /** @var $source Mage_Sales_Model_Order */
         $source = $this->getOrder();
-        $info = array();
+
+        $taxClassAmount = array();
         if ($source instanceof Mage_Sales_Model_Order) {
-
-            $rates = Mage::getModel('sales/order_tax')->getCollection()->loadByOrder($source)->toArray();
-            $info  = Mage::getSingleton('tax/calculation')->reproduceProcess($rates['items']);
-
-            /**
-             * Set right tax amount from invoice
-             * (In $info tax invalid when invoice is partial)
-             */
-            /** @var $blockInvoice Mage_Adminhtml_Block_Sales_Order_Invoice_Totals */
-            $blockInvoice = $this->getLayout()->getBlock('tax');
-            /** @var $invoice Mage_Sales_Model_Order_Invoice */
-            $invoice = $blockInvoice->getSource();
-            $items = $invoice->getItemsCollection();
-            $i = 0;
-            /** @var $item Mage_Sales_Model_Order_Invoice_Item */
-            foreach ($items as $item) {
-                $info[$i]['hidden']           = $item->getHiddenTaxAmount();
-                $info[$i]['amount']           = $item->getTaxAmount();
-                $info[$i]['base_amount']      = $item->getBaseTaxAmount();
-                $info[$i]['base_real_amount'] = $item->getBaseTaxAmount();
-                $i++;
-            }
+            $taxClassAmount = $this->_getTaxHelper()->getCalculatedTaxes($source);
         }
 
-        return $info;
+        return $taxClassAmount;
+    }
+
+    /**
+     * Return Mage_Tax_Helper_Data instance
+     *
+     * @return Mage_Tax_Helper_Data
+     */
+    protected function _getTaxHelper()
+    {
+        return Mage::helper('tax');
     }
 
     /**

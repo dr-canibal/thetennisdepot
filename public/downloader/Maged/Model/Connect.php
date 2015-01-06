@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Connect
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 include_once "Maged/Connect.php";
@@ -98,7 +98,8 @@ class Maged_Model_Connect extends Maged_Model
      */
     public function prepareToInstall($id)
     {
-        if (!preg_match('#^([^ ]+)\/([^-]+)(-[^-]+)?$#', $id, $match)) {
+        $match = array();
+        if (!$this->checkExtensionKey($id, $match)) {
             echo('Invalid package identifier provided: '.$id);
             exit;
         }
@@ -111,7 +112,7 @@ class Maged_Model_Connect extends Maged_Model
         $sconfig = $connect->getSingleConfig();
 
         $options = array();
-        $params = array($channel, $package, $version);
+        $params = array($channel, $package, $version, $version);
         $this->controller()->channelConfig()->setCommandOptions($this->controller()->session(), $options);
 
         $connect->run('package-prepare', $options, $params);
@@ -324,9 +325,7 @@ class Maged_Model_Connect extends Maged_Model
     public function installPackage($id, $force=false)
     {
         $match = array();
-        //if (!preg_match('#^([^ ]+) ([^-]+)(-[^-]+)?$#', $id, $match)) {// there is bug? space not used as separator "/" must be there. Version number part (-[^-]+) may be optional?
-        //if (!preg_match('#^([^\/]+)\/([^-]+)?$#', $id, $match)&&!preg_match('#^([^ ]+)\/([^-]+)(-[^-]+)?$#', $id, $match)&&!preg_match('#^([^ ]+) ([^-]+)(-[^-]+)?$#', $id, $match)) {
-        if (!preg_match('#^([^ ]+)\/([^-]+)(-[^-]+)?$#', $id, $match)) {
+        if (!$this->checkExtensionKey($id, $match)) {
             $this->connect()->runHtmlConsole('Invalid package identifier provided: '.$id);
             exit;
         }
@@ -470,8 +469,26 @@ class Maged_Model_Connect extends Maged_Model
             $configObj->global_dir_mode = octdec(intval($p['mkdir_mode']));
             $configObj->global_file_mode = octdec(intval($p['chmod_file_mode']));
         }
-        $this->controller()->session()->addMessage('success', 'Settings has been successfully saved');
+        if ($configObj->save()) {
+            $this->controller()->session()->addMessage('success', 'Settings has been successfully saved');
+        } else {
+            $this->controller()->session()->addMessage('error', 'Settings cannot be saved');
+        }
         return $this;
     }
 
+    /**
+     * Check Extension Key
+     *
+     * @param string $id
+     * @param array $match
+     * @return int
+     */
+    public function checkExtensionKey($id, &$match)
+    {
+        if (preg_match('#^(.+)\/(.+)-([\.\d]+)$#', $id, $match)) {
+            return $match;
+        }
+        return preg_match('#^(.+)\/(.+)$#', $id, $match);
+    }
 }

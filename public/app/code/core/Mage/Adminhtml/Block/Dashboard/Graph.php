@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -187,9 +187,9 @@ class Mage_Adminhtml_Block_Dashboard_Graph extends Mage_Adminhtml_Block_Dashboar
     public function getChartUrl($directUrl = true)
     {
         $params = array(
-            'cht' => 'lc',
-            'chf' => 'bg,s,f4f4f4|c,lg,90,ffffff,0.1,ededed,0',
-            'chm' => 'B,f4d4b2,0,0,0',
+            'cht'  => 'lc',
+            'chf'  => 'bg,s,f4f4f4|c,lg,90,ffffff,0.1,ededed,0',
+            'chm'  => 'B,f4d4b2,0,0,0',
             'chco' => 'db4814'
         );
 
@@ -199,10 +199,13 @@ class Mage_Adminhtml_Block_Dashboard_Graph extends Mage_Adminhtml_Block_Dashboar
             $this->setAxisLabels($axis, $this->getRowsData($attr, true));
         }
 
-        $gmtOffset = Mage::getSingleton('core/date')->getGmtOffset();
+        $timezoneLocal = Mage::app()->getStore()->getConfig(Mage_Core_Model_Locale::XML_PATH_DEFAULT_TIMEZONE);
 
         list ($dateStart, $dateEnd) = Mage::getResourceModel('reports/order_collection')
             ->getDateRange($this->getDataHelper()->getParam('period'), '', '', true);
+
+        $dateStart->setTimezone($timezoneLocal);
+        $dateEnd->setTimezone($timezoneLocal);
 
         $dates = array();
         $datas = array();
@@ -379,11 +382,15 @@ class Mage_Adminhtml_Block_Dashboard_Graph extends Mage_Adminhtml_Block_Dashboar
                         if ($_label != '') {
                             switch ($this->getDataHelper()->getParam('period')) {
                                 case '24h':
-                                    $this->_axisLabels[$idx][$_index] = $this->formatTime($_label, 'short', false);
+                                    $this->_axisLabels[$idx][$_index] = $this->formatTime(
+                                        new Zend_Date($_label, 'yyyy-MM-dd HH:00'), 'short', false
+                                    );
                                     break;
                                 case '7d':
                                 case '1m':
-                                    $this->_axisLabels[$idx][$_index] = $this->formatDate($_label);
+                                    $this->_axisLabels[$idx][$_index] = $this->formatDate(
+                                        new Zend_Date($_label, 'yyyy-MM-dd')
+                                    );
                                     break;
                                 case '1y':
                                 case '2y':
@@ -437,7 +444,7 @@ class Mage_Adminhtml_Block_Dashboard_Graph extends Mage_Adminhtml_Block_Dashboar
             }
             return self::API_URL . '?' . implode('&', $p);
         } else {
-            $gaData = urlencode(base64_encode(serialize($params)));
+            $gaData = urlencode(base64_encode(json_encode($params)));
             $gaHash = Mage::helper('adminhtml/dashboard_data')->getChartDataHash($gaData);
             $params = array('ga' => $gaData, 'h' => $gaHash);
             return $this->getUrl('*/*/tunnel', array('_query' => $params));
@@ -457,10 +464,10 @@ class Mage_Adminhtml_Block_Dashboard_Graph extends Mage_Adminhtml_Block_Dashboar
         $options = array();
         foreach ($items as $item){
             if ($single) {
-                $options[] = $item->getData($attributes);
+                $options[] = max(0, $item->getData($attributes));
             } else {
                 foreach ((array)$attributes as $attr){
-                    $options[$attr][] = $item->getData($attr);
+                    $options[$attr][] = max(0, $item->getData($attr));
                 }
             }
         }

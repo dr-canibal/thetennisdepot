@@ -10,25 +10,36 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Newsletter
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * Newsletter problem model
  *
- * @category   Mage
- * @package    Mage_Newsletter
+ * @method Mage_Newsletter_Model_Resource_Problem _getResource()
+ * @method Mage_Newsletter_Model_Resource_Problem getResource()
+ * @method int getSubscriberId()
+ * @method Mage_Newsletter_Model_Problem setSubscriberId(int $value)
+ * @method int getQueueId()
+ * @method Mage_Newsletter_Model_Problem setQueueId(int $value)
+ * @method int getProblemErrorCode()
+ * @method Mage_Newsletter_Model_Problem setProblemErrorCode(int $value)
+ * @method string getProblemErrorText()
+ * @method Mage_Newsletter_Model_Problem setProblemErrorText(string $value)
+ *
+ * @category    Mage
+ * @package     Mage_Newsletter
  * @author     Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Newsletter_Model_Problem extends Mage_Core_Model_Abstract

@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Catalog
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -46,37 +46,60 @@ class Mage_Catalog_Model_Product_Type_Configurable_Price extends Mage_Catalog_Mo
             return $product->getCalculatedFinalPrice();
         }
 
-        $finalPrice = parent::getFinalPrice($qty, $product);
+        $basePrice = $this->getBasePrice($product, $qty);
+        $finalPrice = $basePrice;
+        $product->setFinalPrice($finalPrice);
+        Mage::dispatchEvent('catalog_product_get_final_price', array('product' => $product, 'qty' => $qty));
+        $finalPrice = $product->getData('final_price');
+
+        $finalPrice += $this->getTotalConfigurableItemsPrice($product, $finalPrice);
+        $finalPrice += $this->_applyOptionsPrice($product, $qty, $basePrice) - $basePrice;
+        $finalPrice = max(0, $finalPrice);
+
+        $product->setFinalPrice($finalPrice);
+        return $finalPrice;
+    }
+
+    /**
+     * Get Total price for configurable items
+     *
+     * @param Mage_Catalog_Model_Product $product
+     * @param float $finalPrice
+     * @return float
+     */
+    public function getTotalConfigurableItemsPrice($product, $finalPrice)
+    {
+        $price = 0.0;
+
         $product->getTypeInstance(true)
-            ->setStoreFilter($product->getStore(), $product);
+                ->setStoreFilter($product->getStore(), $product);
         $attributes = $product->getTypeInstance(true)
-            ->getConfigurableAttributes($product);
+                ->getConfigurableAttributes($product);
 
         $selectedAttributes = array();
         if ($product->getCustomOption('attributes')) {
             $selectedAttributes = unserialize($product->getCustomOption('attributes')->getValue());
         }
 
-        $basePrice = $finalPrice;
         foreach ($attributes as $attribute) {
             $attributeId = $attribute->getProductAttribute()->getId();
             $value = $this->_getValueByIndex(
                 $attribute->getPrices() ? $attribute->getPrices() : array(),
                 isset($selectedAttributes[$attributeId]) ? $selectedAttributes[$attributeId] : null
             );
-            if($value) {
-                if($value['pricing_value'] != 0) {
-                    $product->setConfigurablePrice($this->_calcSelectionPrice($value, $basePrice));
+            $product->setParentId(true);
+            if ($value) {
+                if ($value['pricing_value'] != 0) {
+                    $product->setConfigurablePrice($this->_calcSelectionPrice($value, $finalPrice));
                     Mage::dispatchEvent(
                         'catalog_product_type_configurable_price',
                         array('product' => $product)
                     );
-                    $finalPrice += $product->getConfigurablePrice();
+                    $price += $product->getConfigurablePrice();
                 }
             }
         }
-        $product->setFinalPrice($finalPrice);
-        return max(0, $product->getData('final_price'));
+        return $price;
     }
 
     /**

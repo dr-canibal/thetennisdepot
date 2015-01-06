@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -32,7 +32,8 @@
  * @author      Magento Core Team <core@magentocommerce.com>
  */
 
-abstract class Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Abstract extends Mage_Adminhtml_Block_Abstract implements Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Interface
+abstract class Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Abstract
+    extends Mage_Adminhtml_Block_Abstract implements Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Interface
 {
     protected $_defaultWidth;
     protected $_column;
@@ -58,7 +59,7 @@ abstract class Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Abstract extends
     {
         if ($this->getColumn()->getEditable()) {
             $value = $this->_getValue($row);
-            return $value 
+            return $value
                    . ($this->getColumn()->getEditOnly() ? '' : ($value != '' ? '' : '&nbsp;'))
                    . $this->_getInputValueElement($row);
         }
@@ -91,7 +92,10 @@ abstract class Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Abstract extends
 
     public function _getInputValueElement(Varien_Object $row)
     {
-        return '<input type="text" class="input-text ' . $this->getColumn()->getValidateClass() . '" name="' . $this->getColumn()->getId() . '" value="' . $this->_getInputValue($row) . '"/>';
+        return  '<input type="text" class="input-text '
+                . $this->getColumn()->getValidateClass()
+                . '" name="' . $this->getColumn()->getId()
+                . '" value="' . $this->_getInputValue($row) . '"/>';
     }
 
     protected function _getInputValue(Varien_Object $row)
@@ -101,19 +105,17 @@ abstract class Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Abstract extends
 
     public function renderHeader()
     {
-        $out = '';
-        if ( (false !== $this->getColumn()->getGrid()->getSortable()) && (false !== $this->getColumn()->getSortable()) ) {
-
+        if (false !== $this->getColumn()->getGrid()->getSortable() && false !== $this->getColumn()->getSortable()) {
             $className = 'not-sort';
             $dir = strtolower($this->getColumn()->getDir());
             $nDir= ($dir=='asc') ? 'desc' : 'asc';
             if ($this->getColumn()->getDir()) {
                 $className = 'sort-arrow-' . $dir;
             }
-            $out = '<a href="#" name="'.$this->getColumn()->getId().'" title="'.$nDir
-                   .'" class="' . $className . '"><span class="sort-title">'.$this->getColumn()->getHeader().'</span></a>';
-        }
-        else {
+            $out = '<a href="#" name="' . $this->getColumn()->getId() . '" title="' . $nDir
+                   . '" class="' . $className . '"><span class="sort-title">'
+                   . $this->getColumn()->getHeader().'</span></a>';
+        } else {
             $out = $this->getColumn()->getHeader();
         }
         return $out;
@@ -122,13 +124,6 @@ abstract class Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Abstract extends
     public function renderProperty()
     {
         $out = '';
-        /**
-         * Now we generate 2 "col" definition instead span=2
-         */
-//        if ($this->getColumn()->getEditable() && !$this->getColumn()->getEditOnly()) {
-//            $out .= ' span="2"';
-//        }
-
         $width = $this->_defaultWidth;
 
         if ($this->getColumn()->hasData('width')) {

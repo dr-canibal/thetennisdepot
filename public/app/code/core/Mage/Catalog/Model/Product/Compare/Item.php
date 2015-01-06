@@ -10,30 +10,45 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Catalog
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
 /**
  * Catalog Compare Item Model
  *
- * @category   Mage
- * @package    Mage_Catalog
- * @author     Magento Core Team <core@magentocommerce.com>
+ * @method Mage_Catalog_Model_Resource_Product_Compare_Item _getResource()
+ * @method Mage_Catalog_Model_Resource_Product_Compare_Item getResource()
+ * @method Mage_Catalog_Model_Product_Compare_Item setVisitorId(int $value)
+ * @method Mage_Catalog_Model_Product_Compare_Item setCustomerId(int $value)
+ * @method int getProductId()
+ * @method Mage_Catalog_Model_Product_Compare_Item setProductId(int $value)
+ * @method int getStoreId()
+ * @method Mage_Catalog_Model_Product_Compare_Item setStoreId(int $value)
+ *
+ * @category    Mage
+ * @package     Mage_Catalog
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Catalog_Model_Product_Compare_Item extends Mage_Core_Model_Abstract
 {
+    /**
+     * Model cache tag
+     *
+     * @var string
+     */
+    protected $_cacheTag = 'catalog_compare_item';
 
     /**
      * Prefix of model events names
@@ -163,7 +178,7 @@ class Mage_Catalog_Model_Product_Compare_Item extends Mage_Core_Model_Abstract
     {
         $this->_getResource()->updateCustomerFromVisitor($this);
 
-        Mage::helper('catalog/product_compare')->calculate();
+        Mage::helper('catalog/product_compare')->setCustomerId($this->getCustomerId())->calculate();
         return $this;
     }
 
@@ -173,7 +188,7 @@ class Mage_Catalog_Model_Product_Compare_Item extends Mage_Core_Model_Abstract
      * @param Varien_Event_Observer $observer
      * @return Mage_Catalog_Model_Product_Compare_Item
      */
-    public function bindCustomerLogout(Varien_Event_Observer $observer)
+    public function bindCustomerLogout(Varien_Event_Observer $observer = null)
     {
         $this->_getResource()->purgeVisitorByCustomer($this);
 

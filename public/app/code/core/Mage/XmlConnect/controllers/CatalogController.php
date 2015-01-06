@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_XmlConnect
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -36,44 +36,115 @@ class Mage_XmlConnect_CatalogController extends Mage_XmlConnect_Controller_Actio
     /**
      * Category list
      *
-     * @return void
+     * @return null
      */
     public function categoryAction()
     {
-        $this->loadLayout(false);
-        $this->renderLayout();
+        if ($this->_checkApiForward('categoryDetails', Mage_XmlConnect_Helper_Data::DEVICE_API_V_23)) {
+            return;
+        }
+        try {
+            $this->loadLayout(false);
+            $this->renderLayout();
+        } catch (Mage_Core_Exception $e) {
+            Mage::logException($e);
+            $this->_message($e->getMessage(), self::MESSAGE_STATUS_ERROR);
+        } catch (Exception $e) {
+            Mage::logException($e);
+            $this->_message($this->__('An error occurred while loading categories.'), self::MESSAGE_STATUS_ERROR);
+        }
+    }
+
+    /**
+     * Category list details
+     *
+     * @return null
+     */
+    public function categoryDetailsAction()
+    {
+        try {
+            $this->loadLayout(false);
+            $this->renderLayout();
+        } catch (Mage_Core_Exception $e) {
+            Mage::logException($e);
+            $this->_message($e->getMessage(), self::MESSAGE_STATUS_ERROR);
+        } catch (Exception $e) {
+            Mage::logException($e);
+            $this->_message($this->__('An error occurred while loading categories.'), self::MESSAGE_STATUS_ERROR);
+        }
     }
 
     /**
      * Filter product list
      *
-     * @return void
+     * @return null
      */
     public function filtersAction()
     {
-        try{
+        try {
             $this->loadLayout(false);
             $this->renderLayout();
         } catch (Mage_Core_Exception $e) {
             $this->_message($e->getMessage(), self::MESSAGE_STATUS_ERROR);
         } catch (Exception $e) {
             Mage::logException($e);
-            $this->_message(
-                $this->__('An error occurred while loading category filters.'),
-                self::MESSAGE_STATUS_ERROR
-            );
+            $this->_message($this->__('An error occurred while loading category filters.'), self::MESSAGE_STATUS_ERROR);
         }
     }
 
     /**
      * Product information
      *
-     * @return void
+     * @return null
      */
     public function productAction()
     {
+        if ($this->_checkApiForward('productView', Mage_XmlConnect_Helper_Data::DEVICE_API_V_23)) {
+            return;
+        }
         try {
+            // Prepare data
+            /** @var $productHelper Mage_Catalog_Helper_Product */
+            $productHelper = Mage::helper('catalog/product');
+            $productId  = (int) $this->getRequest()->getParam('id');
+            $params = new Varien_Object();
+            $params->setCategoryId(false);
+
+            // Standard algorithm to prepare and render product view page
+            $product = $productHelper->initProduct($productId, $this, $params);
+
             $this->loadLayout(false);
+            $this->getLayout()->getBlock('xmlconnect.catalog.product')->setProduct($product);
+            $this->renderLayout();
+            return;
+        } catch (Mage_Core_Exception $e) {
+            $this->_message($e->getMessage(), self::MESSAGE_STATUS_ERROR);
+        } catch (Exception $e) {
+            $this->_message($this->__('Unable to load product info.'), self::MESSAGE_STATUS_ERROR);
+            Mage::logException($e);
+        }
+    }
+
+    /**
+     * Product view
+     *
+     * @return null
+     */
+    public function productViewAction()
+    {
+        try {
+            // Prepare data
+            /** @var $productHelper Mage_Catalog_Helper_Product */
+            $productHelper = Mage::helper('catalog/product');
+            $productId  = (int) $this->getRequest()->getParam('id');
+            $params = new Varien_Object();
+            $params->setCategoryId(false);
+
+            // Standard algorithm to prepare and render product view page
+            $product = $productHelper->initProduct($productId, $this, $params);
+
+            $this->loadLayout(false);
+            $this->getLayout()->getBlock('xmlconnect.catalog.product')->setProduct($product);
             $this->renderLayout();
             return;
         } catch (Mage_Core_Exception $e) {
@@ -87,54 +158,88 @@ class Mage_XmlConnect_CatalogController extends Mage_XmlConnect_Controller_Actio
     /**
      * Product options list
      *
-     * @return void
+     * @return null
      */
     public function productOptionsAction()
     {
-        $this->loadLayout(false);
-        $this->renderLayout();
+        try {
+            $this->loadLayout(false);
+            $this->renderLayout();
+        } catch (Mage_Core_Exception $e) {
+            $this->_message($e->getMessage(), self::MESSAGE_STATUS_ERROR);
+        } catch (Exception $e) {
+            $this->_message($this->__('Unable to load product options.'), self::MESSAGE_STATUS_ERROR);
+            Mage::logException($e);
+        }
     }
 
     /**
      * Product gallery images list
      *
-     * @return void
+     * @return null
      */
     public function productGalleryAction()
     {
-        $this->loadLayout(false);
-        $this->renderLayout();
+        try {
+            $productId = $this->getRequest()->getParam('id', null);
+
+            $this->loadLayout(false);
+            $this->getLayout()->getBlock('xmlconnect.catalog.product.gallery')->setProductId($productId);
+            $this->renderLayout();
+        } catch (Mage_Core_Exception $e) {
+            $this->_message($e->getMessage(), self::MESSAGE_STATUS_ERROR);
+        } catch (Exception $e) {
+            $this->_message($this->__('Unable to load product gallery.'), self::MESSAGE_STATUS_ERROR);
+            Mage::logException($e);
+        }
     }
 
     /**
      * Product reviews list
      *
-     * @return void
+     * @return null
      */
     public function productReviewsAction()
     {
-        $this->loadLayout(false);
-        $this->renderLayout();
+        try {
+            $this->loadLayout(false);
+            $this->renderLayout();
+        } catch (Mage_Core_Exception $e) {
+            $this->_message($e->getMessage(), self::MESSAGE_STATUS_ERROR);
+        } catch (Exception $e) {
+            $this->_message($this->__('Unable to load product reviews.'), self::MESSAGE_STATUS_ERROR);
+            Mage::logException($e);
+        }
     }
 
     /**
      * Add new review
      *
-     * @return void
+     * @return null
      */
     public function productReviewAction()
     {
-        $this->loadLayout(false);
-        $this->renderLayout();
+        try {
+            $this->loadLayout(false);
+            $this->renderLayout();
+        } catch (Mage_Core_Exception $e) {
+            $this->_message($e->getMessage(), self::MESSAGE_STATUS_ERROR);
+        } catch (Exception $e) {
+            $this->_message($this->__('Unable to load product review.'), self::MESSAGE_STATUS_ERROR);
+            Mage::logException($e);
+        }
     }
 
     /**
      * Perform search products
      *
-     * @return void
+     * @return null
      */
     public function searchAction()
     {
+        if ($this->_checkApiForward('searchDetails', Mage_XmlConnect_Helper_Data::DEVICE_API_V_23)) {
+            return;
+        }
         /** @var $_helper Mage_CatalogSearch_Helper_Data */
         $_helper = Mage::helper('catalogsearch');
         $queryParam = str_replace('%20', ' ', $this->getRequest()->getParam('query'));
@@ -145,12 +250,10 @@ class Mage_XmlConnect_CatalogController extends Mage_XmlConnect_Controller_Actio
 
         if ($query->getQueryText()) {
             if ($_helper->isMinQueryLength()) {
-                $query->setId(0)
-                    ->setIsActive(1)
-                    ->setIsProcessed(1);
+                $query->setId(0)->setIsActive(1)->setIsProcessed(1);
             } else {
                 if ($query->getId()) {
-                    $query->setPopularity($query->getPopularity()+1);
+                    $query->setPopularity($query->getPopularity() + 1);
                 } else {
                     $query->setPopularity(1);
                 }
@@ -176,26 +279,97 @@ class Mage_XmlConnect_CatalogController extends Mage_XmlConnect_Controller_Actio
             }
         }
 
-        $this->loadLayout(false);
-        $this->renderLayout();
+        try {
+            $this->loadLayout(false);
+            $this->renderLayout();
+        } catch (Mage_Core_Exception $e) {
+            $this->_message($e->getMessage(), self::MESSAGE_STATUS_ERROR);
+        } catch (Exception $e) {
+            $this->_message($this->__('Unable to load search.'), self::MESSAGE_STATUS_ERROR);
+            Mage::logException($e);
+        }
+    }
+
+    /**
+     * Perform search products details
+     *
+     * @return null
+     */
+    public function searchDetailsAction()
+    {
+        /** @var $_helper Mage_CatalogSearch_Helper_Data */
+        $_helper = Mage::helper('catalogsearch');
+        $queryParam = str_replace('%20', ' ', $this->getRequest()->getParam('query'));
+        $this->getRequest()->setParam($_helper->getQueryParamName(), $queryParam);
+        /** @var $query Mage_CatalogSearch_Model_Query */
+        $query = $_helper->getQuery();
+        $query->setStoreId(Mage::app()->getStore()->getId());
+
+        if ($query->getQueryText()) {
+            if ($_helper->isMinQueryLength()) {
+                $query->setId(0)->setIsActive(1)->setIsProcessed(1);
+            } else {
+                if ($query->getId()) {
+                    $query->setPopularity($query->getPopularity() + 1);
+                } else {
+                    $query->setPopularity(1);
+                }
+
+                /**
+                 * We don't support redirect at this moment
+                 *
+                 * @todo add redirect support for mobile application
+                 */
+                if (false && $query->getRedirect()) {
+                    $query->save();
+                    $this->getResponse()->setRedirect($query->getRedirect());
+                    return;
+                } else {
+                    $query->prepare();
+                }
+            }
+
+            $_helper->checkNotes();
+
+            if (!$_helper->isMinQueryLength()) {
+                $query->save();
+            }
+        }
+
+        try {
+            $this->loadLayout(false);
+            $this->renderLayout();
+        } catch (Mage_Core_Exception $e) {
+            $this->_message($e->getMessage(), self::MESSAGE_STATUS_ERROR);
+        } catch (Exception $e) {
+            $this->_message($this->__('Unable to load search.'), self::MESSAGE_STATUS_ERROR);
+            Mage::logException($e);
+        }
     }
 
     /**
      * Retrieve suggestions based on search query
      *
-     * @return void
+     * @return null
      */
     public function searchSuggestAction()
     {
         $this->getRequest()->setParam('q', $this->getRequest()->getParam('query'));
-        $this->loadLayout(false);
-        $this->renderLayout();
+        try {
+            $this->loadLayout(false);
+            $this->renderLayout();
+        } catch (Mage_Core_Exception $e) {
+            $this->_message($e->getMessage(), self::MESSAGE_STATUS_ERROR);
+        } catch (Exception $e) {
+            $this->_message($this->__('Unable to load search.'), self::MESSAGE_STATUS_ERROR);
+            Mage::logException($e);
+        }
     }
 
     /**
      * Send product link to friend action
      *
-     * @return this
+     * @return Mage_XmlConnect_CatalogController
      */
     public function sendEmailAction()
     {
@@ -210,7 +384,9 @@ class Mage_XmlConnect_CatalogController extends Mage_XmlConnect_Controller_Actio
         }
 
         if (!$helper->isAllowForGuest() && !$session->isLoggedIn()) {
-            $this->_message($this->__('Customer not logged in.'), self::MESSAGE_STATUS_ERROR);
+            $this->_message(
+                $this->__('Customer not logged in.'), self::MESSAGE_STATUS_ERROR, array('logged_in' => '0')
+            );
             return $this;
         }
 
@@ -222,8 +398,7 @@ class Mage_XmlConnect_CatalogController extends Mage_XmlConnect_Controller_Actio
             $this->_message($this->__('No product selected.'), self::MESSAGE_STATUS_ERROR);
             return $this;
         }
-        $product = Mage::getModel('catalog/product')
-            ->load($productId);
+        $product = Mage::getModel('catalog/product')->load($productId);
         if (!$product->getId() || !$product->isVisibleInCatalog()) {
             $this->_message($this->__('Selected product is unavailable.'), self::MESSAGE_STATUS_ERROR);
             return $this;
@@ -266,8 +441,7 @@ class Mage_XmlConnect_CatalogController extends Mage_XmlConnect_Controller_Actio
          */
         $categoryId = $this->getRequest()->getParam('category_id', null);
         if ($categoryId) {
-            $category = Mage::getModel('catalog/category')
-                ->load($categoryId);
+            $category = Mage::getModel('catalog/category')->load($categoryId);
             $product->setCategory($category);
             Mage::register('current_category', $category);
         }

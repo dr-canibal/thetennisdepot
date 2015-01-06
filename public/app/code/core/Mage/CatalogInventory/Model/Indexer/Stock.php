@@ -10,23 +10,36 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_CatalogInventory
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
 /**
  * CatalogInventory Stock Status Indexer Model
+ *
+ * @method Mage_CatalogInventory_Model_Resource_Indexer_Stock _getResource()
+ * @method Mage_CatalogInventory_Model_Resource_Indexer_Stock getResource()
+ * @method int getProductId()
+ * @method Mage_CatalogInventory_Model_Indexer_Stock setProductId(int $value)
+ * @method int getWebsiteId()
+ * @method Mage_CatalogInventory_Model_Indexer_Stock setWebsiteId(int $value)
+ * @method int getStockId()
+ * @method Mage_CatalogInventory_Model_Indexer_Stock setStockId(int $value)
+ * @method float getQty()
+ * @method Mage_CatalogInventory_Model_Indexer_Stock setQty(float $value)
+ * @method int getStockStatus()
+ * @method Mage_CatalogInventory_Model_Indexer_Stock setStockStatus(int $value)
  *
  * @category    Mage
  * @package     Mage_CatalogInventory
@@ -34,6 +47,11 @@
  */
 class Mage_CatalogInventory_Model_Indexer_Stock extends Mage_Index_Model_Indexer_Abstract
 {
+    /**
+     * Data key for matching result to be saved in
+     */
+    const EVENT_MATCH_RESULT_KEY = 'cataloginventory_stock_match_result';
+
     /**
      * @var array
      */
@@ -119,17 +137,15 @@ class Mage_CatalogInventory_Model_Indexer_Stock extends Mage_Index_Model_Indexer
     public function matchEvent(Mage_Index_Model_Event $event)
     {
         $data       = $event->getNewData();
-        $resultKey  = 'cataloginventory_stock_match_result';
-        if (isset($data[$resultKey])) {
-            return $data[$resultKey];
+        if (isset($data[self::EVENT_MATCH_RESULT_KEY])) {
+            return $data[self::EVENT_MATCH_RESULT_KEY];
         }
 
-        $result = null;
         $entity = $event->getEntity();
         if ($entity == Mage_Core_Model_Store::ENTITY) {
             /* @var $store Mage_Core_Model_Store */
             $store = $event->getDataObject();
-            if ($store->isObjectNew()) {
+            if ($store && $store->isObjectNew()) {
                 $result = true;
             } else {
                 $result = false;
@@ -137,15 +153,14 @@ class Mage_CatalogInventory_Model_Indexer_Stock extends Mage_Index_Model_Indexer
         } else if ($entity == Mage_Core_Model_Store_Group::ENTITY) {
             /* @var $storeGroup Mage_Core_Model_Store_Group */
             $storeGroup = $event->getDataObject();
-            if ($storeGroup->dataHasChangedFor('website_id')) {
+            if ($storeGroup && $storeGroup->dataHasChangedFor('website_id')) {
                 $result = true;
             } else {
                 $result = false;
             }
         } else if ($entity == Mage_Core_Model_Config_Data::ENTITY) {
             $configData = $event->getDataObject();
-            $path = $configData->getPath();
-            if (in_array($path, $this->_relatedConfigSettings)) {
+            if ($configData && in_array($configData->getPath(), $this->_relatedConfigSettings)) {
                 $result = $configData->isValueChanged();
             } else {
                 $result = false;
@@ -154,7 +169,7 @@ class Mage_CatalogInventory_Model_Indexer_Stock extends Mage_Index_Model_Indexer
             $result = parent::matchEvent($event);
         }
 
-        $event->addNewData($resultKey, $result);
+        $event->addNewData(self::EVENT_MATCH_RESULT_KEY, $result);
 
         return $result;
     }
@@ -166,6 +181,7 @@ class Mage_CatalogInventory_Model_Indexer_Stock extends Mage_Index_Model_Indexer
      */
     protected function _registerEvent(Mage_Index_Model_Event $event)
     {
+        $event->addNewData(self::EVENT_MATCH_RESULT_KEY, true);
         switch ($event->getEntity()) {
             case Mage_CatalogInventory_Model_Stock_Item::ENTITY:
                 $this->_registerCatalogInventoryStockItemEvent($event);
@@ -254,7 +270,12 @@ class Mage_CatalogInventory_Model_Indexer_Stock extends Mage_Index_Model_Indexer
         // Saving stock item without product object
         // Register re-index price process if products out of stock hidden on Front-end
         if (!Mage::helper('cataloginventory')->isShowOutOfStock() && !$object->getProduct()) {
-            $event->addNewData('force_reindex_required', 1);
+            $massObject = new Varien_Object();
+            $massObject->setAttributesData(array('force_reindex_required' => 1));
+            $massObject->setProductIds(array($object->getProductId()));
+            Mage::getSingleton('index/indexer')->logEvent(
+                $massObject, Mage_Catalog_Model_Product::ENTITY, Mage_Index_Model_Event::TYPE_MASS_ACTION
+            );
         }
 
         return $this;

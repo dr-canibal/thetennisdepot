@@ -10,23 +10,60 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Cms
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
 /**
  * Cms Page Model
+ *
+ * @method Mage_Cms_Model_Resource_Page _getResource()
+ * @method Mage_Cms_Model_Resource_Page getResource()
+ * @method string getTitle()
+ * @method Mage_Cms_Model_Page setTitle(string $value)
+ * @method string getRootTemplate()
+ * @method Mage_Cms_Model_Page setRootTemplate(string $value)
+ * @method string getMetaKeywords()
+ * @method Mage_Cms_Model_Page setMetaKeywords(string $value)
+ * @method string getMetaDescription()
+ * @method Mage_Cms_Model_Page setMetaDescription(string $value)
+ * @method string getIdentifier()
+ * @method Mage_Cms_Model_Page setIdentifier(string $value)
+ * @method string getContentHeading()
+ * @method Mage_Cms_Model_Page setContentHeading(string $value)
+ * @method string getContent()
+ * @method Mage_Cms_Model_Page setContent(string $value)
+ * @method string getCreationTime()
+ * @method Mage_Cms_Model_Page setCreationTime(string $value)
+ * @method string getUpdateTime()
+ * @method Mage_Cms_Model_Page setUpdateTime(string $value)
+ * @method int getIsActive()
+ * @method Mage_Cms_Model_Page setIsActive(int $value)
+ * @method int getSortOrder()
+ * @method Mage_Cms_Model_Page setSortOrder(int $value)
+ * @method string getLayoutUpdateXml()
+ * @method Mage_Cms_Model_Page setLayoutUpdateXml(string $value)
+ * @method string getCustomTheme()
+ * @method Mage_Cms_Model_Page setCustomTheme(string $value)
+ * @method string getCustomRootTemplate()
+ * @method Mage_Cms_Model_Page setCustomRootTemplate(string $value)
+ * @method string getCustomLayoutUpdateXml()
+ * @method Mage_Cms_Model_Page setCustomLayoutUpdateXml(string $value)
+ * @method string getCustomThemeFrom()
+ * @method Mage_Cms_Model_Page setCustomThemeFrom(string $value)
+ * @method string getCustomThemeTo()
+ * @method Mage_Cms_Model_Page setCustomThemeTo(string $value)
  *
  * @category    Mage
  * @package     Mage_Cms

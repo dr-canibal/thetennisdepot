@@ -10,22 +10,75 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * Quote payment information
+ *
+ * @method Mage_Sales_Model_Resource_Quote_Payment _getResource()
+ * @method Mage_Sales_Model_Resource_Quote_Payment getResource()
+ * @method int getQuoteId()
+ * @method Mage_Sales_Model_Quote_Payment setQuoteId(int $value)
+ * @method string getCreatedAt()
+ * @method Mage_Sales_Model_Quote_Payment setCreatedAt(string $value)
+ * @method string getUpdatedAt()
+ * @method Mage_Sales_Model_Quote_Payment setUpdatedAt(string $value)
+ * @method string getMethod()
+ * @method Mage_Sales_Model_Quote_Payment setMethod(string $value)
+ * @method string getCcType()
+ * @method Mage_Sales_Model_Quote_Payment setCcType(string $value)
+ * @method string getCcNumberEnc()
+ * @method Mage_Sales_Model_Quote_Payment setCcNumberEnc(string $value)
+ * @method string getCcLast4()
+ * @method Mage_Sales_Model_Quote_Payment setCcLast4(string $value)
+ * @method string getCcCidEnc()
+ * @method Mage_Sales_Model_Quote_Payment setCcCidEnc(string $value)
+ * @method string getCcOwner()
+ * @method Mage_Sales_Model_Quote_Payment setCcOwner(string $value)
+ * @method int getCcExpMonth()
+ * @method Mage_Sales_Model_Quote_Payment setCcExpMonth(int $value)
+ * @method int getCcExpYear()
+ * @method Mage_Sales_Model_Quote_Payment setCcExpYear(int $value)
+ * @method string getCcSsOwner()
+ * @method Mage_Sales_Model_Quote_Payment setCcSsOwner(string $value)
+ * @method int getCcSsStartMonth()
+ * @method Mage_Sales_Model_Quote_Payment setCcSsStartMonth(int $value)
+ * @method int getCcSsStartYear()
+ * @method Mage_Sales_Model_Quote_Payment setCcSsStartYear(int $value)
+ * @method string getCybersourceToken()
+ * @method Mage_Sales_Model_Quote_Payment setCybersourceToken(string $value)
+ * @method string getPaypalCorrelationId()
+ * @method Mage_Sales_Model_Quote_Payment setPaypalCorrelationId(string $value)
+ * @method string getPaypalPayerId()
+ * @method Mage_Sales_Model_Quote_Payment setPaypalPayerId(string $value)
+ * @method string getPaypalPayerStatus()
+ * @method Mage_Sales_Model_Quote_Payment setPaypalPayerStatus(string $value)
+ * @method string getPoNumber()
+ * @method Mage_Sales_Model_Quote_Payment setPoNumber(string $value)
+ * @method string getAdditionalData()
+ * @method Mage_Sales_Model_Quote_Payment setAdditionalData(string $value)
+ * @method string getCcSsIssue()
+ * @method Mage_Sales_Model_Quote_Payment setCcSsIssue(string $value)
+ * @method string getIdealIssuerId()
+ * @method Mage_Sales_Model_Quote_Payment setIdealIssuerId(string $value)
+ * @method string getIdealIssuerList()
+ * @method Mage_Sales_Model_Quote_Payment setIdealIssuerList(string $value)
+ *
+ * @category    Mage
+ * @package     Mage_Sales
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Sales_Model_Quote_Payment extends Mage_Payment_Model_Info
 {
@@ -89,12 +142,14 @@ class Mage_Sales_Model_Quote_Payment extends Mage_Payment_Model_Info
         $method = $this->getMethodInstance();
 
         /**
-         * Payment avalability related with quote totals.
-         * We have recollect quote totals before checking
+         * Payment availability related with quote totals.
+         * We have to recollect quote totals before checking
          */
         $this->getQuote()->collectTotals();
 
-        if (!$method->isAvailable($this->getQuote())) {
+        if (!$method->isAvailable($this->getQuote())
+            || !$method->isApplicableToQuote($this->getQuote(), $data->getChecks())
+        ) {
             Mage::throwException(Mage::helper('sales')->__('The requested Payment Method is not available.'));
         }
 

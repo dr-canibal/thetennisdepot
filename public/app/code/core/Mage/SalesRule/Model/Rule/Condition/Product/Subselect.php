@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_SalesRule
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
@@ -45,29 +45,17 @@ class Mage_SalesRule_Model_Rule_Condition_Product_Subselect
 
     public function asXml($containerKey='conditions', $itemKey='condition')
     {
-        $xml .= '<attribute>'.$this->getAttribute().'</attribute>'
-            .'<operator>'.$this->getOperator().'</operator>'
-            .parent::asXml($containerKey, $itemKey);
+        $xml = '<attribute>'.$this->getAttribute().'</attribute>'
+            . '<operator>'.$this->getOperator().'</operator>'
+            . parent::asXml($containerKey, $itemKey);
         return $xml;
     }
 
-//    public function loadAggregatorOptions()
-//    {
-//        $this->setAggregatorOption(array(
-//            '1/all' => Mage::helper('rule')->__('MATCHING ALL'),
-//            '1/any' => Mage::helper('rule')->__('MATCHING ANY'),
-//            '0/all' => Mage::helper('rule')->__('NOT MATCHING ALL'),
-//            '0/any' => Mage::helper('rule')->__('NOT MATCHING ANY'),
-//        ));
-//        return $this;
-//    }
-
     public function loadAttributeOptions()
     {
-        $hlp = Mage::helper('salesrule');
         $this->setAttributeOption(array(
-            'qty'  => $hlp->__('total quantity'),
-            'base_row_total'  => $hlp->__('total amount'),
+            'qty'  => Mage::helper('salesrule')->__('total quantity'),
+            'base_row_total'  => Mage::helper('salesrule')->__('total amount'),
         ));
         return $this;
     }
@@ -100,15 +88,10 @@ class Mage_SalesRule_Model_Rule_Condition_Product_Subselect
     public function asHtml()
     {
         $html = $this->getTypeElement()->getHtml().
-            Mage::helper('salesrule')->__("If %s %s %s for a subselection of items in cart matching %s of these conditions:",
-              $this->getAttributeElement()->getHtml(),
-              $this->getOperatorElement()->getHtml(),
-              $this->getValueElement()->getHtml(),
-              $this->getAggregatorElement()->getHtml()
-           );
-           if ($this->getId()!='1') {
-               $html.= $this->getRemoveLinkHtml();
-           }
+        Mage::helper('salesrule')->__("If %s %s %s for a subselection of items in cart matching %s of these conditions:", $this->getAttributeElement()->getHtml(), $this->getOperatorElement()->getHtml(), $this->getValueElement()->getHtml(), $this->getAggregatorElement()->getHtml());
+        if ($this->getId() != '1') {
+            $html .= $this->getRemoveLinkHtml();
+        }
         return $html;
     }
 
@@ -130,7 +113,7 @@ class Mage_SalesRule_Model_Rule_Condition_Product_Subselect
 
         $attr = $this->getAttribute();
         $total = 0;
-        foreach ($object->getQuote()->getAllItems() as $item) {
+        foreach ($object->getQuote()->getAllVisibleItems() as $item) {
             if (parent::validate($item)) {
                 $total += $item->getData($attr);
             }

@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -29,16 +29,33 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
- * @author      Magento Core Team <core@magentocommerce.com>
+ * @author     Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_Block_Store_Switcher extends Mage_Adminhtml_Block_Template
 {
+    /**
+     * Key in config for store switcher hint
+     */
+    const XPATH_HINT_KEY = 'store_switcher';
+
     /**
      * @var array
      */
     protected $_storeIds;
 
+    /**
+     * Name of store variable
+     *
+     * @var string
+     */
     protected $_storeVarName = 'store';
+
+    /**
+     * Url for store switcher hint
+     *
+     * @var string
+     */
+    protected $_hintUrl;
 
     /**
      * @var bool
@@ -205,5 +222,39 @@ class Mage_Adminhtml_Block_Store_Switcher extends Mage_Adminhtml_Block_Template
             $this->_hasDefaultOption = $hasDefaultOption;
         }
         return $this->_hasDefaultOption;
+    }
+
+    /**
+     * Return url for store switcher hint
+     *
+     * @return string
+     */
+    public function getHintUrl()
+    {
+        if (null === $this->_hintUrl) {
+            $this->_hintUrl = Mage::helper('core/hint')->getHintByCode(self::XPATH_HINT_KEY);
+        }
+        return $this->_hintUrl;
+    }
+
+    /**
+     * Return store switcher hint html
+     *
+     * @return string
+     */
+    public function getHintHtml()
+    {
+        $html = '';
+        $url = $this->getHintUrl();
+        if ($url) {
+            $html = '<a'
+                . ' href="'. $this->escapeUrl($url) . '"'
+                . ' onclick="this.target=\'_blank\'"'
+                . ' title="' . $this->__('What is this?') . '"'
+                . ' class="link-store-scope">'
+                . $this->__('What is this?')
+                . '</a>';
+        }
+        return $html;
     }
 }

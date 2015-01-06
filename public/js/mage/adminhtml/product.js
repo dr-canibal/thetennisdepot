@@ -9,17 +9,17 @@
  * http://opensource.org/licenses/afl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -119,7 +119,7 @@ Product.Gallery.prototype = {
         this.updateImages();
     },
     updateImages : function() {
-        this.getElement('save').value = this.images.toJSON();
+        this.getElement('save').value = Object.toJSON(this.images);
         $H(this.imageTypes).each(
                 function(pair) {
                     this.getFileElement('no_selection',
@@ -174,7 +174,7 @@ Product.Gallery.prototype = {
                 'cell-remove input').checked ? 1 : 0);
         this.images[index].disabled = (this.getFileElement(file,
                 'cell-disable input').checked ? 1 : 0);
-        this.getElement('save').value = this.images.toJSON();
+        this.getElement('save').value = Object.toJSON(this.images);
         this.updateState(file);
         this.container.setHasChanges();
     },
@@ -195,7 +195,7 @@ Product.Gallery.prototype = {
                             }
                         }.bind(this));
 
-        this.getElement('save_image').value = $H(this.imagesValues).toJSON();
+        this.getElement('save_image').value = Object.toJSON($H(this.imagesValues));
     },
     updateVisualisation : function(file) {
         var image = this.getImageByFile(file);
@@ -403,14 +403,14 @@ Product.Configurable.prototype = {
                 var use_default_checked = '';
                 if (attribute.use_default == '1') {
                     use_default_checked = ' checked="checked"';
-                    label_readonly = ' redonly="redonly"';
+                    label_readonly = ' readonly="readonly"';
                 }
 
                 var template = this.addAttributeTemplate.evaluate(attribute);
                 template = template.replace(
-                        new RegExp(' readonly="label"', 'g'), label_readonly);
+                        new RegExp(' readonly="label"', 'ig'), label_readonly);
                 template = template.replace(new RegExp(
-                        ' checked="use_default"', 'g'), use_default_checked);
+                        ' checked="use_default"', 'ig'), use_default_checked);
                 li.update(template);
                 li.attributeObject = attribute;
 
@@ -690,14 +690,18 @@ Product.Configurable.prototype = {
         }
 
         container.attributeValues.appendChild(li);
+
         var priceField = li.down('.attribute-price');
         var priceTypeField = li.down('.attribute-price-type');
 
-        if (parseInt(value.is_percent)) {
-            priceTypeField.options[1].selected = !(priceTypeField.options[0].selected = false);
-        } else {
-            priceTypeField.options[1].selected = !(priceTypeField.options[0].selected = true);
+        if (priceTypeField != undefined && priceTypeField.options != undefined) {
+            if (parseInt(value.is_percent)) {
+                priceTypeField.options[1].selected = !(priceTypeField.options[0].selected = false);
+            } else {
+                priceTypeField.options[1].selected = !(priceTypeField.options[0].selected = true);
+            }
         }
+
         Event.observe(priceField, 'keyup', this.onValuePriceUpdate);
         Event.observe(priceField, 'change', this.onValuePriceUpdate);
         Event.observe(priceTypeField, 'change', this.onValueTypeUpdate);
@@ -744,8 +748,8 @@ Product.Configurable.prototype = {
         this.updateSaveInput();
     },
     updateSaveInput : function() {
-        $(this.idPrefix + 'save_attributes').value = this.attributes.toJSON();
-        $(this.idPrefix + 'save_links').value = this.links.toJSON();
+        $(this.idPrefix + 'save_attributes').value = Object.toJSON(this.attributes);
+        $(this.idPrefix + 'save_links').value = Object.toJSON(this.links);
     },
     initializeAdvicesForSimpleForm : function() {
         if ($(this.idPrefix + 'simple_form').advicesInited) {

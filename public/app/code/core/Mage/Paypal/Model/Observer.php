@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Paypal
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -55,6 +55,17 @@ class Mage_Paypal_Model_Observer
     }
 
     /**
+     * Clean unfinished transaction
+     *
+     * @deprecated since 1.6.2.0
+     * @return Mage_Paypal_Model_Observer
+     */
+    public function cleanTransactions()
+    {
+        return $this;
+    }
+
+    /**
      * Save order into registry to use it in the overloaded controller.
      *
      * @param Varien_Event_Observer $observer
@@ -64,7 +75,7 @@ class Mage_Paypal_Model_Observer
     {
         /* @var $order Mage_Sales_Model_Order */
         $order = $observer->getEvent()->getData('order');
-        Mage::register('payflowlink_order', $order, true);
+        Mage::register('hss_order', $order, true);
 
         return $this;
     }
@@ -78,7 +89,7 @@ class Mage_Paypal_Model_Observer
     public function setResponseAfterSaveOrder(Varien_Event_Observer $observer)
     {
         /* @var $order Mage_Sales_Model_Order */
-        $order = Mage::registry('payflowlink_order');
+        $order = Mage::registry('hss_order');
 
         if ($order && $order->getId()) {
             $payment = $order->getPayment();
@@ -106,5 +117,49 @@ class Mage_Paypal_Model_Observer
         }
 
         return $this;
+    }
+
+    /**
+     * Load country dependent PayPal solutions system configuration
+     *
+     * @param Varien_Event_Observer $observer
+     * @return void
+     */
+    public function loadCountryDependentSolutionsConfig(Varien_Event_Observer $observer)
+    {
+        $countryCode = Mage::helper('paypal')->getConfigurationCountryCode();
+        $paymentGroups   = $observer->getEvent()->getConfig()->getNode('sections/payment/groups');
+        $paymentsConfigs = $paymentGroups->xpath('paypal_payments/*/backend_config/' . $countryCode);
+        if ($paymentsConfigs) {
+            foreach ($paymentsConfigs as $config) {
+                $parent = $config->getParent()->getParent();
+                $parent->extend($config, true);
+            }
+        }
+
+        $payments = $paymentGroups->xpath('paypal_payments/*');
+        foreach ($payments as $payment) {
+            if ((int)$payment->include) {
+                $fields = $paymentGroups->xpath((string)$payment->group . '/fields');
+                if (isset($fields[0])) {
+                    $fields[0]->appendChild($payment, true);
+                }
+            }
+        }
+    }
+
+    /**
+     * Update transaction with HTML representation of txn_id
+     *
+     * @param Varien_Event_Observer $observer
+     */
+    public function observeHtmlTransactionId(Varien_Event_Observer $observer)
+    {
+        /** @var Varien_Object $transaction */
+        $transaction = $observer->getEvent()->getTransaction();
+        $transaction->setHtmlTxnId(Mage::helper('paypal')->getHtmlTransactionId(
+            $observer->getEvent()->getPayment()->getMethodInstance()->getCode(),
+            $transaction->getTxnId()
+        ));
     }
 }

@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -35,10 +35,15 @@
 class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Options_Type_Select extends
     Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Options_Type_Abstract
 {
+    /**
+     * Class constructor
+     */
     public function __construct()
     {
         parent::__construct();
         $this->setTemplate('catalog/product/edit/options/type/select.phtml');
+        $this->setCanEditPrice(true);
+        $this->setCanReadPrice(true);
     }
 
     protected function _prepareLayout()
@@ -48,7 +53,7 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Options_Type_Select extends
                 ->setData(array(
                     'label' => Mage::helper('catalog')->__('Add New Row'),
                     'class' => 'add add-select-row',
-                    'id'    => 'add_select_row_button_{{option_id}}',
+                    'id'    => 'add_select_row_button_{{option_id}}'
                 ))
         );
 
@@ -57,6 +62,7 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Options_Type_Select extends
                 ->setData(array(
                     'label' => Mage::helper('catalog')->__('Delete Row'),
                     'class' => 'delete delete-select-row icon-btn',
+                    'id'    => 'delete_select_row_button'
                 ))
         );
 

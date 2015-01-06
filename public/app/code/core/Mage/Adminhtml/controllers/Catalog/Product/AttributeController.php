@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -40,7 +40,7 @@ class Mage_Adminhtml_Catalog_Product_AttributeController extends Mage_Adminhtml_
     public function preDispatch()
     {
         parent::preDispatch();
-        $this->_entityTypeId = Mage::getModel('eav/entity')->setType('catalog_product')->getTypeId();
+        $this->_entityTypeId = Mage::getModel('eav/entity')->setType(Mage_Catalog_Model_Product::ENTITY)->getTypeId();
     }
 
     protected function _initAction()
@@ -161,23 +161,11 @@ class Mage_Adminhtml_Catalog_Product_AttributeController extends Mage_Adminhtml_
                     $value = $helperCatalog->stripTags($value);
                 }
             }
-            //options
-            if (!empty($data['option']['value'])) {
-                foreach ($data['option']['value'] as &$options) {
-                    foreach ($options as &$label) {
-                        $label = $helperCatalog->stripTags($label);
-                    }
+
+            if (!empty($data['option']) && !empty($data['option']['value']) && is_array($data['option']['value'])) {
+                foreach ($data['option']['value'] as $key => $values) {
+                    $data['option']['value'][$key] = array_map(array($helperCatalog, 'stripTags'), $values);
                 }
-            }
-            //default value
-            if (!empty($data['default_value'])) {
-                $data['default_value'] = $helperCatalog->stripTags($data['default_value']);
-            }
-            if (!empty($data['default_value_text'])) {
-                $data['default_value_text'] = $helperCatalog->stripTags($data['default_value_text']);
-            }
-            if (!empty($data['default_value_textarea'])) {
-                $data['default_value_textarea'] = $helperCatalog->stripTags($data['default_value_textarea']);
             }
         }
         return $data;
@@ -200,10 +188,11 @@ class Mage_Adminhtml_Catalog_Product_AttributeController extends Mage_Adminhtml_
 
             //validate attribute_code
             if (isset($data['attribute_code'])) {
-                $validatorAttrCode = new Zend_Validate_Regex(array('pattern' => '/^[a-z_]{1,255}$/'));
+                $validatorAttrCode = new Zend_Validate_Regex(array('pattern' => '/^[a-z][a-z_0-9]{1,254}$/'));
                 if (!$validatorAttrCode->isValid($data['attribute_code'])) {
                     $session->addError(
-                        $helper->__('Attribute code is invalid. Please use only letters (a-z), numbers (0-9) or underscore(_) in this field, first character should be a letter.'));
+                        Mage::helper('catalog')->__('Attribute code is invalid. Please use only letters (a-z), numbers (0-9) or underscore(_) in this field, first character should be a letter.')
+                    );
                     $this->_redirect('*/*/edit', array('attribute_id' => $id, '_current' => true));
                     return;
                 }
@@ -278,7 +267,6 @@ class Mage_Adminhtml_Catalog_Product_AttributeController extends Mage_Adminhtml_
 
             //filter
             $data = $this->_filterPostData($data);
-
             $model->addData($data);
 
             if (!$id) {

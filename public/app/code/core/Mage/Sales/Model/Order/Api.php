@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -33,12 +33,16 @@
  */
 class Mage_Sales_Model_Order_Api extends Mage_Sales_Model_Api_Resource
 {
+    /**
+     * Initialize attributes map
+     */
     public function __construct()
     {
-        $this->_attributesMap['order']         = array('order_id' => 'entity_id');
-        $this->_attributesMap['order_address'] = array('address_id' => 'entity_id');
-        $this->_attributesMap['order_payment'] = array('payment_id' => 'entity_id');
-
+        $this->_attributesMap = array(
+            'order' => array('order_id' => 'entity_id'),
+            'order_address' => array('address_id' => 'entity_id'),
+            'order_payment' => array('payment_id' => 'entity_id')
+        );
     }
 
     /**
@@ -63,64 +67,55 @@ class Mage_Sales_Model_Order_Api extends Mage_Sales_Model_Api_Resource
     }
 
     /**
-     * Retrieve list of orders by filters
+     * Retrieve list of orders. Filtration could be applied
      *
-     * @param array $filters
+     * @param null|object|array $filters
      * @return array
      */
     public function items($filters = null)
     {
+        $orders = array();
+
         //TODO: add full name logic
         $billingAliasName = 'billing_o_a';
         $shippingAliasName = 'shipping_o_a';
-        
-        $collection = Mage::getModel("sales/order")->getCollection()
-            ->addAttributeToSelect('*')
+
+        /** @var $orderCollection Mage_Sales_Model_Mysql4_Order_Collection */
+        $orderCollection = Mage::getModel("sales/order")->getCollection();
+        $billingFirstnameField = "$billingAliasName.firstname";
+        $billingLastnameField = "$billingAliasName.lastname";
+        $shippingFirstnameField = "$shippingAliasName.firstname";
+        $shippingLastnameField = "$shippingAliasName.lastname";
+        $orderCollection->addAttributeToSelect('*')
             ->addAddressFields()
-            ->addExpressionFieldToSelect(
-                'billing_firstname', "{{billing_firstname}}", array('billing_firstname'=>"$billingAliasName.firstname")
-            )
-            ->addExpressionFieldToSelect(
-                'billing_lastname', "{{billing_lastname}}", array('billing_lastname'=>"$billingAliasName.lastname")
-            )
-            ->addExpressionFieldToSelect(
-                'shipping_firstname', "{{shipping_firstname}}", array('shipping_firstname'=>"$shippingAliasName.firstname")
-            )
-            ->addExpressionFieldToSelect(
-                'shipping_lastname', "{{shipping_lastname}}", array('shipping_lastname'=>"$shippingAliasName.lastname")
-            )
-            ->addExpressionFieldToSelect(
-                    'billing_name',
-                    "CONCAT({{billing_firstname}}, ' ', {{billing_lastname}})",
-                    array('billing_firstname'=>"$billingAliasName.firstname", 'billing_lastname'=>"$billingAliasName.lastname")
-            )
-            ->addExpressionFieldToSelect(
-                    'shipping_name',
-                    'CONCAT({{shipping_firstname}}, " ", {{shipping_lastname}})',
-                    array('shipping_firstname'=>"$shippingAliasName.firstname", 'shipping_lastname'=>"$shippingAliasName.lastname")
-            );
-        
-        if (is_array($filters)) {
-            try {
-                foreach ($filters as $field => $value) {
-                    if (isset($this->_attributesMap['order'][$field])) {
-                        $field = $this->_attributesMap['order'][$field];
-                    }
+            ->addExpressionFieldToSelect('billing_firstname', "{{billing_firstname}}",
+                array('billing_firstname' => $billingFirstnameField))
+            ->addExpressionFieldToSelect('billing_lastname', "{{billing_lastname}}",
+                array('billing_lastname' => $billingLastnameField))
+            ->addExpressionFieldToSelect('shipping_firstname', "{{shipping_firstname}}",
+                array('shipping_firstname' => $shippingFirstnameField))
+            ->addExpressionFieldToSelect('shipping_lastname', "{{shipping_lastname}}",
+                array('shipping_lastname' => $shippingLastnameField))
+            ->addExpressionFieldToSelect('billing_name', "CONCAT({{billing_firstname}}, ' ', {{billing_lastname}})",
+                array('billing_firstname' => $billingFirstnameField, 'billing_lastname' => $billingLastnameField))
+            ->addExpressionFieldToSelect('shipping_name', 'CONCAT({{shipping_firstname}}, " ", {{shipping_lastname}})',
+                array('shipping_firstname' => $shippingFirstnameField, 'shipping_lastname' => $shippingLastnameField)
+        );
 
-                    $collection->addFieldToFilter($field, $value);
-                }
-            } catch (Mage_Core_Exception $e) {
-                $this->_fault('filters_invalid', $e->getMessage());
+        /** @var $apiHelper Mage_Api_Helper_Data */
+        $apiHelper = Mage::helper('api');
+        $filters = $apiHelper->parseFilters($filters, $this->_attributesMap['order']);
+        try {
+            foreach ($filters as $field => $value) {
+                $orderCollection->addFieldToFilter($field, $value);
             }
+        } catch (Mage_Core_Exception $e) {
+            $this->_fault('filters_invalid', $e->getMessage());
         }
-
-        $result = array();
-
-        foreach ($collection as $order) {
-            $result[] = $this->_getAttributes($order, 'order');
+        foreach ($orderCollection as $order) {
+            $orders[] = $this->_getAttributes($order, 'order');
         }
-
-        return $result;
+        return $orders;
     }
 
     /**
@@ -175,11 +170,12 @@ class Mage_Sales_Model_Order_Api extends Mage_Sales_Model_Api_Resource
      * @param boolean $notify
      * @return boolean
      */
-    public function addComment($orderIncrementId, $status, $comment = null, $notify = false)
+    public function addComment($orderIncrementId, $status, $comment = '', $notify = false)
     {
         $order = $this->_initOrder($orderIncrementId);
 
-        $order->addStatusToHistory($status, $comment, $notify);
+        $historyItem = $order->addStatusHistoryComment($comment, $status);
+        $historyItem->setIsCustomerNotified($notify)->save();
 
 
         try {
@@ -254,13 +250,18 @@ class Mage_Sales_Model_Order_Api extends Mage_Sales_Model_Api_Resource
     {
         $order = $this->_initOrder($orderIncrementId);
 
+        if (Mage_Sales_Model_Order::STATE_CANCELED == $order->getState()) {
+            $this->_fault('status_not_changed');
+        }
         try {
             $order->cancel();
             $order->save();
         } catch (Mage_Core_Exception $e) {
             $this->_fault('status_not_changed', $e->getMessage());
         }
-
+        if (Mage_Sales_Model_Order::STATE_CANCELED != $order->getState()) {
+            $this->_fault('status_not_changed');
+        }
         return true;
     }
 

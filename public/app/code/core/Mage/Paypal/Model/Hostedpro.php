@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Paypal
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -34,6 +34,16 @@
 
 class Mage_Paypal_Model_Hostedpro extends Mage_Paypal_Model_Direct
 {
+    /**
+     * Default layout template
+     */
+    const LAYOUT_TEMPLATE = 'templateD';
+
+    /**
+     * Mobile layout template
+     */
+    const MOBILE_LAYOUT_TEMPLATE = 'mobile-iframe';
+
     /**
      * Button code
      *
@@ -60,8 +70,8 @@ class Mage_Paypal_Model_Hostedpro extends Mage_Paypal_Model_Direct
      */
     protected $_code = Mage_Paypal_Model_Config::METHOD_HOSTEDPRO;
 
-    protected $_formBlockType = 'paypal/payflow_link_form';
-    protected $_infoBlockType = 'paypal/payflow_link_info';
+    protected $_formBlockType = 'paypal/hosted_pro_form';
+    protected $_infoBlockType = 'paypal/hosted_pro_info';
 
     /**
      * Availability options
@@ -91,6 +101,20 @@ class Mage_Paypal_Model_Hostedpro extends Mage_Paypal_Model_Direct
     public function getMerchantCountry()
     {
         return $this->_pro->getConfig()->getMerchantCountry();
+    }
+
+    /**
+     * Return iframe template value depending on config
+     *
+     * @return string
+     */
+    public function getTemplate()
+    {
+        if ($this->getConfigData('mobile_optimized')) {
+            return self::MOBILE_LAYOUT_TEMPLATE;
+        } else {
+            return self::LAYOUT_TEMPLATE;
+        }
     }
 
     /**
@@ -214,7 +238,7 @@ class Mage_Paypal_Model_Hostedpro extends Mage_Paypal_Model_Direct
      */
     public function getNotifyUrl($storeId = null)
     {
-        return $this->_getUrl('paypal/ipn', $storeId, false);
+        return $this->_getUrl('paypal/ipn', $storeId);
     }
 
     /**
@@ -240,7 +264,7 @@ class Mage_Paypal_Model_Hostedpro extends Mage_Paypal_Model_Direct
     {
         $store = Mage::app()->getStore($storeId);
         return Mage::getUrl($path, array(
-            "_store"   => $store, 
+            "_store"   => $store,
             "_secure"  => is_null($secure) ? $store->isCurrentlySecure() : $secure
         ));
     }

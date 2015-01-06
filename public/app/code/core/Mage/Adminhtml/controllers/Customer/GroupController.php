@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -102,14 +102,20 @@ class Mage_Adminhtml_Customer_GroupController extends Mage_Adminhtml_Controller_
         $customerGroup = Mage::getModel('customer/group');
         $id = $this->getRequest()->getParam('id');
         if (!is_null($id)) {
-            $customerGroup->load($id);
+            $customerGroup->load((int)$id);
         }
 
-        if ($taxClass = $this->getRequest()->getParam('tax_class')) {
+        $taxClass = (int)$this->getRequest()->getParam('tax_class');
+
+        if ($taxClass) {
             try {
-                $customerGroup->setCode($this->getRequest()->getParam('code'))
-                    ->setTaxClassId($taxClass)
-                    ->save();
+                $customerGroupCode = (string)$this->getRequest()->getParam('code');
+
+                if (!empty($customerGroupCode)) {
+                    $customerGroup->setCode($customerGroupCode);
+                }
+
+                $customerGroup->setTaxClassId($taxClass)->save();
                 Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('customer')->__('The customer group has been saved.'));
                 $this->getResponse()->setRedirect($this->getUrl('*/customer_group'));
                 return;
@@ -122,7 +128,6 @@ class Mage_Adminhtml_Customer_GroupController extends Mage_Adminhtml_Controller_
         } else {
             $this->_forward('new');
         }
-
     }
 
     /**

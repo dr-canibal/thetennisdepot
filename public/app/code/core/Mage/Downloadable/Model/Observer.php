@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Downloadable
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -171,50 +171,80 @@ class Mage_Downloadable_Model_Observer
 
         /* @var $order Mage_Sales_Model_Order */
         $status = '';
-        $orderItemsIds = array();
+        $linkStatuses = array(
+            'pending'         => Mage_Downloadable_Model_Link_Purchased_Item::LINK_STATUS_PENDING,
+            'expired'         => Mage_Downloadable_Model_Link_Purchased_Item::LINK_STATUS_EXPIRED,
+            'avail'           => Mage_Downloadable_Model_Link_Purchased_Item::LINK_STATUS_AVAILABLE,
+            'payment_pending' => Mage_Downloadable_Model_Link_Purchased_Item::LINK_STATUS_PENDING_PAYMENT,
+            'payment_review'  => Mage_Downloadable_Model_Link_Purchased_Item::LINK_STATUS_PAYMENT_REVIEW
+        );
+
+        $downloadableItemsStatuses = array();
         $orderItemStatusToEnable = Mage::getStoreConfig(
             Mage_Downloadable_Model_Link_Purchased_Item::XML_PATH_ORDER_ITEM_STATUS, $order->getStoreId()
         );
 
         if ($order->getState() == Mage_Sales_Model_Order::STATE_HOLDED) {
-            $status = Mage_Downloadable_Model_Link_Purchased_Item::LINK_STATUS_PENDING;
-        } elseif ($order->isCanceled() || $order->getState() == Mage_Sales_Model_Order::STATE_CLOSED) {
-            $status = Mage_Downloadable_Model_Link_Purchased_Item::LINK_STATUS_EXPIRED;
+            $status = $linkStatuses['pending'];
+        } elseif ($order->isCanceled()
+                  || $order->getState() == Mage_Sales_Model_Order::STATE_CLOSED
+                  || $order->getState() == Mage_Sales_Model_Order::STATE_COMPLETE
+        ) {
+            $expiredStatuses = array(
+                Mage_Sales_Model_Order_Item::STATUS_CANCELED,
+                Mage_Sales_Model_Order_Item::STATUS_REFUNDED,
+            );
+            foreach ($order->getAllItems() as $item) {
+                if ($item->getProductType() == Mage_Downloadable_Model_Product_Type::TYPE_DOWNLOADABLE
+                    || $item->getRealProductType() == Mage_Downloadable_Model_Product_Type::TYPE_DOWNLOADABLE
+                ) {
+                    if (in_array($item->getStatusId(), $expiredStatuses)) {
+                        $downloadableItemsStatuses[$item->getId()] = $linkStatuses['expired'];
+                    } else {
+                        $downloadableItemsStatuses[$item->getId()] = $linkStatuses['avail'];
+                    }
+                }
+            }
         } elseif ($order->getState() == Mage_Sales_Model_Order::STATE_PENDING_PAYMENT) {
-            $status = Mage_Downloadable_Model_Link_Purchased_Item::LINK_STATUS_PENDING_PAYMENT;
+            $status = $linkStatuses['payment_pending'];
         } elseif ($order->getState() == Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW) {
-            $status = Mage_Downloadable_Model_Link_Purchased_Item::LINK_STATUS_PAYMENT_REVIEW;
+            $status = $linkStatuses['payment_review'];
         } else {
             $availableStatuses = array($orderItemStatusToEnable, Mage_Sales_Model_Order_Item::STATUS_INVOICED);
             foreach ($order->getAllItems() as $item) {
                 if ($item->getProductType() == Mage_Downloadable_Model_Product_Type::TYPE_DOWNLOADABLE
-                    || $item->getRealProductType() == Mage_Downloadable_Model_Product_Type::TYPE_DOWNLOADABLE)
-                {
+                    || $item->getRealProductType() == Mage_Downloadable_Model_Product_Type::TYPE_DOWNLOADABLE
+                ) {
+                    if ($item->getStatusId() == Mage_Sales_Model_Order_Item::STATUS_BACKORDERED &&
+                        $orderItemStatusToEnable == Mage_Sales_Model_Order_Item::STATUS_PENDING &&
+                        !in_array(Mage_Sales_Model_Order_Item::STATUS_BACKORDERED, $availableStatuses, true) ) {
+                        $availableStatuses[] = Mage_Sales_Model_Order_Item::STATUS_BACKORDERED;
+                    }
+
                     if (in_array($item->getStatusId(), $availableStatuses)) {
-                        $orderItemsIds[] = $item->getId();
+                        $downloadableItemsStatuses[$item->getId()] = $linkStatuses['avail'];
                     }
                 }
             }
-            if ($orderItemsIds) {
-                $status = Mage_Downloadable_Model_Link_Purchased_Item::LINK_STATUS_AVAILABLE;
-            }
         }
-        if (!$orderItemsIds && $status) {
+        if (!$downloadableItemsStatuses && $status) {
             foreach ($order->getAllItems() as $item) {
                 if ($item->getProductType() == Mage_Downloadable_Model_Product_Type::TYPE_DOWNLOADABLE
-                    || $item->getRealProductType() == Mage_Downloadable_Model_Product_Type::TYPE_DOWNLOADABLE)
-                {
-                    $orderItemsIds[] = $item->getId();
+                    || $item->getRealProductType() == Mage_Downloadable_Model_Product_Type::TYPE_DOWNLOADABLE
+                ) {
+                    $downloadableItemsStatuses[$item->getId()] = $status;
                 }
             }
         }
 
-        if ($orderItemsIds) {
+        if ($downloadableItemsStatuses) {
             $linkPurchased = Mage::getResourceModel('downloadable/link_purchased_item_collection')
-            ->addFieldToFilter('order_item_id', array('in'=>$orderItemsIds));
+            ->addFieldToFilter('order_item_id', array('in' => array_keys($downloadableItemsStatuses)));
             foreach ($linkPurchased as $link) {
-                if ($link->getStatus() != Mage_Downloadable_Model_Link_Purchased_Item::LINK_STATUS_EXPIRED) {
-                    $link->setStatus($status)
+                if ($link->getStatus() != $linkStatuses['expired']
+                    && !empty($downloadableItemsStatuses[$link->getOrderItemId()])
+                ) {
+                    $link->setStatus($downloadableItemsStatuses[$link->getOrderItemId()])
                     ->save();
                 }
             }
@@ -248,6 +278,19 @@ class Mage_Downloadable_Model_Observer
             $result->setIsAllowed(false);
         }
 
+        return $this;
+    }
+
+    /**
+     * Initialize product options renderer with downloadable specific params
+     *
+     * @param Varien_Event_Observer $observer
+     * @return Mage_Downloadable_Model_Observer
+     */
+    public function initOptionRenderer(Varien_Event_Observer $observer)
+    {
+        $block = $observer->getBlock();
+        $block->addOptionsRenderCfg('downloadable', 'downloadable/catalog_product_configuration');
         return $this;
     }
 }

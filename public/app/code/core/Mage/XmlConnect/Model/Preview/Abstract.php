@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_XmlConnect
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -33,6 +33,13 @@
  */
 abstract class Mage_XmlConnect_Model_Preview_Abstract extends Varien_Object
 {
+    /**
+     * XmlConnect image model
+     *
+     * @var Mage_XmlConnect_Model_Images
+     */
+    protected $_imageModel;
+
     /**
      * Current active tab according preview action
      *
@@ -58,7 +65,7 @@ abstract class Mage_XmlConnect_Model_Preview_Abstract extends Varien_Object
      * Internal constructor not depended on params.
      * It's used for application object initialization
      *
-     * @return void
+     * @return null
      */
     final function _construct()
     {
@@ -67,9 +74,9 @@ abstract class Mage_XmlConnect_Model_Preview_Abstract extends Varien_Object
     }
 
     /**
-     * Getter for current loaded application model
+     * Setter for current loaded application model
      *
-     * @return Mage_XmlConnect_Model_Application
+     * @return Mage_XmlConnect_Model_Preview_Abstract
      */
     protected function setApplicationModel()
     {
@@ -79,6 +86,12 @@ abstract class Mage_XmlConnect_Model_Preview_Abstract extends Varien_Object
         return $this;
     }
 
+
+    /**
+     * Getter for current loaded application model
+     *
+     * @return Mage_XmlConnect_Model_Application
+     */
     public function getApplicationModel()
     {
         return $this->setApplicationModel()->_appModel;
@@ -145,7 +158,7 @@ abstract class Mage_XmlConnect_Model_Preview_Abstract extends Varien_Object
         if (!is_array($conf)) {
             $conf = array();
         }
-        $tabs = isset($conf['tabBar']) && isset($conf['tabBar']['tabs']) ? $conf['tabBar']['tabs'] : false;
+        $tabs = isset($conf['tabBar']['tabs']) ? $conf['tabBar']['tabs'] : false;
         if ($tabs !== false) {
             foreach ($tabs->getEnabledTabs() as $tab) {
                 $tab = (array) $tab;
@@ -199,12 +212,19 @@ abstract class Mage_XmlConnect_Model_Preview_Abstract extends Varien_Object
      */
     public function getLogoUrl()
     {
-        $configPath = 'conf/navigationBar/icon';
-        if ($this->getData($configPath)) {
-            return $this->getData($configPath);
-        } else {
-            return $this->getPreviewImagesUrl('smallIcon.png');
+        $imageArray = $this->_getDeviceImageByType('icon');
+        $iconImage = false;
+        if (count($imageArray)) {
+            $iconImage = $this->getImageModel()->getCustomSizeImageUrl(
+                $imageArray[0]['image_file'], 35, 35
+            );
         }
+
+        if (!$iconImage) {
+            $iconImage = $this->getPreviewImagesUrl('smallIcon.png');
+        }
+
+        return $iconImage;
     }
 
     /**
@@ -215,47 +235,84 @@ abstract class Mage_XmlConnect_Model_Preview_Abstract extends Varien_Object
     public function getCategoryItemTintColor()
     {
         if (!strlen($this->_categoryItemTintColor)) {
-            $percent = .4;
-            $mask = 255;
+            $percent = 0.4;
+            $mask   = 255;
 
-            $hex = str_replace('#','',$this->getData('conf/categoryItem/tintColor'));
-            $hex2 = '';
-            $_rgb = array();
+            $hex    = str_replace('#', '', $this->getData('conf/categoryItem/tintColor'));
+            $hex2   = '';
+            $_rgb   = array();
 
-            $d = '[a-fA-F0-9]';
+            $hexChars = '[a-fA-F0-9]';
 
-            if (preg_match("/^($d$d)($d$d)($d$d)\$/", $hex, $rgb)) {
+            if (preg_match("/^($hexChars{2})($hexChars{2})($hexChars{2})$/", $hex, $rgb)) {
                 $_rgb = array(hexdec($rgb[1]), hexdec($rgb[2]), hexdec($rgb[3]));
-            }
-            if (preg_match("/^($d)($d)($d)$/", $hex, $rgb)) {
+            } elseif (preg_match("/^($hexChars)($hexChars)($hexChars)$/", $hex, $rgb)) {
                 $_rgb = array(hexdec($rgb[1] . $rgb[1]), hexdec($rgb[2] . $rgb[2]), hexdec($rgb[3] . $rgb[3]));
             }
 
-            for ($i=0; $i<3; $i++) {
-                $_rgb[$i] = round($_rgb[$i] * $percent) + round($mask * (1-$percent));
+            for ($i = 0; $i < 3; $i++) {
+                $_rgb[$i] = round($_rgb[$i] * $percent) + round($mask * (1 - $percent));
                 if ($_rgb[$i] > 255) {
                     $_rgb[$i] = 255;
                 }
-            }
-
-            for($i=0; $i < 3; $i++) {
                 $hex_digit = dechex($_rgb[$i]);
-                if(strlen($hex_digit) == 1) {
+                if (strlen($hex_digit) == 1) {
                     $hex_digit = "0" . $hex_digit;
                 }
                 $hex2 .= $hex_digit;
             }
-            if($hex && $hex2){
+
+            if ($hex && $hex2) {
                 // for IE
                 $this->_categoryItemTintColor .= "filter: progid:DXImageTransform.Microsoft.gradient";
-                $this->_categoryItemTintColor .= "(startColorstr='#".$hex2."', endColorstr='#".$hex."');";
+                $this->_categoryItemTintColor .= "(startColorstr='#" . $hex2 . "', endColorstr='#" . $hex . "');";
                 // for webkit browsers
                 $this->_categoryItemTintColor .= "background:-webkit-gradient";
-                $this->_categoryItemTintColor .= "(linear, left top, left bottom, from(#".$hex2."), to(#".$hex."));";
+                $this->_categoryItemTintColor .= "(linear, left top, left bottom,";
+                $this->_categoryItemTintColor .= " from(#" . $hex2 . "), to(#" . $hex . "));";
                 // for firefox
-                $this->_categoryItemTintColor .= "background:-moz-linear-gradient(top,  #".$hex2.",  #".$hex.");";
+                $this->_categoryItemTintColor .= "background:-moz-linear-gradient";
+                $this->_categoryItemTintColor .= "(top, #" . $hex2 . ", #" . $hex . ");";
             }
         }
         return $this->_categoryItemTintColor;
+    }
+
+    /**
+     * Get device image by type
+     *
+     * @param string $type
+     * @param int $limit
+     * @param int $offset
+     * @return array
+     */
+    protected function _getDeviceImageByType($type, $limit = 1, $offset = 0)
+    {
+        return $this->getImageModel()->getDeviceImagesByType($type, $limit, $offset);
+    }
+
+    /**
+     * Get XmlConnect Image Model
+     *
+     * @return Mage_XmlConnect_Model_Images
+     */
+    public function getImageModel()
+    {
+        if ($this->_imageModel === null) {
+            $this->setImageModel(Mage::getModel('xmlconnect/images'));
+        }
+        return $this->_imageModel;
+    }
+
+    /**
+     * Set XmlConnect image model
+     *
+     * @param Mage_XmlConnect_Model_Images $imageModel
+     * @return Mage_XmlConnect_Model_Preview_Abstract
+     */
+    public function setImageModel($imageModel)
+    {
+        $this->_imageModel = $imageModel;
+        return $this;
     }
 }

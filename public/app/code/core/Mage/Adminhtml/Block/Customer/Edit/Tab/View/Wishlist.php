@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -29,11 +29,15 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
- * @author      Magento Core Team <core@magentocommerce.com>
+ * @author     Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_Block_Customer_Edit_Tab_View_Wishlist extends Mage_Adminhtml_Block_Widget_Grid
 {
-
+    /**
+     * Initial settings
+     *
+     * @return void
+     */
     public function __construct()
     {
         parent::__construct();
@@ -44,20 +48,29 @@ class Mage_Adminhtml_Block_Customer_Edit_Tab_View_Wishlist extends Mage_Adminhtm
         $this->setEmptyText(Mage::helper('customer')->__("There are no items in customer's wishlist at the moment"));
     }
 
+    /**
+     * Prepare collection
+     *
+     * @return Mage_Adminhtml_Block_Customer_Edit_Tab_View_Wishlist
+     */
     protected function _prepareCollection()
     {
-        $wishlist = Mage::getModel('wishlist/wishlist');
-        $collection = $wishlist->loadByCustomer(Mage::registry('current_customer'))
-            ->setSharedStoreIds($wishlist->getSharedStoreIds(false))
-            ->getItemCollection()
+        $collection = Mage::getModel('wishlist/item')->getCollection()
+            ->addCustomerIdFilter(Mage::registry('current_customer')->getId())
             ->addDaysInWishlist(true)
-            ->addStoreData();
+            ->addStoreData()
+            ->setInStockFilter(true);
 
         $this->setCollection($collection);
 
         return parent::_prepareCollection();
     }
 
+    /**
+     * Prepare columns
+     *
+     * @return Mage_Adminhtml_Block_Customer_Edit_Tab_View_Wishlist
+     */
     protected function _prepareColumns()
     {
         $this->addColumn('product_id', array(
@@ -69,7 +82,8 @@ class Mage_Adminhtml_Block_Customer_Edit_Tab_View_Wishlist extends Mage_Adminhtm
 
         $this->addColumn('product_name', array(
             'header'    => Mage::helper('customer')->__('Product Name'),
-            'index'     => 'product_name'
+            'index'     => 'product_name',
+            'renderer'  => 'adminhtml/customer_edit_tab_view_grid_renderer_item'
         ));
 
         if (!Mage::app()->isSingleStoreMode()) {
@@ -98,15 +112,24 @@ class Mage_Adminhtml_Block_Customer_Edit_Tab_View_Wishlist extends Mage_Adminhtm
         return parent::_prepareColumns();
     }
 
+    /**
+     * Get headers visibility
+     *
+     * @return bool
+     */
     public function getHeadersVisibility()
     {
         return ($this->getCollection()->getSize() > 0);
     }
 
+    /**
+     * Get row url
+     *
+     * @param Mage_Wishlist_Model_Item $item
+     * @return string
+     */
     public function getRowUrl($row)
     {
         return $this->getUrl('*/catalog_product/edit', array('id' => $row->getProductId()));
     }
-
 }
-

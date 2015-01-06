@@ -10,40 +10,54 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Admin
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * Admin observer model
  *
- * @category   Mage
- * @package    Mage_Admin
+ * @category    Mage
+ * @package     Mage_Admin
  * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Admin_Model_Observer
 {
-    public function actionPreDispatchAdmin($event)
+    const FLAG_NO_LOGIN = 'no-login';
+    /**
+     * Handler for controller_action_predispatch event
+     *
+     * @param Varien_Event_Observer $observer
+     * @return boolean
+     */
+    public function actionPreDispatchAdmin($observer)
     {
-        $session  = Mage::getSingleton('admin/session');
-        /* @var $session Mage_Admin_Model_Session */
+        $session = Mage::getSingleton('admin/session');
+        /** @var $session Mage_Admin_Model_Session */
         $request = Mage::app()->getRequest();
         $user = $session->getUser();
 
-        if ($request->getActionName() == 'forgotpassword' || $request->getActionName() == 'logout') {
+        $requestedActionName = $request->getActionName();
+        $openActions = array(
+            'forgotpassword',
+            'resetpassword',
+            'resetpasswordpost',
+            'logout',
+            'refresh' // captcha refresh
+        );
+        if (in_array($requestedActionName, $openActions)) {
             $request->setDispatched(true);
-        }
-        else {
+        } else {
             if($user) {
                 $user->reload();
             }
@@ -52,7 +66,7 @@ class Mage_Admin_Model_Observer
                     $postLogin  = $request->getPost('login');
                     $username   = isset($postLogin['username']) ? $postLogin['username'] : '';
                     $password   = isset($postLogin['password']) ? $postLogin['password'] : '';
-                    $user = $session->login($username, $password, $request);
+                    $session->login($username, $password, $request);
                     $request->setPost('login', null);
                 }
                 if (!$request->getParam('forwarded')) {
@@ -61,8 +75,7 @@ class Mage_Admin_Model_Observer
                             ->setControllerName('index')
                             ->setActionName('deniedIframe')
                             ->setDispatched(false);
-                    }
-                    elseif($request->getParam('isAjax')) {
+                    } elseif($request->getParam('isAjax')) {
                         $request->setParam('forwarded', true)
                             ->setControllerName('index')
                             ->setActionName('deniedJson')

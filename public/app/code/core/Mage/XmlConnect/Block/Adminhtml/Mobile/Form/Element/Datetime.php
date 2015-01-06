@@ -10,30 +10,32 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_XmlConnect
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * XmlConnect data selector form element
  *
- * @category   Mage
- * @package    Mage_XmlConnect
- * @author     Magento Core Team <core@magentocommerce.com>
+ * @category    Mage
+ * @package     Mage_XmlConnect
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_XmlConnect_Block_Adminhtml_Mobile_Form_Element_Datetime extends Varien_Data_Form_Element_Abstract
 {
     /**
+     * Date
+     *
      * @var Zend_Date
      */
     protected $_value;
@@ -63,7 +65,7 @@ class Mage_XmlConnect_Block_Adminhtml_Mobile_Form_Element_Datetime extends Varie
         }
         return $value;
     }
-    
+
     /**
      * Set date value
      * If Zend_Date instance is provided instead of value, other params will be ignored.
@@ -156,19 +158,25 @@ class Mage_XmlConnect_Block_Adminhtml_Mobile_Form_Element_Datetime extends Varie
         $html = sprintf(
             '<input name="%s" id="%s" value="%s" %s style="width:110px !important;" />'
             .' <img src="%s" alt="" class="v-middle" id="%s_trig" title="%s" style="%s" />',
-            $this->getName(), $this->getHtmlId(), $this->_escape($this->getValue()), $this->serialize($this->getHtmlAttributes()),
-            $this->getImage(), $this->getHtmlId(), 'Select Date', ($this->getDisabled() ? 'display:none;' : '')
+            $this->getName(),
+            $this->getHtmlId(),
+            $this->_escape($this->getValue()),
+            $this->serialize($this->getHtmlAttributes()),
+            $this->getImage(),
+            $this->getHtmlId(),
+            'Select Date',
+            ($this->getDisabled() ? 'display:none;' : '')
         );
         $outputFormat = $this->getFormat();
         $outputTimeFormat = $this->getFormatT();
         if (empty($outputFormat)) {
-            throw new Exception('Output format is not specified. Please, specify "format" key in constructor, or set it using setFormat().');
+            Mage::throwException(
+                $this->__('Output format is not specified. Please, specify "format" key in constructor, or set it using setFormat().')
+            );
         }
         $displayFormat = Varien_Date::convertZendToStrFtime($outputFormat, true, false);
         $displayTimeFormat = Varien_Date::convertZendToStrFtime($outputTimeFormat, false, true);
-        
-        
-        
+
         $html .= sprintf('
             <script type="text/javascript">
             //<![CDATA[
@@ -183,8 +191,10 @@ class Mage_XmlConnect_Block_Adminhtml_Mobile_Form_Element_Datetime extends Varie
                 });
             //]]>
             </script>',
-            $this->getHtmlId(), $displayFormat . " " . $displayTimeFormat,
-            $this->getTime() ? 'true' : 'false', $this->getHtmlId()
+            $this->getHtmlId(),
+            $displayFormat . " " . $displayTimeFormat,
+            $this->getTime() ? 'true' : 'false',
+            $this->getHtmlId()
         );
 
         $html .= $this->getAfterElementHtml();

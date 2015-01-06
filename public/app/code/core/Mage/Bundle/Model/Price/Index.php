@@ -10,29 +10,39 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Bundle
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
 /**
  * Bundle Product Price Index
  *
+ * @method Mage_Bundle_Model_Resource_Price_Index _getResource()
+ * @method Mage_Bundle_Model_Resource_Price_Index getResource()
+ * @method Mage_Bundle_Model_Price_Index setEntityId(int $value)
+ * @method int getWebsiteId()
+ * @method Mage_Bundle_Model_Price_Index setWebsiteId(int $value)
+ * @method int getCustomerGroupId()
+ * @method Mage_Bundle_Model_Price_Index setCustomerGroupId(int $value)
+ * @method float getMinPrice()
+ * @method Mage_Bundle_Model_Price_Index setMinPrice(float $value)
+ * @method float getMaxPrice()
+ * @method Mage_Bundle_Model_Price_Index setMaxPrice(float $value)
+ *
  * @category    Mage
  * @package     Mage_Bundle
  * @author      Magento Core Team <core@magentocommerce.com>
- * @deprecated  since 1.4.0.0
- * @see         Mage_Bundle_Model_Mysql4_Indexer_Price
  */
 class Mage_Bundle_Model_Price_Index extends Mage_Core_Model_Abstract
 {

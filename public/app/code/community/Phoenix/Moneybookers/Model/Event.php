@@ -14,7 +14,7 @@
  *
  * @category    Phoenix
  * @package     Phoenix_Moneybookers
- * @copyright   Copyright (c) 2009 Phoenix Medien GmbH & Co. KG (http://www.phoenix-medien.de)
+ * @copyright   Copyright (c) 2014 Phoenix Medien GmbH & Co. KG (http://www.phoenix-medien.de)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -28,8 +28,10 @@ class Phoenix_Moneybookers_Model_Event
     const MONEYBOOKERS_STATUS_PENDING = 0;
     const MONEYBOOKERS_STATUS_SUCCESS = 2;
 
-    /*
-     * @param Mage_Sales_Model_Order
+    /**
+     * Store order instance
+     *
+     * @var Mage_Sales_Model_Order
      */
     protected $_order = null;
 
@@ -151,6 +153,8 @@ class Phoenix_Moneybookers_Model_Event
     /**
      * Processes payment confirmation, creates invoice if necessary, updates order status,
      * sends order confirmation to customer
+     *
+     * @param string $status
      * @param string $msg Order history message
      */
     protected function _processSale($status, $msg)
@@ -162,7 +166,7 @@ class Phoenix_Moneybookers_Model_Event
                 // save transaction ID
                 $this->_order->getPayment()->setLastTransId($this->getEventData('mb_transaction_id'));
                 // send new order email
-                $this->_order->sendNewOrderEmail();
+                $this->_order->queueNewOrderEmail();
                 $this->_order->setEmailSent(true);
                 break;
             case self::MONEYBOOKERS_STATUS_PENDING:
@@ -204,14 +208,19 @@ class Phoenix_Moneybookers_Model_Event
 
         // check order ID
         if (empty($params['transaction_id'])
-            || ($fullCheck == false && $this->_getCheckout()->getMoneybookersRealOrderId() != $params['transaction_id']))
-        {
+            || ($fullCheck == false && $this->_getCheckout()->getMoneybookersRealOrderId() != $params['transaction_id'])
+        ) {
             Mage::throwException('Missing or invalid order ID.');
         }
         // load order for further validation
         $this->_order = Mage::getModel('sales/order')->loadByIncrementId($params['transaction_id']);
-        if (!$this->_order->getId())
+        if (!$this->_order->getId()) {
             Mage::throwException('Order not found.');
+        }
+
+        if (0 !== strpos($this->_order->getPayment()->getMethodInstance()->getCode(), 'moneybookers_')) {
+            Mage::throwException('Unknown payment method.');
+        }
 
         // make additional validation
         if ($fullCheck) {
@@ -229,9 +238,20 @@ class Phoenix_Moneybookers_Model_Event
             $md5String = '';
             foreach ($checkParams as $key) {
                 if ($key == 'merchant_id') {
-                    $md5String .= Mage::getStoreConfig(Phoenix_Moneybookers_Helper_Data::XML_PATH_CUSTOMER_ID, $this->_order->getStoreId());
+                    $md5String .= Mage::getStoreConfig(Phoenix_Moneybookers_Helper_Data::XML_PATH_CUSTOMER_ID,
+                        $this->_order->getStoreId()
+                    );
                 } elseif ($key == 'secret') {
-                    $md5String .= strtoupper(md5(Mage::getStoreConfig(Phoenix_Moneybookers_Helper_Data::XML_PATH_SECRET_KEY, $this->_order->getStoreId())));
+                    $secretKey = Mage::getStoreConfig(
+                        Phoenix_Moneybookers_Helper_Data::XML_PATH_SECRET_KEY,
+                        $this->_order->getStoreId()
+                    );
+
+                    if (empty($secretKey)) {
+                        Mage::throwException('Secret key is empty.');
+                    }
+
+                    $md5String .= strtoupper(md5($secretKey));
                 } elseif (isset($params[$key])) {
                     $md5String .= $params[$key];
                 }

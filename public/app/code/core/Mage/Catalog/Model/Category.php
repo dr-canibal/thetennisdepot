@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Catalog
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
@@ -111,12 +111,24 @@ class Mage_Catalog_Model_Category extends Mage_Catalog_Model_Abstract
     protected $_treeModel = null;
 
     /**
+     * Category Url instance
+     *
+     * @var Mage_Catalog_Model_Category_Url
+     */
+    protected $_urlModel;
+
+    /**
      * Initialize resource mode
      *
+     * @return void
      */
     protected function _construct()
     {
-        if (Mage::helper('catalog/category_flat')->isEnabled()) {
+        // If Flat Data enabled then use it but only on frontend
+        $flatHelper = Mage::helper('catalog/category_flat');
+        if ($flatHelper->isAvailable() && !Mage::app()->getStore()->isAdmin() && $flatHelper->isBuilt(true)
+            && !$this->getDisableFlat()
+        ) {
             $this->_init('catalog/category_flat');
             $this->_useFlatResource = true;
         } else {
@@ -145,7 +157,7 @@ class Mage_Catalog_Model_Category extends Mage_Catalog_Model_Abstract
     public function getUrlRewrite()
     {
         if (!self::$_urlRewrite) {
-            self::$_urlRewrite = Mage::getModel('core/url_rewrite');
+            self::$_urlRewrite = Mage::getSingleton('core/factory')->getUrlRewriteInstance();
         }
         return self::$_urlRewrite;
     }
@@ -183,11 +195,6 @@ class Mage_Catalog_Model_Category extends Mage_Catalog_Model_Abstract
     public function move($parentId, $afterCategoryId)
     {
         /**
-         * Setting affected category ids for third party engine index refresh
-        */
-        $this->setMovedCategoryId($this->getId());
-
-        /**
          * Validate new parent category id. (category model is used for backward
          * compatibility in event params)
          */
@@ -200,6 +207,21 @@ class Mage_Catalog_Model_Category extends Mage_Catalog_Model_Abstract
                 Mage::helper('catalog')->__('Category move operation is not possible: the new parent category was not found.')
             );
         }
+
+        if (!$this->getId()) {
+            Mage::throwException(
+                Mage::helper('catalog')->__('Category move operation is not possible: the current category was not found.')
+            );
+        } elseif ($parent->getId() == $this->getId()) {
+            Mage::throwException(
+                Mage::helper('catalog')->__('Category move operation is not possible: parent category is equal to child category.')
+            );
+        }
+
+        /**
+         * Setting affected category ids for third party engine index refresh
+        */
+        $this->setMovedCategoryId($this->getId());
 
         $eventParams = array(
             $this->_eventObject => $this,
@@ -408,37 +430,20 @@ class Mage_Catalog_Model_Category extends Mage_Catalog_Model_Abstract
      */
     public function getUrl()
     {
-        $url = $this->_getData('url');
-        if (is_null($url)) {
-            Varien_Profiler::start('REWRITE: '.__METHOD__);
+        return $this->getUrlModel()->getCategoryUrl($this);
+    }
 
-            if ($this->hasData('request_path') && $this->getRequestPath() != '') {
-                $this->setData('url', $this->getUrlInstance()->getDirectUrl($this->getRequestPath()));
-                Varien_Profiler::stop('REWRITE: '.__METHOD__);
-                return $this->getData('url');
-            }
-
-            Varien_Profiler::stop('REWRITE: '.__METHOD__);
-
-            $rewrite = $this->getUrlRewrite();
-            if ($this->getStoreId()) {
-                $rewrite->setStoreId($this->getStoreId());
-            }
-            $idPath = 'category/' . $this->getId();
-            $rewrite->loadByIdPath($idPath);
-
-            if ($rewrite->getId()) {
-                $this->setData('url', $this->getUrlInstance()->getDirectUrl($rewrite->getRequestPath()));
-                Varien_Profiler::stop('REWRITE: '.__METHOD__);
-                return $this->getData('url');
-            }
-
-            Varien_Profiler::stop('REWRITE: '.__METHOD__);
-
-            $this->setData('url', $this->getCategoryIdUrl());
-            return $this->getData('url');
+    /**
+     * Get product url model
+     *
+     * @return Mage_Catalog_Model_Category_Url
+     */
+    public function getUrlModel()
+    {
+        if ($this->_urlModel === null) {
+            $this->_urlModel = Mage::getSingleton('catalog/factory')->getCategoryUrlInstance();
         }
-        return $url;
+        return $this->_urlModel;
     }
 
     /**
@@ -466,7 +471,7 @@ class Mage_Catalog_Model_Category extends Mage_Catalog_Model_Abstract
      */
     public function formatUrlKey($str)
     {
-        $str = Mage::helper('core')->removeAccents($str);
+        $str = Mage::helper('catalog/product_url')->format($str);
         $urlKey = preg_replace('#[^0-9a-z]+#i', '-', $str);
         $urlKey = strtolower($urlKey);
         $urlKey = trim($urlKey, '-');
@@ -586,7 +591,7 @@ class Mage_Catalog_Model_Category extends Mage_Catalog_Model_Abstract
         }
         else {
             $attribute = Mage::getSingleton('catalog/config')
-                ->getAttribute('catalog_category', $attributeCode);
+                ->getAttribute(self::ENTITY, $attributeCode);
         }
         return $attribute;
     }
@@ -723,11 +728,14 @@ class Mage_Catalog_Model_Category extends Mage_Catalog_Model_Abstract
      */
     public function getRequestPath()
     {
+        if (!$this->_getData('request_path')) {
+            $this->getUrl();
+        }
         return $this->_getData('request_path');
     }
 
     /**
-     * Retrieve Name data wraper
+     * Retrieve Name data wrapper
      *
      * @return string
      */
@@ -832,6 +840,16 @@ class Mage_Catalog_Model_Category extends Mage_Catalog_Model_Abstract
     }
 
     /**
+     * Return children categories of current category
+     *
+     * @return array
+     */
+    public function getChildrenCategoriesWithInactive()
+    {
+        return $this->getResource()->getChildrenCategoriesWithInactive($this);
+    }
+
+    /**
      * Return parent category of current category with own custom design settings
      *
      * @return Mage_Catalog_Model_Category
@@ -924,16 +942,18 @@ class Mage_Catalog_Model_Category extends Mage_Catalog_Model_Abstract
     }
 
     /**
-     * Init indexing process after category data commit
+     * Callback function which called after transaction commit in resource model
      *
      * @return Mage_Catalog_Model_Category
      */
     public function afterCommitCallback()
     {
         parent::afterCommitCallback();
-        Mage::getSingleton('index/indexer')->processEntityAction(
-            $this, self::ENTITY, Mage_Index_Model_Event::TYPE_SAVE
-        );
+
+        /** @var \Mage_Index_Model_Indexer $indexer */
+        $indexer = Mage::getSingleton('index/indexer');
+        $indexer->processEntityAction($this, self::ENTITY, Mage_Index_Model_Event::TYPE_SAVE);
+
         return $this;
     }
 }

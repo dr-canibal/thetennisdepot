@@ -9,32 +9,69 @@
  * http://opensource.org/licenses/afl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
+ * @copyright   Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
 var VarienRulesForm = new Class.create();
 VarienRulesForm.prototype = {
     initialize : function(parent, newChildUrl){
+        this.parent = $(parent);
         this.newChildUrl  = newChildUrl;
         this.shownElement = null;
         this.updateElement = null;
         this.chooserSelectedItems = $H({});
+        this.readOnly = false;
 
-        var elems = $(parent).getElementsByClassName('rule-param');
-
+        var elems = this.parent.getElementsByClassName('rule-param');
         for (var i=0; i<elems.length; i++) {
             this.initParam(elems[i]);
+        }
+    },
+
+    setReadonly: function (readonly){
+        this.readOnly = readonly;
+        var elems = this.parent.getElementsByClassName('rule-param-remove');
+        for (var i=0; i<elems.length; i++) {
+            var element = elems[i];
+                if (this.readOnly) {
+                    element.hide();
+                } else {
+                    element.show();
+                }
+        }
+
+        var elems = this.parent.getElementsByClassName('rule-param-new-child');
+        for (var i=0; i<elems.length; i++) {
+            var element = elems[i];
+            if (this.readOnly) {
+                element.hide();
+            } else {
+                element.show();
+            }
+        }
+
+        var elems = this.parent.getElementsByClassName('rule-param');
+        for (var i=0; i<elems.length; i++) {
+            var container = elems[i];
+            var label = Element.down(container, '.label');
+            if (label) {
+                if (this.readOnly) {
+                    label.addClassName('label-disabled');
+                } else {
+                    label.removeClassName('label-disabled');
+                }
+            }
         }
     },
 
@@ -126,6 +163,10 @@ VarienRulesForm.prototype = {
     },
 
     toggleChooser: function (container, event) {
+        if (this.readOnly) {
+            return false;
+        }
+
         var chooser = container.up('li').down('.rule-chooser');
         if (!chooser) {
             return;
@@ -147,6 +188,10 @@ VarienRulesForm.prototype = {
     },
 
     showParamInputField: function (container, event) {
+        if (this.readOnly) {
+            return false;
+        }
+
         if (this.shownElement) {
             this.hideParamInputField(this.shownElement, event);
         }
@@ -285,6 +330,10 @@ VarienRulesForm.prototype = {
     },
 
     onAddNewChildComplete: function (new_elem) {
+        if (this.readOnly) {
+            return false;
+        }
+
         $(new_elem).removeClassName('rule-param-wait');
         var elems = new_elem.getElementsByClassName('rule-param');
         for (var i=0; i<elems.length; i++) {

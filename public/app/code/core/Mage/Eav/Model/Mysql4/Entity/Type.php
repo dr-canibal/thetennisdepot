@@ -10,63 +10,28 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Eav
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
 /**
  * EAV entity type resource model
  *
- * @category   Mage
- * @package    Mage_Eav
+ * @category    Mage
+ * @package     Mage_Eav
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
-class Mage_Eav_Model_Mysql4_Entity_Type extends Mage_Core_Model_Mysql4_Abstract
+class Mage_Eav_Model_Mysql4_Entity_Type extends Mage_Eav_Model_Resource_Entity_Type
 {
-
-    /**
-     * Enter description here...
-     *
-     */
-    protected function _construct()
-    {
-        $this->_init('eav/entity_type', 'entity_type_id');
-    }
-
-    /**
-     * Enter description here...
-     *
-     * @param unknown_type $object
-     * @param string $code
-     * @return Mage_Eav_Model_Mysql4_Entity_Type
-     */
-    public function loadByCode($object, $code)
-    {
-        return $this->load($object, $code, 'entity_type_code');
-    }
-
-    /**
-     * Retrieve additional attribute table name for specified entity type
-     *
-     * @param integer $entityTypeId
-     * @return string
-     */
-    public function getAdditionalAttributeTable($entityTypeId)
-    {
-        $select = $this->_getReadAdapter()->select()
-            ->from($this->getMainTable(), array('additional_attribute_table'))
-            ->where('entity_type_id = ?', $entityTypeId);
-        return $this->_getReadAdapter()->fetchOne($select);
-    }
-
 }

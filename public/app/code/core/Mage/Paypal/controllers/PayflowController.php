@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Paypal
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -41,7 +41,7 @@ class Mage_Paypal_PayflowController extends Mage_Core_Controller_Front_Action
         $gotoSection = $this->_cancelPayment();
         $redirectBlock = $this->_getIframeBlock()
             ->setGotoSection($gotoSection)
-            ->setTemplate('paypal/hss/redirect.phtml');
+            ->setTemplate('paypal/payflowlink/redirect.phtml');
         $this->getResponse()->setBody($redirectBlock->toHtml());
     }
 
@@ -51,7 +51,7 @@ class Mage_Paypal_PayflowController extends Mage_Core_Controller_Front_Action
     public function returnUrlAction()
     {
         $redirectBlock = $this->_getIframeBlock()
-            ->setTemplate('paypal/hss/redirect.phtml');
+            ->setTemplate('paypal/payflowlink/redirect.phtml');
 
         $session = $this->_getCheckout();
         if ($session->getLastRealOrderId()) {
@@ -77,46 +77,11 @@ class Mage_Paypal_PayflowController extends Mage_Core_Controller_Front_Action
     }
 
     /**
-     * Cancel order, return quote to customer
-     *
-     * @param string $errorMsg
-     * @return mixed
-     */
-    protected function _cancelPayment($errorMsg = '')
-    {
-        $gotoSection = false;
-        $session = $this->_getCheckout();
-        if ($session->getLastRealOrderId()) {
-            $order = Mage::getModel('sales/order')->loadByIncrementId($session->getLastRealOrderId());
-            if ($order->getId()) {
-                //Cancel order
-                if ($order->getState() != Mage_Sales_Model_Order::STATE_CANCELED) {
-                    $order->registerCancellation($errorMsg)->save();
-                }
-                $quote = Mage::getModel('sales/quote')
-                    ->load($order->getQuoteId());
-                //Return quote
-                if ($quote->getId()) {
-                    $quote->setIsActive(1)
-                        ->setReservedOrderId(NULL)
-                        ->save();
-                    $session->replaceQuote($quote);
-                }
-                //Unset data
-                $session->unsLastRealOrderId();
-                //Redirect to payment step
-                $gotoSection = 'payment';
-            }
-        }
-
-        return $gotoSection;
-    }
-
-    /**
      * Submit transaction to Payflow getaway into iframe
      */
     public function formAction()
     {
+        $this->getResponse()->setHeader('P3P', 'CP="CAO PSA OUR"');
         $this->getResponse()
             ->setBody($this->_getIframeBlock()->toHtml());
     }
@@ -128,6 +93,7 @@ class Mage_Paypal_PayflowController extends Mage_Core_Controller_Front_Action
     {
         $data = $this->getRequest()->getPost();
         if (isset($data['INVNUM'])) {
+            /** @var $paymentModel Mage_Paypal_Model_Payflowlink */
             $paymentModel = Mage::getModel('paypal/payflowlink');
             try {
                 $paymentModel->process($data);
@@ -135,6 +101,24 @@ class Mage_Paypal_PayflowController extends Mage_Core_Controller_Front_Action
                 Mage::logException($e);
             }
         }
+    }
+
+    /**
+     * Cancel order, return quote to customer
+     *
+     * @param string $errorMsg
+     * @return mixed
+     */
+    protected function _cancelPayment($errorMsg = '')
+    {
+        $gotoSection = false;
+        /* @var $helper Mage_Paypal_Helper_Checkout */
+        $helper = Mage::helper('paypal/checkout');
+        $helper->cancelCurrentOrder($errorMsg);
+        if ($helper->restoreQuote()) {
+            $gotoSection = 'payment';
+        }
+        return $gotoSection;
     }
 
     /**

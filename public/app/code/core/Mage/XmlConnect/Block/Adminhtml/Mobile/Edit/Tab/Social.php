@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_XmlConnect
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -54,14 +54,13 @@ class Mage_XmlConnect_Block_Adminhtml_Mobile_Edit_Tab_Social
         /**
          * Default values for social networks is DISABLED
          */
-        $twitterStatus = $facebookStatus = $linkedinStatus = 0;
+        $twitterStatus  = $facebookStatus = $linkedinStatus = 0;
+        $noteText       = $this->__('Please <a href="%s" target="_blank">click here</a> to see how to setup and retrieve API credentials.');
 
         /**
          * Twitter fieldset options
          */
-        $fieldsetTwitter = $form->addFieldset('twitter', array(
-            'legend' => $this->__('Twitter API')
-        ));
+        $fieldsetTwitter = $form->addFieldset('twitter', array('legend' => $this->__('Twitter API')));
 
         if (isset($data['conf[native][socialNetworking][twitter][isActive]'])) {
             $twitterStatus = (int)$data['conf[native][socialNetworking][twitter][isActive]'];
@@ -112,6 +111,12 @@ class Mage_XmlConnect_Block_Adminhtml_Mobile_Edit_Tab_Social
             )
         );
 
+        $fieldsetTwitter->addField('twitterNote', 'note', array(
+            'text'  => sprintf(
+                $noteText,
+                Mage::getStoreConfig(Mage_XmlConnect_Model_Application::XML_PATH_HOWTO_TWITTER_URL)
+        )));
+
         /**
          * Facebook fieldset options
          */
@@ -151,12 +156,15 @@ class Mage_XmlConnect_Block_Adminhtml_Mobile_Edit_Tab_Social
             )
         );
 
+        $fieldsetFacebook->addField('facebookNote', 'note', array(
+            'text'  => sprintf(
+                $noteText, Mage::getStoreConfig(Mage_XmlConnect_Model_Application::XML_PATH_HOWTO_FACEBOOK_URL)
+        )));
+
         /**
          * LinkedIn fieldset options
          */
-        $fieldsetLinkedin = $form->addFieldset('linkedin', array(
-            'legend' => $this->__('LinkedIn API'),
-        ));
+        $fieldsetLinkedin = $form->addFieldset('linkedin', array('legend' => $this->__('LinkedIn API')));
 
         if (isset($data['conf[native][socialNetworking][linkedin][isActive]'])) {
             $linkedinStatus = (int)$data['conf[native][socialNetworking][linkedin][isActive]'];
@@ -204,6 +212,17 @@ class Mage_XmlConnect_Block_Adminhtml_Mobile_Edit_Tab_Social
                 'name'      => 'conf[native][socialNetworking][linkedin][secretKey]',
                 'required'  => true,
                 'value'     => $linkedinSecretKey
+            )
+        );
+
+        $fieldsetLinkedin->addField(
+            'linkedinNote',
+            'note',
+            array(
+                'text'  => sprintf(
+                    $noteText,
+                    Mage::getStoreConfig(Mage_XmlConnect_Model_Application::XML_PATH_HOWTO_LINKEDIN_URL)
+                ),
             )
         );
 

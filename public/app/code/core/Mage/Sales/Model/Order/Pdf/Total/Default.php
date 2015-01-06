@@ -10,20 +10,27 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Sales
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+/**
+ * Sales Order Total PDF model
+ *
+ * @category   Mage
+ * @package    Mage_Sales
+ * @author     Magento Core Team <core@magentocommerce.com>
+ */
 class Mage_Sales_Model_Order_Pdf_Total_Default extends Varien_Object
 {
     /**
@@ -43,7 +50,13 @@ class Mage_Sales_Model_Order_Pdf_Total_Default extends Varien_Object
         if ($this->getAmountPrefix()) {
             $amount = $this->getAmountPrefix().$amount;
         }
-        $label = Mage::helper('sales')->__($this->getTitle()) . ':';
+        $title = $this->_getSalesHelper()->__($this->getTitle());
+        if ($this->getTitleSourceField()) {
+            $label = $title . ' (' . $this->getTitleDescription() . '):';
+        } else {
+            $label = $title . ':';
+        }
+
         $fontSize = $this->getFontSize() ? $this->getFontSize() : 7;
         $total = array(
             'amount'    => $amount,
@@ -51,6 +64,14 @@ class Mage_Sales_Model_Order_Pdf_Total_Default extends Varien_Object
             'font_size' => $fontSize
         );
         return array($total);
+    }
+
+    /**
+     * @return Mage_Sales_Helper_Data
+     */
+    protected function _getSalesHelper()
+    {
+        return Mage::helper('sales');
     }
 
     /**
@@ -66,32 +87,85 @@ class Mage_Sales_Model_Order_Pdf_Total_Default extends Varien_Object
      */
     public function getFullTaxInfo()
     {
-       $rates     = Mage::getResourceModel('sales/order_tax_collection')->loadByOrder($this->getOrder())->toArray();
-       $fullInfo  = Mage::getSingleton('tax/calculation')->reproduceProcess($rates['items']);
-       $fontSize = $this->getFontSize() ? $this->getFontSize() : 7;
-       $tax_info  = array();
+        $fontSize       = $this->getFontSize() ? $this->getFontSize() : 7;
+        $taxClassAmount = $this->_getCalculatedTaxes();
+        $shippingTax    = $this->_getShippingTax();
+        $taxClassAmount = array_merge($taxClassAmount, $shippingTax);
 
-       if ($fullInfo) {
-          foreach ($fullInfo as $info) {
-             if (isset($info['hidden']) && $info['hidden']) {
-                continue;
-             }
+        if (!empty($taxClassAmount)) {
+            foreach ($taxClassAmount as &$tax) {
+                $percent          = $tax['percent'] ? ' (' . $tax['percent']. '%)' : '';
+                $tax['amount']    = $this->getAmountPrefix() . $this->getOrder()->formatPriceTxt($tax['tax_amount']);
+                $tax['label']     = $this->_getTaxHelper()->__($tax['title']) . $percent . ':';
+                $tax['font_size'] = $fontSize;
+            }
+        } else {
+            $fullInfo = $this->_getFullRateInfo();
+            $tax_info = array();
 
-             $_amount   = $info['amount'];
+            if ($fullInfo) {
+                foreach ($fullInfo as $info) {
+                    if (isset($info['hidden']) && $info['hidden']) {
+                        continue;
+                    }
 
-             foreach ($info['rates'] as $rate) {
-                $percent = $rate['percent'] ? ' (' . $rate['percent']. '%)' : '';
+                    $_amount = $info['amount'];
 
-                $tax_info[] = array(
-                   'amount' => $this->getAmountPrefix().$this->getOrder()->formatPriceTxt($_amount),
-                   'label'  => Mage::helper('tax')->__($rate['title']) . $percent . ':',
-                   'font_size' => $fontSize
-                );
-             }
-          }
-       }
+                    foreach ($info['rates'] as $rate) {
+                        $percent = $rate['percent'] ? ' (' . $rate['percent']. '%)' : '';
 
-       return $tax_info;
+                        $tax_info[] = array(
+                            'amount'    => $this->getAmountPrefix() . $this->getOrder()->formatPriceTxt($_amount),
+                            'label'     => $this->_getTaxHelper()->__($rate['title']) . $percent . ':',
+                            'font_size' => $fontSize
+                        );
+                    }
+                }
+            }
+            $taxClassAmount = $tax_info;
+        }
+
+        return $taxClassAmount;
+    }
+
+    /**
+     * Get full rate info
+     *
+     * @return array
+     */
+    protected function _getFullRateInfo()
+    {
+        $rates = Mage::getModel('tax/sales_order_tax')->getCollection()->loadByOrder($this->getOrder())->toArray();
+        $fullInfo = Mage::getSingleton('tax/calculation')->reproduceProcess($rates['items']);
+        return $fullInfo;
+    }
+
+    /**
+     * @return Mage_Tax_Helper_Data
+     */
+    protected function _getTaxHelper()
+    {
+        return Mage::helper('tax');
+    }
+
+    /**
+     * Get shipping tax
+     *
+     * @return array
+     */
+    protected function _getShippingTax()
+    {
+        return $this->_getTaxHelper()->getShippingTax($this->getOrder());
+    }
+
+    /**
+     * Get calculated taxes
+     *
+     * @return array
+     */
+    protected function _getCalculatedTaxes()
+    {
+        return $this->_getTaxHelper()->getCalculatedTaxes($this->getOrder());
     }
 
     /**
@@ -113,5 +187,15 @@ class Mage_Sales_Model_Order_Pdf_Total_Default extends Varien_Object
     public function getAmount()
     {
         return $this->getSource()->getDataUsingMethod($this->getSourceField());
+    }
+
+    /**
+     * Get title description from source
+     *
+     * @return mixed
+     */
+    public function getTitleDescription()
+    {
+        return $this->getSource()->getDataUsingMethod($this->getTitleSourceField());
     }
 }

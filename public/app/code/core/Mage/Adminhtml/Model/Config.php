@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
@@ -67,7 +67,7 @@ class Mage_Adminhtml_Model_Config extends Varien_Simplexml_Config
     }
 
     /**
-     * Retrive tabs
+     * Retrieve tabs
      *
      * @return Varien_Simplexml_Element
      */
@@ -80,18 +80,20 @@ class Mage_Adminhtml_Model_Config extends Varien_Simplexml_Config
         return $this->_tabs;
     }
 
+    /**
+     * Init modules configuration
+     *
+     * @return void
+     */
     protected function _initSectionsAndTabs()
     {
-        $mergeConfig = Mage::getModel('core/config_base');
+        $config = Mage::getConfig()->loadModulesConfiguration('system.xml')
+            ->applyExtends();
 
-        $config = Mage::getConfig()->loadModulesConfiguration('system.xml');
-
+        Mage::dispatchEvent('adminhtml_init_system_config', array('config' => $config));
         $this->_sections = $config->getNode('sections');
-
         $this->_tabs = $config->getNode('tabs');
     }
-
-
 
     /**
      * Enter description here...
@@ -103,7 +105,6 @@ class Mage_Adminhtml_Model_Config extends Varien_Simplexml_Config
      */
     public function getSection($sectionCode=null, $websiteCode=null, $storeCode=null)
     {
-
         if ($sectionCode){
             return  $this->getSections()->$sectionCode;
         } elseif ($websiteCode) {
@@ -131,7 +132,7 @@ class Mage_Adminhtml_Model_Config extends Varien_Simplexml_Config
                     $showTab=true;
                 }
             }
-        }elseif ($websiteCode) {
+        } elseif ($websiteCode) {
             if (isset($node->show_in_website)) {
                 if ((int)$node->show_in_website) {
                     $showTab=true;
@@ -162,7 +163,6 @@ class Mage_Adminhtml_Model_Config extends Varien_Simplexml_Config
             }
         }
         return false;
-
     }
 
     /**

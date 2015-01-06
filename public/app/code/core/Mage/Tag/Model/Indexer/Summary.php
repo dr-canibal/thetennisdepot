@@ -10,27 +10,46 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Tag
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
 /**
  * Tag Indexer Model
  *
- * @category   Mage
- * @package    Mage_Tag
- * @author     Magento Core Team <core@magentocommerce.com>
+ * @method Mage_Tag_Model_Resource_Indexer_Summary _getResource()
+ * @method Mage_Tag_Model_Resource_Indexer_Summary getResource()
+ * @method int getTagId()
+ * @method Mage_Tag_Model_Indexer_Summary setTagId(int $value)
+ * @method int getStoreId()
+ * @method Mage_Tag_Model_Indexer_Summary setStoreId(int $value)
+ * @method int getCustomers()
+ * @method Mage_Tag_Model_Indexer_Summary setCustomers(int $value)
+ * @method int getProducts()
+ * @method Mage_Tag_Model_Indexer_Summary setProducts(int $value)
+ * @method int getUses()
+ * @method Mage_Tag_Model_Indexer_Summary setUses(int $value)
+ * @method int getHistoricalUses()
+ * @method Mage_Tag_Model_Indexer_Summary setHistoricalUses(int $value)
+ * @method int getPopularity()
+ * @method Mage_Tag_Model_Indexer_Summary setPopularity(int $value)
+ * @method int getBasePopularity()
+ * @method Mage_Tag_Model_Indexer_Summary setBasePopularity(int $value)
+ *
+ * @category    Mage
+ * @package     Mage_Tag
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Tag_Model_Indexer_Summary extends Mage_Index_Model_Indexer_Abstract
 {

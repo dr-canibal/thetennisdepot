@@ -10,25 +10,35 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Review
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * Review model
  *
- * @category   Mage
- * @package    Mage_Review
+ * @method Mage_Review_Model_Resource_Review _getResource()
+ * @method Mage_Review_Model_Resource_Review getResource()
+ * @method string getCreatedAt()
+ * @method Mage_Review_Model_Review setCreatedAt(string $value)
+ * @method Mage_Review_Model_Review setEntityId(int $value)
+ * @method int getEntityPkValue()
+ * @method Mage_Review_Model_Review setEntityPkValue(int $value)
+ * @method int getStatusId()
+ * @method Mage_Review_Model_Review setStatusId(int $value)
+ *
+ * @category    Mage
+ * @package     Mage_Review
  * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Review_Model_Review extends Mage_Core_Model_Abstract
@@ -109,24 +119,33 @@ class Mage_Review_Model_Review extends Mage_Core_Model_Abstract
     {
         $errors = array();
 
-        $helper = Mage::helper('customer');
-
         if (!Zend_Validate::is($this->getTitle(), 'NotEmpty')) {
-            $errors[] = $helper->__('Review summary can\'t be empty');
+            $errors[] = Mage::helper('review')->__('Review summary can\'t be empty');
         }
 
         if (!Zend_Validate::is($this->getNickname(), 'NotEmpty')) {
-            $errors[] = $helper->__('Nickname can\'t be empty');
+            $errors[] = Mage::helper('review')->__('Nickname can\'t be empty');
         }
 
         if (!Zend_Validate::is($this->getDetail(), 'NotEmpty')) {
-            $errors[] = $helper->__('Review can\'t be empty');
+            $errors[] = Mage::helper('review')->__('Review can\'t be empty');
         }
 
         if (empty($errors)) {
             return true;
         }
         return $errors;
+    }
+
+    /**
+     * Perform actions after object delete
+     *
+     * @return Mage_Core_Model_Abstract
+     */
+    protected function _afterDeleteCommit()
+    {
+        $this->getResource()->afterDeleteCommit($this);
+        return parent::_afterDeleteCommit();
     }
 
     /**

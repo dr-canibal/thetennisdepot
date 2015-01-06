@@ -10,31 +10,31 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_XmlConnect
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * Customer orders history xml renderer
  *
- * @category   Mage
- * @package    Mage_XmlConnect
- * @author     Magento Core Team <core@magentocommerce.com>
+ * @category    Mage
+ * @package     Mage_XmlConnect
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
-class Mage_XmlConnect_Block_Customer_Order_List extends Mage_Core_Block_Template
+class Mage_XmlConnect_Block_Customer_Order_List extends Mage_Core_Block_Abstract
 {
     /**
-     * Linmitation for orders list
+     * Orders count limit
      */
     const ORDERS_LIST_LIMIT = 10;
 
@@ -45,31 +45,47 @@ class Mage_XmlConnect_Block_Customer_Order_List extends Mage_Core_Block_Template
      */
     protected function _toHtml()
     {
-        $ordersXmlObj = new Mage_XmlConnect_Model_Simplexml_Element('<orders></orders>');
+        /** @var $ordersXmlObj Mage_XmlConnect_Model_Simplexml_Element */
+        $ordersXmlObj = Mage::getModel('xmlconnect/simplexml_element', '<orders></orders>');
 
-        $orders = Mage::getResourceModel('sales/order_collection')
-            ->addFieldToSelect('*')
-            ->addFieldToFilter('customer_id', Mage::getSingleton('customer/session')->getCustomer()->getId())
-            ->addFieldToFilter('state', array('in' => Mage::getSingleton('sales/order_config')->getVisibleOnFrontStates()))
-            ->setOrder('created_at', 'desc');
+        /** @var $orders Mage_Sales_Model_Resource_Order_Collection */
+        $orders = Mage::getResourceModel('sales/order_collection')->addFieldToSelect('*')->addFieldToFilter(
+            'customer_id', Mage::getSingleton('customer/session')->getCustomer()->getId()
+        )->addFieldToFilter('state', array(
+            'in' => Mage::getSingleton('sales/order_config')->getVisibleOnFrontStates()
+        ))->setOrder('created_at', 'desc');
 
-        $orders->getSelect()->limit(self::ORDERS_LIST_LIMIT, 0);
+        /** @var $request Mage_Core_Controller_Request_Http */
+        $request = $this->getRequest();
+        /**
+         * Apply offset and count
+         */
+        $count = abs((int)$request->getParam('count', 0));
+        $count = $count ? $count : self::ORDERS_LIST_LIMIT;
+        $offset = abs((int)$request->getParam('offset', 0));
+
+
+        $ordersXmlObj->addAttribute('orders_count', $ordersXmlObj->escapeXml($orders->count()));
+        $ordersXmlObj->addAttribute('offset', $ordersXmlObj->escapeXml($offset));
+
+        $orders->clear()->getSelect()->limit($count, $offset);
         $orders->load();
 
-        if (sizeof($orders->getItems())) {
-            foreach ($orders as $_order) {
+        if ($orders->count()) {
+            foreach ($orders as $order) {
                 $item = $ordersXmlObj->addChild('item');
-                $item->addChild('entity_id', $_order->getId());
-                $item->addChild('number', $_order->getRealOrderId());
-                $item->addChild('date', $this->formatDate($_order->getCreatedAtStoreDate()));
-                if ($_order->getShippingAddress()) {
-                    $item->addChild('ship_to', $ordersXmlObj->xmlentities(strip_tags($_order->getShippingAddress()->getName())));
+                $item->addChild('entity_id', $order->getId());
+                $item->addChild('number', $order->getRealOrderId());
+                $item->addChild('date', $this->formatDate($order->getCreatedAtStoreDate()));
+                if ($order->getShippingAddress()) {
+                    $item->addChild('ship_to', $ordersXmlObj->escapeXml($order->getShippingAddress()->getName()));
                 }
-                $item->addChild('total', $_order->getOrderCurrency()->formatPrecision($_order->getGrandTotal(), 2, array(), false, false));
-                $item->addChild('status', $_order->getStatusLabel());
+                $item->addChild('total', $order->getOrderCurrency()->formatPrecision(
+                    $order->getGrandTotal(), 2, array(), false, false
+                ));
+                $item->addChild('status', $order->getStatusLabel());
             }
         }
-
         return $ordersXmlObj->asNiceXml();
     }
 }

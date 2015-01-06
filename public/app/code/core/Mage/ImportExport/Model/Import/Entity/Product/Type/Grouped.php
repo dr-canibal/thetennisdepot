@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_ImportExport
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -42,6 +42,26 @@ class Mage_ImportExport_Model_Import_Entity_Product_Type_Grouped
     protected $_particularAttributes = array(
         '_associated_sku', '_associated_default_qty', '_associated_position'
     );
+
+    /**
+     * Import model behavior
+     *
+     * @var string
+     */
+    protected $_behavior;
+
+    /**
+     * Retrive model behavior
+     *
+     * @return string
+     */
+    public function getBehavior()
+    {
+        if (is_null($this->_behavior)) {
+            $this->_behavior = Mage_ImportExport_Model_Import::getDataSourceModel()->getBehavior();
+        }
+        return $this->_behavior;
+    }
 
     /**
      * Save product type specific data.
@@ -130,7 +150,7 @@ class Mage_ImportExport_Model_Import_Entity_Product_Type_Grouped
                 }
             }
             // save links and relations
-            if ($linksData['product_ids']) {
+            if ($linksData['product_ids'] && $this->getBehavior() != Mage_ImportExport_Model_Import::BEHAVIOR_APPEND) {
                 $connection->delete(
                     $mainTable,
                     $connection->quoteInto(
@@ -151,7 +171,7 @@ class Mage_ImportExport_Model_Import_Entity_Product_Type_Grouped
                         );
                     }
                 }
-                $connection->insertMultiple($mainTable, $mainData);
+                $connection->insertOnDuplicate($mainTable, $mainData);
                 $connection->insertOnDuplicate($relationTable, $linksData['relation']);
             }
             // save positions and default quantity
@@ -174,10 +194,10 @@ class Mage_ImportExport_Model_Import_Entity_Product_Type_Grouped
                     }
                 }
                 if ($linksData['position']) {
-                    $connection->insertMultiple($attributes['position']['table'], $linksData['position']);
+                    $connection->insertOnDuplicate($attributes['position']['table'], $linksData['position']);
                 }
                 if ($linksData['qty']) {
-                    $connection->insertMultiple($attributes['qty']['table'], $linksData['qty']);
+                    $connection->insertOnDuplicate($attributes['qty']['table'], $linksData['qty']);
                 }
             }
         }

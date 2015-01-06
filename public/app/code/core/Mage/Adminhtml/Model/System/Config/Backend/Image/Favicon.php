@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
@@ -36,21 +36,21 @@ class Mage_Adminhtml_Model_System_Config_Backend_Image_Favicon extends Mage_Admi
 {
     /**
      * The tail part of directory path for uploading
-     * 
+     *
      */
     const UPLOAD_DIR = 'favicon';
 
     /**
      * Token for the root part of directory path for uploading
-     * 
+     *
      */
-    const UPLOAD_ROOT = 'system/filesystem/media';
+    const UPLOAD_ROOT = 'media';
 
     /**
      * Return path to directory for upload file
      *
      * @return string
-     * @throw Mage_Core_Exception 
+     * @throw Mage_Core_Exception
      */
     protected function _getUploadDir()
     {
@@ -62,8 +62,8 @@ class Mage_Adminhtml_Model_System_Config_Backend_Image_Favicon extends Mage_Admi
 
     /**
      * Makes a decision about whether to add info about the scope.
-     * 
-     * @return boolean 
+     *
+     * @return boolean
      */
     protected function _addWhetherScopeInfo()
     {
@@ -72,11 +72,21 @@ class Mage_Adminhtml_Model_System_Config_Backend_Image_Favicon extends Mage_Admi
 
     /**
      * Getter for allowed extensions of uploaded files.
-     * 
-     * @return array 
+     *
+     * @return array
      */
     protected function _getAllowedExtensions()
     {
-        return array('ico', 'png', 'gif', 'jpeg', 'apng', 'svg');
+        return array('ico', 'png', 'gif', 'jpg', 'jpeg', 'apng', 'svg');
+    }
+
+    /**
+     * Get real media dir path
+     *
+     * @param  $token
+     * @return string
+     */
+    protected function _getUploadRoot($token) {
+        return Mage::getBaseDir($token);
     }
 }

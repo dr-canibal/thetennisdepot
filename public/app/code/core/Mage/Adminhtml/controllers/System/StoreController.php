@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -172,6 +172,7 @@ class Mage_Adminhtml_System_StoreController extends Mage_Adminhtml_Controller_Ac
             try {
                 switch ($postData['store_type']) {
                     case 'website':
+                        $postData['website']['name'] = $this->_getHelper()->removeTags($postData['website']['name']);
                         $websiteModel = Mage::getModel('core/website');
                         if ($postData['website']['website_id']) {
                             $websiteModel->load($postData['website']['website_id']);
@@ -186,6 +187,7 @@ class Mage_Adminhtml_System_StoreController extends Mage_Adminhtml_Controller_Ac
                         break;
 
                     case 'group':
+                        $postData['group']['name'] = $this->_getHelper()->removeTags($postData['group']['name']);
                         $groupModel = Mage::getModel('core/store_group');
                         if ($postData['group']['group_id']) {
                             $groupModel->load($postData['group']['group_id']);
@@ -205,6 +207,7 @@ class Mage_Adminhtml_System_StoreController extends Mage_Adminhtml_Controller_Ac
                     case 'store':
                         $eventName = 'store_edit';
                         $storeModel = Mage::getModel('core/store');
+                        $postData['store']['name'] = $this->_getHelper()->removeTags($postData['store']['name']);
                         if ($postData['store']['store_id']) {
                             $storeModel->load($postData['store']['store_id']);
                         }

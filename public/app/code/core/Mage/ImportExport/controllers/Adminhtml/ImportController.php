@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_ImportExport
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -99,7 +99,7 @@ class Mage_ImportExport_Adminhtml_ImportController extends Mage_Adminhtml_Contro
 
             /** @var $resultBlock Mage_ImportExport_Block_Adminhtml_Import_Frame_Result */
             $resultBlock = $this->getLayout()->getBlock('import.frame.result');
-
+            /** @var $importModel Mage_ImportExport_Model_Import */
             $importModel = Mage::getModel('importexport/import');
 
             try {
@@ -154,10 +154,7 @@ class Mage_ImportExport_Adminhtml_ImportController extends Mage_Adminhtml_Contro
                             );
                         } elseif ($import->getErrorsCount() >= $import->getErrorsLimit()) {
                             $resultBlock->addNotice(
-                                $this->__(
-                                    'Errors limit (%d) reached. Please fix errors and re-upload file',
-                                    $import->getErrorsLimit()
-                                )
+                                $this->__('Errors limit (%d) reached. Please fix errors and re-upload file', $import->getErrorsLimit())
                             );
                         } else {
                             if ($import->isImportAllowed()) {
@@ -188,18 +185,17 @@ class Mage_ImportExport_Adminhtml_ImportController extends Mage_Adminhtml_Contro
                         }
                     }
                     $resultBlock->addNotice($import->getNotices());
-                    $resultBlock->addNotice(
-                        $this->__(
-                            'Checked rows: %d, checked entities: %d, invalid rows: %d, total errors: %d',
-                            $import->getProcessedRowsCount(), $import->getProcessedEntitiesCount(),
-                            $import->getInvalidRowsCount(), $import->getErrorsCount()
-                        )
-                    );
+                    $resultBlock->addNotice($this->__('Checked rows: %d, checked entities: %d, invalid rows: %d, total errors: %d', $import->getProcessedRowsCount(), $import->getProcessedEntitiesCount(), $import->getInvalidRowsCount(), $import->getErrorsCount()));
                 }
             } catch (Exception $e) {
                 $resultBlock->addNotice($this->__('Please fix errors and re-upload file'))
                     ->addError($e->getMessage());
             }
+            $this->renderLayout();
+        } elseif ($this->getRequest()->isPost() && empty($_FILES)) {
+            $this->loadLayout(false);
+            $resultBlock = $this->getLayout()->getBlock('import.frame.result');
+            $resultBlock->addError($this->__('File was not uploaded'));
             $this->renderLayout();
         } else {
             $this->_getSession()->addError($this->__('Data is invalid or file is not uploaded'));

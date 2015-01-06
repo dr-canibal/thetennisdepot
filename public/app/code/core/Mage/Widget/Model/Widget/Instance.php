@@ -10,22 +10,31 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Widget
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * Widget Instance Model
+ *
+ * @method Mage_Widget_Model_Resource_Widget_Instance _getResource()
+ * @method Mage_Widget_Model_Resource_Widget_Instance getResource()
+ * @method string getTitle()
+ * @method Mage_Widget_Model_Widget_Instance setTitle(string $value)
+ * @method Mage_Widget_Model_Widget_Instance setStoreIds(string $value)
+ * @method Mage_Widget_Model_Widget_Instance setWidgetParameters(string $value)
+ * @method int getSortOrder()
+ * @method Mage_Widget_Model_Widget_Instance setSortOrder(int $value)
  *
  * @category    Mage
  * @package     Mage_Widget
@@ -56,10 +65,18 @@ class Mage_Widget_Model_Widget_Instance extends Mage_Core_Model_Abstract
     protected $_widgetConfigXml = null;
 
     /**
+     * Prefix of model events names
+     *
+     * @var string
+     */
+    protected $_eventPrefix = 'widget_widget_instance';
+
+    /**
      * Internal Constructor
      */
     protected function _construct()
     {
+        $this->_cacheTag = 'widget_instance';
         parent::_construct();
         $this->_init('widget/widget_instance');
         $this->_layoutHandles = array(
@@ -80,6 +97,20 @@ class Mage_Widget_Model_Widget_Instance extends Mage_Core_Model_Abstract
         }
     }
 
+     /**
+     * Init mapping array of short fields to
+     * its full names
+     *
+     * @return Varien_Object
+     */
+    protected function _initOldFieldsMap()
+    {
+        $this->_oldFieldsMap = array(
+            'type' => 'instance_type',
+        );
+        return $this;
+    }
+
     /**
      * Processing object before save data
      *
@@ -92,7 +123,6 @@ class Mage_Widget_Model_Widget_Instance extends Mage_Core_Model_Abstract
         $pageGroups = $this->getData('page_groups');
         if ($pageGroups) {
             foreach ($pageGroups as $pageGroup) {
-                $tmpPageGroup = array();
                 if (isset($pageGroup[$pageGroup['page_group']])) {
                     $pageGroupData = $pageGroup[$pageGroup['page_group']];
                     if ($pageGroupData['page_id']) {
@@ -137,6 +167,7 @@ class Mage_Widget_Model_Widget_Instance extends Mage_Core_Model_Abstract
         }
         $this->setData('page_groups', $tmpPageGroups);
         $this->setData('page_group_ids', $pageGroupIds);
+
         return parent::_beforeSave();
     }
 
@@ -212,7 +243,6 @@ class Mage_Widget_Model_Widget_Instance extends Mage_Core_Model_Abstract
     public function setPackageTheme($packageTheme)
     {
         $this->setData('package_theme', $packageTheme);
-        $this->_preparePackageTheme();
         return $this;
     }
 
@@ -224,20 +254,18 @@ class Mage_Widget_Model_Widget_Instance extends Mage_Core_Model_Abstract
      */
     public function getPackageTheme()
     {
-        $this->_preparePackageTheme();
         return $this->_getData('package_theme');
     }
 
     /**
      * Replace '_' to '/', if was set from request(GET request)
      *
+     * @deprecated after 1.6.1.0-alpha1
+     *
      * @return Mage_Widget_Model_Widget_Instance
      */
     protected function _preparePackageTheme()
     {
-        if (strpos($this->_getData('package_theme'), '_') >= 0) {
-            $this->setData('package_theme', str_replace('_', '/', $this->_getData('package_theme')));
-        }
         return $this;
     }
 
@@ -321,11 +349,11 @@ class Mage_Widget_Model_Widget_Instance extends Mage_Core_Model_Abstract
         if (is_string($this->getData('widget_parameters'))) {
             return unserialize($this->getData('widget_parameters'));
         }
-        return $this->getData('widget_parameters');
+        return (is_array($this->getData('widget_parameters'))) ? $this->getData('widget_parameters') : array();
     }
 
     /**
-     * Retrieve option arra of widget types
+     * Retrieve option array of widget types
      *
      * @return array
      */
@@ -451,7 +479,7 @@ class Mage_Widget_Model_Widget_Instance extends Mage_Core_Model_Abstract
      * Generate layout update xml
      *
      * @param string $blockReference
-     * @param string $position
+     * @param string $templatePath
      * @return string
      */
     public function generateLayoutUpdateXml($blockReference, $templatePath = '')
@@ -485,7 +513,7 @@ class Mage_Widget_Model_Widget_Instance extends Mage_Core_Model_Abstract
             if ($name && strlen((string)$value)) {
                 $xml .= '<action method="setData">'
                     . '<name>' . $name . '</name>'
-                    . '<value>' . Mage::helper('widget')->htmlEscape($value) . '</value>'
+                    . '<value>' . Mage::helper('widget')->escapeHtml($value) . '</value>'
                     . '</action>';
             }
         }

@@ -10,22 +10,25 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * Adminhtml menu block
+ *
+ * @method Mage_Adminhtml_Block_Page_Menu setAdditionalCacheKeyInfo(array $cacheKeyInfo)
+ * @method array getAdditionalCacheKeyInfo()
  *
  * @category   Mage
  * @package    Mage_Adminhtml
@@ -71,12 +74,18 @@ class Mage_Adminhtml_Block_Page_Menu extends Mage_Adminhtml_Block_Template
      */
     public function getCacheKeyInfo()
     {
-        return array(
+        $cacheKeyInfo = array(
             'admin_top_nav',
             $this->getActive(),
             Mage::getSingleton('admin/session')->getUser()->getId(),
             Mage::app()->getLocale()->getLocaleCode()
         );
+        // Add additional key parameters if needed
+        $additionalCacheKeyInfo = $this->getAdditionalCacheKeyInfo();
+        if (is_array($additionalCacheKeyInfo) && !empty($additionalCacheKeyInfo)) {
+            $cacheKeyInfo = array_merge($cacheKeyInfo, $additionalCacheKeyInfo);
+        }
+        return $cacheKeyInfo;
     }
 
     /**
@@ -132,7 +141,7 @@ class Mage_Adminhtml_Block_Page_Menu extends Mage_Adminhtml_Block_Template
             }
 
             $aclResource = 'admin/' . ($child->resource ? (string)$child->resource : $path . $childName);
-            if (!$this->_checkAcl($aclResource)) {
+            if (!$this->_checkAcl($aclResource) || !$this->_isEnabledModuleOutput($child)) {
                 continue;
             }
 
@@ -265,5 +274,54 @@ class Mage_Adminhtml_Block_Page_Menu extends Mage_Adminhtml_Block_Template
     {
         return Mage_Adminhtml_Model_Url::SECRET_KEY_PARAM_NAME . '/'
             . $this->_url->getSecretKey($match[1], $match[2]);
+    }
+
+    /**
+     * Get menu level HTML code
+     *
+     * @param array $menu
+     * @param int $level
+     * @return string
+     */
+    public function getMenuLevel($menu, $level = 0)
+    {
+        $html = '<ul ' . (!$level ? 'id="nav"' : '') . '>' . PHP_EOL;
+        foreach ($menu as $item) {
+            $html .= '<li ' . (!empty($item['children']) ? 'onmouseover="Element.addClassName(this,\'over\')" '
+                . 'onmouseout="Element.removeClassName(this,\'over\')"' : '') . ' class="'
+                . (!$level && !empty($item['active']) ? ' active' : '') . ' '
+                . (!empty($item['children']) ? ' parent' : '')
+                . (!empty($level) && !empty($item['last']) ? ' last' : '')
+                . ' level' . $level . '"> <a href="' . $item['url'] . '" '
+                . (!empty($item['title']) ? 'title="' . $item['title'] . '"' : '') . ' '
+                . (!empty($item['click']) ? 'onclick="' . $item['click'] . '"' : '') . ' class="'
+                . ($level === 0 && !empty($item['active']) ? 'active' : '') . '"><span>'
+                . $this->escapeHtml($item['label']) . '</span></a>' . PHP_EOL;
+
+            if (!empty($item['children'])) {
+                $html .= $this->getMenuLevel($item['children'], $level + 1);
+            }
+            $html .= '</li>' . PHP_EOL;
+        }
+        $html .= '</ul>' . PHP_EOL;
+
+        return $html;
+    }
+
+    /**
+     * Check is module output enabled
+     *
+     * @param Varien_Simplexml_Element $child
+     * @return bool
+     */
+    protected function _isEnabledModuleOutput(Varien_Simplexml_Element $child)
+    {
+        $helperName      = 'adminhtml';
+        $childAttributes = $child->attributes();
+        if (isset($childAttributes['module'])) {
+            $helperName  = (string)$childAttributes['module'];
+        }
+
+        return Mage::helper($helperName)->isModuleOutputEnabled();
     }
 }

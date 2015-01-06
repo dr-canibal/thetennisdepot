@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Archive
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -42,9 +42,19 @@ class Mage_Archive_Gz extends Mage_Archive_Abstract implements Mage_Archive_Inte
     */
     public function pack($source, $destination)
     {
-        $data = $this->_readFile($source);
-        $gzData = gzencode($data, 9);
-        $this->_writeFile($destination, $gzData);
+        $fileReader = new Mage_Archive_Helper_File($source);
+        $fileReader->open('r');
+
+        $archiveWriter = new Mage_Archive_Helper_File_Gz($destination);
+        $archiveWriter->open('wb9');
+
+        while (!$fileReader->eof()) {
+            $archiveWriter->write($fileReader->read());
+        }
+
+        $fileReader->close();
+        $archiveWriter->close();
+
         return $destination;
     }
 
@@ -57,21 +67,21 @@ class Mage_Archive_Gz extends Mage_Archive_Abstract implements Mage_Archive_Inte
     */
     public function unpack($source, $destination)
     {
-        $gzPointer = gzopen($source, 'r' );
-        if (empty($gzPointer)) {
-            throw new Mage_Exception('Can\'t open GZ archive : ' . $source);
-        }
-        $data = '';
-        while (!gzeof($gzPointer)) {
-            $data .= gzread($gzPointer, 131072);
-        }
-        gzclose($gzPointer);
         if (is_dir($destination)) {
             $file = $this->getFilename($source);
             $destination = $destination . $file;
         }
-        $this->_writeFile($destination, $data);
+
+        $archiveReader = new Mage_Archive_Helper_File_Gz($source);
+        $archiveReader->open('r');
+
+        $fileWriter = new Mage_Archive_Helper_File($destination);
+        $fileWriter->open('w');
+
+        while (!$archiveReader->eof()) {
+            $fileWriter->write($archiveReader->read());
+        }
+
         return $destination;
     }
-
 }

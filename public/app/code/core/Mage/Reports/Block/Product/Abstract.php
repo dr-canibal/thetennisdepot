@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Reports
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 
@@ -54,6 +54,20 @@ abstract class Mage_Reports_Block_Product_Abstract extends Mage_Catalog_Block_Pr
      * @var Mage_Reports_Model_Mysql4_Product_Index_Collection_Abstract
      */
     protected $_collection;
+
+    /**
+     * Defines whether specified products ids order should be used
+     *
+     * @var bool
+     */
+    protected $_useProductIdsOrder = false;
+
+    /**
+     * Default product amount per row
+     *
+     * @var int
+     */
+    protected $_defaultColumnCount = 5;
 
     /**
      * Retrieve page size
@@ -97,9 +111,19 @@ abstract class Mage_Reports_Block_Product_Abstract extends Mage_Catalog_Block_Pr
     }
 
     /**
+     * Public method for retrieve Product Index model
+     *
+     * @return Mage_Reports_Model_Product_Index_Abstract
+     */
+    public function getModel()
+    {
+        return $this->_getModel();
+    }
+
+    /**
      * Retrieve Index Product Collection
      *
-     * @return Mage_Reports_Model_Mysql4_Product_Index_Collection_Abstract
+     * @return Mage_Reports_Model_Resource_Product_Index_Collection_Abstract
      */
     public function getItemsCollection()
     {
@@ -108,11 +132,16 @@ abstract class Mage_Reports_Block_Product_Abstract extends Mage_Catalog_Block_Pr
 
             $this->_collection = $this->_getModel()
                 ->getCollection()
-                ->addAttributeToSelect($attributes)
-                ->excludeProductIds($this->_getModel()->getExcludeProductIds())
-                ->addUrlRewrite()
-                ->setPageSize($this->getPageSize())
-                ->setCurPage(1);
+                ->addAttributeToSelect($attributes);
+
+                if ($this->getCustomerId()) {
+                    $this->_collection->setCustomerId($this->getCustomerId());
+                }
+
+                $this->_collection->excludeProductIds($this->_getModel()->getExcludeProductIds())
+                    ->addUrlRewrite()
+                    ->setPageSize($this->getPageSize())
+                    ->setCurPage(1);
 
             /* Price data is added to consider item stock status using price index */
             $this->_collection->addPriceData();
@@ -124,12 +153,27 @@ abstract class Mage_Reports_Block_Product_Abstract extends Mage_Catalog_Block_Pr
                 $this->_collection->addFilterByIds($ids);
             }
             $this->_collection->setAddedAtOrder();
+            if ($this-> _useProductIdsOrder && is_array($ids)) {
+                $this->_collection->setSortIds($ids);
+            }
 
             Mage::getSingleton('catalog/product_visibility')
                 ->addVisibleInSiteFilterToCollection($this->_collection);
         }
 
         return $this->_collection;
+    }
+
+    /**
+     * Set flag that defines whether products ids order should be used
+     *
+     * @param bool $use
+     * @return Mage_Reports_Block_Product_Abstract
+     */
+    public function useProductIdsOrder($use = true)
+    {
+        $this->_useProductIdsOrder = $use;
+        return $this;
     }
 
     /**

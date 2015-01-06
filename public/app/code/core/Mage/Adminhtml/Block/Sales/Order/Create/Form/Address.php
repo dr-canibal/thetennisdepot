@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -31,7 +31,8 @@
  * @package     Mage_Adminhtml
  * @author      Magento Core Team <core@magentocommerce.com>
  */
-class Mage_Adminhtml_Block_Sales_Order_Create_Form_Address extends Mage_Adminhtml_Block_Sales_Order_Create_Form_Abstract
+class Mage_Adminhtml_Block_Sales_Order_Create_Form_Address
+    extends Mage_Adminhtml_Block_Sales_Order_Create_Form_Abstract
 {
     /**
      * Customer Address Form instance
@@ -83,7 +84,9 @@ class Mage_Adminhtml_Block_Sales_Order_Create_Form_Address extends Mage_Adminhtm
 
         foreach ($this->getAddressCollection() as $address) {
             $addressForm->setEntity($address);
-            $data[$address->getId()] = $addressForm->outputData(Mage_Customer_Model_Attribute_Data::OUTPUT_FORMAT_JSON);
+            $data[$address->getId()] = $addressForm->outputData(
+                Mage_Customer_Model_Attribute_Data::OUTPUT_FORMAT_JSON
+            );
         }
         return Mage::helper('core')->jsonEncode($data);
     }
@@ -105,7 +108,12 @@ class Mage_Adminhtml_Block_Sales_Order_Create_Form_Address extends Mage_Adminhtm
         $addressForm = $this->_getAddressForm()
             ->setEntity($addressModel);
 
-        $this->_addAttributesToForm($addressForm->getAttributes(), $fieldset);
+        $attributes = $addressForm->getAttributes();
+        if(isset($attributes['street'])) {
+            Mage::helper('adminhtml/addresses')
+                ->processStreetAttribute($attributes['street']);
+        }
+        $this->_addAttributesToForm($attributes, $fieldset);
 
         $prefixElement = $this->_form->getElement('prefix');
         if ($prefixElement) {
@@ -149,9 +157,27 @@ class Mage_Adminhtml_Block_Sales_Order_Create_Form_Address extends Mage_Adminhtm
 
         $this->_form->setValues($this->getFormValues());
 
-        if (!$this->_form->getElement('country_id')->getValue()) {
+        if ($this->_form->getElement('country_id')->getValue()) {
+            $countryId = $this->_form->getElement('country_id')->getValue();
+            $this->_form->getElement('country_id')->setValue(null);
+            foreach ($this->_form->getElement('country_id')->getValues() as $country) {
+                if ($country['value'] == $countryId) {
+                    $this->_form->getElement('country_id')->setValue($countryId);
+                }
+            }
+        }
+        if (is_null($this->_form->getElement('country_id')->getValue())) {
             $this->_form->getElement('country_id')->setValue(
                 Mage::helper('core')->getDefaultCountry($this->getStore())
+            );
+        }
+
+        // Set custom renderer for VAT field if needed
+        $vatIdElement = $this->_form->getElement('vat_id');
+        if ($vatIdElement && $this->getDisplayVatValidationButton() !== false) {
+            $vatIdElement->setRenderer(
+                $this->getLayout()->createBlock('adminhtml/customer_sales_order_address_form_renderer_vat')
+                    ->setJsVariablePrefix($this->getJsVariablePrefix())
             );
         }
 
@@ -190,6 +216,6 @@ class Mage_Adminhtml_Block_Sales_Order_Create_Form_Address extends Mage_Adminhtm
      */
     public function getAddressAsString($address)
     {
-        return $this->htmlEscape($address->format('oneline'));
+        return $this->escapeHtml($address->format('oneline'));
     }
 }

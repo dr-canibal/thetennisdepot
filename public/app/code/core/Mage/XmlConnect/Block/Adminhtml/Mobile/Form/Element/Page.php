@@ -10,24 +10,31 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_XmlConnect
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+/**
+ * XmlConnect page form element
+ *
+ * @category    Mage
+ * @package     Mage_XmlConnect
+ * @author      Magento Core Team <core@magentocommerce.com>
+ */
 class Mage_XmlConnect_Block_Adminhtml_Mobile_Form_Element_Page extends Varien_Data_Form_Element_Abstract
 {
     /**
-     * Enter description here...
+     * Init page element
      *
      * @param array $attributes
      */
@@ -45,8 +52,8 @@ class Mage_XmlConnect_Block_Adminhtml_Mobile_Form_Element_Page extends Varien_Da
     public function initFields($conf)
     {
         $this->addElement(new Varien_Data_Form_Element_Text(array(
-            'name'          => $conf['name'] . '[label]',
-            'class'         => 'label onclick_text',
+            'name'  => $conf['name'] . '[label]',
+            'class' => 'label onclick_text',
         )));
 
         $this->addElement(new Varien_Data_Form_Element_Select(array(
@@ -59,10 +66,10 @@ class Mage_XmlConnect_Block_Adminhtml_Mobile_Form_Element_Page extends Varien_Da
      * Add form element
      *
      * @param Varien_Data_Form_Element_Abstract $element
-     * @param boolean|'^'|string $after
+     * @param boolean|string $after also can be '^'
      * @return Varien_Data_Form
      */
-    public function addElement(Varien_Data_Form_Element_Abstract $element, $after=false)
+    public function addElement(Varien_Data_Form_Element_Abstract $element, $after = false)
     {
         $element->setId($element->getData('name'));
         parent::addElement($element, $after);
@@ -82,7 +89,7 @@ class Mage_XmlConnect_Block_Adminhtml_Mobile_Form_Element_Page extends Varien_Da
     }
 
     /**
-     * Gettter for second part of rendered field ("selectbox" and "delete button")
+     * Getter for second part of rendered field ("selectbox" and "delete button")
      * fetching second element as <element code>
      *
      * @return string

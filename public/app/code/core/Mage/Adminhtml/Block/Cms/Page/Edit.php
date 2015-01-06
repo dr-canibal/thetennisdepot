@@ -10,18 +10,18 @@
  * http://opensource.org/licenses/osl-3.0.php
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * to license@magento.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * needs please refer to http://www.magento.com for more information.
  *
  * @category    Mage
  * @package     Mage_Adminhtml
- * @copyright   Copyright (c) 2010 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @copyright  Copyright (c) 2006-2014 X.commerce, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -29,14 +29,18 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
- * @author      Magento Core Team <core@magentocommerce.com>
+ * @author     Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_Block_Cms_Page_Edit extends Mage_Adminhtml_Block_Widget_Form_Container
 {
-
+    /**
+     * Initialize cms page edit block
+     *
+     * @return void
+     */
     public function __construct()
     {
-        $this->_objectId = 'page_id';
+        $this->_objectId   = 'page_id';
         $this->_controller = 'cms_page';
 
         parent::__construct();
@@ -57,7 +61,6 @@ class Mage_Adminhtml_Block_Cms_Page_Edit extends Mage_Adminhtml_Block_Widget_For
         } else {
             $this->_removeButton('delete');
         }
-
     }
 
     /**
@@ -68,7 +71,7 @@ class Mage_Adminhtml_Block_Cms_Page_Edit extends Mage_Adminhtml_Block_Widget_For
     public function getHeaderText()
     {
         if (Mage::registry('cms_page')->getId()) {
-            return Mage::helper('cms')->__("Edit Page '%s'", $this->htmlEscape(Mage::registry('cms_page')->getTitle()));
+            return Mage::helper('cms')->__("Edit Page '%s'", $this->escapeHtml(Mage::registry('cms_page')->getTitle()));
         }
         else {
             return Mage::helper('cms')->__('New Page');
@@ -95,24 +98,26 @@ class Mage_Adminhtml_Block_Cms_Page_Edit extends Mage_Adminhtml_Block_Widget_For
     protected function _getSaveAndContinueUrl()
     {
         return $this->getUrl('*/*/save', array(
-            '_current'  => true,
-            'back'      => 'edit',
-            'active_tab'       => '{{tab_id}}'
+            '_current'   => true,
+            'back'       => 'edit',
+            'active_tab' => '{{tab_id}}'
         ));
     }
 
     /**
-     * @see Mage_Adminhtml_Block_Widget_Container::_prepareLayout()
+     * Prepare layout
+     *
+     * @return Mage_Core_Block_Abstract
      */
     protected function _prepareLayout()
     {
         $tabsBlock = $this->getLayout()->getBlock('cms_page_edit_tabs');
         if ($tabsBlock) {
             $tabsBlockJsObject = $tabsBlock->getJsObjectName();
-            $tabsBlockPrefix = $tabsBlock->getId() . '_';
+            $tabsBlockPrefix   = $tabsBlock->getId() . '_';
         } else {
             $tabsBlockJsObject = 'page_tabsJsTabs';
-            $tabsBlockPrefix = 'page_tabs_';
+            $tabsBlockPrefix   = 'page_tabs_';
         }
 
         $this->_formScripts[] = "
@@ -137,6 +142,4 @@ class Mage_Adminhtml_Block_Cms_Page_Edit extends Mage_Adminhtml_Block_Widget_For
         ";
         return parent::_prepareLayout();
     }
-
-
 }
