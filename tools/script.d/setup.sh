@@ -84,7 +84,13 @@ else
 fi
 
 ## Step 5: Run system setup
+cd $MAGENTO_ROOT && mkdir var && chmod -R 777 media && chmod -R 777 var
+cp -f $PROJECT_ROOT/conf/local.$ENV.xml app/etc/local.xml
 
+cp -f $MEDIA_DUMP_FILE ./
+gunzip $DATE.gz
+
+$MAGERUN_CMD sys:setup:run
 
 ## Step 6: Post upgrade events
 ##
