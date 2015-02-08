@@ -83,18 +83,8 @@ else
     MEDIA_DUMP_FILE="$SSH_FOLDER/dump/$DATE.gz";
 fi
 
-## Step 5: Load code from repo
-if test "$ENV" = "local"; then
-    echo "Skipping code pull"
-else
-    echo "Pulling latest code updates";
-
-    cd $MAGENTO_ROOT;
-    eval "git pull origin master";
-fi
-
-## Step 6: Run system setup
+## Step 5: Run system setup
 
 
-## Step 7: Post upgrade events
+## Step 6: Post upgrade events
 ##
