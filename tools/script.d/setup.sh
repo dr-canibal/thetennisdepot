@@ -46,7 +46,20 @@ fi
 
 echo "Dump file is stored at $DUMP_FILE";
 
-## Step 2: Load database dump to new database
+## Step 2: Clean target database
+echo "Dropping all existing tables";
+if test "$DB_DUMP_OVER_SSH" = "true"; then
+    TMP_SQL_FILE="$LOCAL_DUMP_FOLDER/$DATE.tmp.sql";
+else
+    TMP_SQL_FILE="$SSH_FOLDER/dump/$DATE.tmp.sql";
+fi
+
+echo "SET FOREIGN_KEY_CHECKS = 0;" > $TMP_SQL_FILE; \
+mysqldump -u $DB_USER -p$DB_PASSWORD -h $DB_HOST --add-drop-table --no-data $DB_NAME | grep ^DROP >> $TMP_SQL_FILE; \
+echo "SET FOREIGN_KEY_CHECKS = 1;" >> $TMP_SQL_FILE; \
+mysql -u $DB_USER -p$DB_PASSWORD -h $DB_HOST $DB_NAME < $TMP_SQL_FILE;
+
+## Step 3: Load database dump to new database
 IMPORT_CMD="gzip -dc < $DUMP_FILE | mysql -h $DB_HOST -u $DB_USER -p$DB_PASSWORD $DB_NAME";
 
 echo "Loading original database dump";
@@ -55,7 +68,7 @@ if test "$DB_DUMP_OVER_SSH" = "true"; then
     eval $IMPORT_CMD;
 fi
 
-## Step 3: Do database cleanup
+## Step 4: Do database cleanup
 echo "Cleaning up original database";
 
 SQL1="DELETE FROM dxov_sales_flat_invoice WHERE increment_id LIKE '%INV_%' and base_grand_total=0";
@@ -66,31 +79,35 @@ MYSQL_CMD2='mysql -u $DB_USER -p$DB_PASSWORD -h $DB_HOST $DB_NAME -e "$SQL2"';
 eval $MYSQL_CMD1;
 eval $MYSQL_CMD2;
 
-## Step 4: Backup production media
+## Step 5: Backup production media
 echo "Dumping media";
-
-DUMP_CMD="$PROD_MAGERUN_CMD media:dump --strip --root-dir $SSH_FOLDER/thetennisdepot.com/html $SSH_FOLDER/dump/$DATE.gz"
 
 if test "$DB_DUMP_OVER_SSH" = "true"; then
     echo "Dumping over SSH";
-    ssh -l $SSH_USER $SSH_HOST "$DUMP_CMD";
-    echo "Downloading media dump";
-    rsync -avzhe ssh $SSH_USER@$SSH_HOST:$SSH_FOLDER/dump/$DATE.gz $LOCAL_DUMP_FOLDER/
-    MEDIA_DUMP_FILE="$LOCAL_DUMP_FOLDER/$DATE.gz";
+    rsync --progress -avzhe ssh $SSH_USER@$SSH_HOST:$SSH_FOLDER/thetennisdepot.com/html/media $MAGENTO_ROOT/
 else
     echo "Raw dumping";
-    eval $DUMP_CMD;
-    MEDIA_DUMP_FILE="$SSH_FOLDER/dump/$DATE.gz";
+    rsync --progress -avz $SSH_FOLDER/thetennisdepot.com/html/media $MAGENTO_ROOT/
 fi
 
-## Step 5: Run system setup
-cd $MAGENTO_ROOT && mkdir var && chmod -R 777 media && chmod -R 777 var
+## Step 6: Run system setup
+## cd $MAGENTO_ROOT && chmod -R 777 media && chmod -R 777 var
+cd $MAGENTO_ROOT; ## && chmod -R 777 media && chmod -R 777 var
 cp -f $PROJECT_ROOT/conf/local.$ENV.xml app/etc/local.xml
 
-cp -f $MEDIA_DUMP_FILE ./
-gunzip $DATE.gz
+$MAGERUN_CMD config:set "web/unsecure/base_url" "$UNSECURE_URL" --scope="default" --scode-id="0"
+$MAGERUN_CMD config:set "web/secure/base_url" "$SECURE_URL" --scope="default" --scode-id="0"
+
+$MAGERUN_CMD config:set "web/unsecure/base_url" "$UNSECURE_URL/badminton/" --scope="stores" --scode-id="2"
+$MAGERUN_CMD config:set "web/secure/base_url" "$SECURE_URL/badminton/" --scope="stores" --scode-id="2"
+
+$MAGERUN_CMD config:set "web/unsecure/base_url" "$UNSECURE_URL/squash/" --scope="stores" --scode-id="3"
+$MAGERUN_CMD config:set "web/secure/base_url" "$SECURE_URL/squash/" --scope="stores" --scode-id="3"
+
+$MAGERUN_CMD config:set "web/unsecure/base_url" "$UNSECURE_URL/beachtennis/" --scope="stores" --scode-id="4"
+$MAGERUN_CMD config:set "web/secure/base_url" "$SECURE_URL/beachtennis/" --scope="stores" --scode-id="4"
 
 $MAGERUN_CMD sys:setup:run
 
-## Step 6: Post upgrade events
+## Step 7: Post upgrade events
 ##
