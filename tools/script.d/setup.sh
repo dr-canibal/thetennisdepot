@@ -19,7 +19,7 @@ source "./config/default.cfg"
 source "./config/$ENV.cfg";
 
 ## Step 1: Create production database dump
-DUMP_CMD1="mysqldump --single-transaction --quick --routines --no-data -h $PROD_DB_HOST -u $PROD_DB_USER -p$PROD_DB_PASSWORD $PROD_DB_NAME dxov_log_url dxov_log_url_info dxov_log_visitor dxov_log_visitor_info dxov_log_customer dxov_log_quote dxov_log_summary dxov_log_visitor_online dxov_report_compared_product_index dxov_report_viewed_product_index | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | gzip -c > $SSH_FOLDER/dump/$DATE.sql.gz";
+DUMP_CMD1="mysqldump --single-transaction --quick --routines --no-data -h $PROD_DB_HOST -u $PROD_DB_USER -p$PROD_DB_PASSWORD $PROD_DB_NAME dxov_log_url dxov_log_url_info dxov_log_visitor dxov_log_visitor_info dxov_log_customer dxov_log_quote dxov_log_summary dxov_log_visitor_online dxov_report_event dxov_report_compared_product_index dxov_report_viewed_product_index | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | gzip -c > $SSH_FOLDER/dump/$DATE.sql.gz";
 DUMP_CMD2="mysqldump --single-transaction --quick --routines --ignore-table=$PROD_DB_NAME.dxov_log_url --ignore-table=$PROD_DB_NAME.dxov_log_url_info --ignore-table=$PROD_DB_NAME.dxov_log_visitor --ignore-table=$PROD_DB_NAME.dxov_log_visitor_info --ignore-table=$PROD_DB_NAME.dxov_log_visitor_online --ignore-table=$PROD_DB_NAME.dxov_log_customer --ignore-table=$PROD_DB_NAME.dxov_log_quote --ignore-table=$PROD_DB_NAME.dxov_log_summary --ignore-table=$PROD_DB_NAME.dxov_report_compared_product_index --ignore-table=$PROD_DB_NAME.dxov_report_event --ignore-table=$PROD_DB_NAME.dxov_report_viewed_product_index -h $PROD_DB_HOST -u $PROD_DB_USER -p$PROD_DB_PASSWORD $PROD_DB_NAME | sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/' | gzip -c >> $SSH_FOLDER/dump/$DATE.sql.gz"
 
 if test "$DB_DUMP_OVER_SSH" = "true"; then
@@ -46,6 +46,8 @@ fi
 
 echo "Dump file is stored at $DUMP_FILE";
 
+## read -p "Press any key to continue... " -n1 -s
+
 ## Step 2: Clean target database
 echo "Dropping all existing tables";
 if test "$DB_DUMP_OVER_SSH" = "true"; then
@@ -59,14 +61,18 @@ mysqldump -u $DB_USER -p$DB_PASSWORD -h $DB_HOST --add-drop-table --no-data $DB_
 echo "SET FOREIGN_KEY_CHECKS = 1;" >> $TMP_SQL_FILE; \
 mysql -u $DB_USER -p$DB_PASSWORD -h $DB_HOST $DB_NAME < $TMP_SQL_FILE;
 
+## read -p "Press any key to continue... " -n1 -s
+
 ## Step 3: Load database dump to new database
 IMPORT_CMD="gzip -dc < $DUMP_FILE | mysql -h $DB_HOST -u $DB_USER -p$DB_PASSWORD $DB_NAME";
 
 echo "Loading original database dump";
 
-if test "$DB_DUMP_OVER_SSH" = "true"; then
+## if test "$DB_DUMP_OVER_SSH" = "true"; then
     eval $IMPORT_CMD;
-fi
+## fi
+
+## read -p "Press any key to continue... " -n1 -s
 
 ## Step 4: Do database cleanup
 echo "Cleaning up original database";
@@ -95,19 +101,22 @@ fi
 cd $MAGENTO_ROOT; ## && chmod -R 777 media && chmod -R 777 var
 cp -f $PROJECT_ROOT/conf/local.$ENV.xml app/etc/local.xml
 
-$MAGERUN_CMD config:set "web/unsecure/base_url" "$UNSECURE_URL" --scope="default" --scode-id="0"
-$MAGERUN_CMD config:set "web/secure/base_url" "$SECURE_URL" --scope="default" --scode-id="0"
+$MAGERUN_CMD config:set "web/unsecure/base_url" "$UNSECURE_URL/" --scope="default" --scope-id="0"
+$MAGERUN_CMD config:set "web/secure/base_url" "$SECURE_URL/" --scope="default" --scope-id="0"
 
-$MAGERUN_CMD config:set "web/unsecure/base_url" "$UNSECURE_URL/badminton/" --scope="stores" --scode-id="2"
-$MAGERUN_CMD config:set "web/secure/base_url" "$SECURE_URL/badminton/" --scope="stores" --scode-id="2"
+$MAGERUN_CMD config:set "web/unsecure/base_url" "$UNSECURE_URL/badminton/" --scope="stores" --scope-id="2"
+$MAGERUN_CMD config:set "web/secure/base_url" "$SECURE_URL/badminton/" --scope="stores" --scope-id="2"
 
-$MAGERUN_CMD config:set "web/unsecure/base_url" "$UNSECURE_URL/squash/" --scope="stores" --scode-id="3"
-$MAGERUN_CMD config:set "web/secure/base_url" "$SECURE_URL/squash/" --scope="stores" --scode-id="3"
+$MAGERUN_CMD config:set "web/unsecure/base_url" "$UNSECURE_URL/squash/" --scope="stores" --scope-id="3"
+$MAGERUN_CMD config:set "web/secure/base_url" "$SECURE_URL/squash/" --scope="stores" --scope-id="3"
 
-$MAGERUN_CMD config:set "web/unsecure/base_url" "$UNSECURE_URL/beachtennis/" --scope="stores" --scode-id="4"
-$MAGERUN_CMD config:set "web/secure/base_url" "$SECURE_URL/beachtennis/" --scope="stores" --scode-id="4"
+$MAGERUN_CMD config:set "web/unsecure/base_url" "$UNSECURE_URL/beachtennis/" --scope="stores" --scope-id="4"
+$MAGERUN_CMD config:set "web/secure/base_url" "$SECURE_URL/beachtennis/" --scope="stores" --scope-id="4"
 
-$MAGERUN_CMD sys:setup:run
+$MAGERUN_CMD sys:setup:run -vvv >> setup.log
 
 ## Step 7: Post upgrade events
+$MAGERUN_CMD index:reindex:all
+$MAGERUN_CMD cache:clean
+$MAGERUN_CMD cache:flush
 ##
