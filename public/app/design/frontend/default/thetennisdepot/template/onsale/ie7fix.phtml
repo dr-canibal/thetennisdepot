@@ -1,0 +1,31 @@
+<?php
+    /**
+     * aheadWorks Co.
+     *
+     * NOTICE OF LICENSE
+     *
+     * This source file is subject to the EULA
+     * that is bundled with this package in the file LICENSE.txt.
+     * It is also available through the world-wide-web at this URL:
+     * http://ecommerce.aheadworks.com/LICENSE-M1.txt
+     *
+     * @category   AW
+     * @package    AW_Onsale
+     * @copyright  Copyright (c) 2009-2010 aheadWorks Co. (http://www.aheadworks.com)
+     * @license    http://ecommerce.aheadworks.com/LICENSE-M1.txt
+     */
+?>
+<?php if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 7.0') !== false): ?>
+<script language="JavaScript">
+	window.onload = function()
+	{
+		var elems = document.getElementsByTagName('table')
+		for(var i=0; i < elems.length; i++){
+			if (elems[i].className == 'onsale-category-container'){
+				elems[i].setAttribute('width', '99%');
+				elems[i].setAttribute('width', '100%');
+			}
+		}
+	};
+</script>
+<?php endif; ?>

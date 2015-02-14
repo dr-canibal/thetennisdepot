@@ -1,0 +1,35 @@
+<?php $_items = $this->getReviewsCollection()->getItems();?>
+<?php if (count($_items)):?>
+<div class="padder">
+    
+    <ol>
+        <?php foreach ($_items as $_review):?>
+            <li>
+                <a href="review/product/view/id/<?php echo ($_review->getId()) ?>"><strong><?php echo $this->htmlEscape($_review->getTitle()) ?></strong></a> <?php echo $this->__('Review by %s', $this->htmlEscape($_review->getNickname())) ?>
+                <table class="ratings-list" cellspacing="0">
+                    <tbody>
+                        <?php foreach ($_review->getRatingVotes() as $_vote): ?>
+                        <tr>
+                            <td class="label"><strong><?php echo $_vote->getRatingCode() ?></strong></td>
+                            <td>
+                                <div class="rating-box">
+                                    <div class="rating" style="width: <?php echo $_vote->getPercent() ?>%;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <p><?php echo nl2br($this->htmlEscape($_review->getDetail())) ?> <?php echo $this->__('(Posted on %s)', $this->formatDate($_review->getCreatedAt()), 'long') ?></p>
+            </li>
+        <?php endforeach; ?>
+    </ol>       
+
+</div>
+<?php endif;?>
+
+<br/>
+<div class="page-head">
+    <h3><?php echo $this->__('Write Your Own Review');?></h3>
+</div>
+<?php echo $this->getLayout()->createBlock('review/form')->setBlockId('')->toHtml() ?> 

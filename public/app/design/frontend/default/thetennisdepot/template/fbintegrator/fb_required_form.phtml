@@ -1,0 +1,120 @@
+<div class="fb-fb_required_form">
+    <?php $fields = Mage::helper('fbintegrator')->getRequiredFields();?>
+    <h1><?php echo $this->__('Create an Account') ?></h1>
+    <form id="form-validate" method="post" action="<?php echo $this->getConnectUrl()?>">
+        <input type="hidden" name="from-required-form" value="1">
+        <?php if(Mage::helper('fbintegrator')->checkVersion('1.4.0.0')):?>
+        <div class="fieldset">
+            <h2 class="legend"><?php echo $this->__('Personal Information') ?></h2>
+            <ul class="form-list">
+                <?php if($fields['prefix']['required']==1 || $fields['suffix']['required']==1):?>
+                <li class="fields">
+                    <div class="customer-name-prefix-middlename-suffix">
+                        <?php if($fields['prefix']['required']==1):?>
+                        <div class="field name-prefix"> 
+                        <label class="required" for="prefix"><em>*</em><?php echo $this->__('Prefix') ?></label>
+                            <div class="input-box">
+                                <?php if(reset($fields['prefix']['values'])!=''):?>
+                                <select class="required-entry" title="<?php echo $this->__('Prefix') ?>" name="prefix" id="prefix">
+                                    <?php foreach($fields['prefix']['values'] as $item):?>
+                                        <option value="<?php echo $item?>"><?php echo $item?></option>
+                                    <?php endforeach;?>
+                                </select>
+                                <?php else:?>
+                                    <input type="text" class="input-text required-entry" title="<?php echo $this->__('Prefix') ?>" value="" name="prefix" id="prefix">
+                                <?php endif;?>
+                            </div>
+                        </div>
+                        <?php endif;?>
+                        <?php if($fields['suffix']['required']==1):?>
+                        <div class="field name-suffix">
+                        <label class="required" for="suffix"><em>*</em><?php echo $this->__('Suffix') ?></label>
+                            <div class="input-box">
+                                <?php if(reset($fields['suffix']['values'])!=''):?>
+                                <select class="required-entry" title="<?php echo $this->__('Suffix') ?>" name="suffix" id="suffix">
+                                    <?php foreach($fields['suffix']['values'] as $item):?>
+                                        <option value="<?php echo $item?>"><?php echo $item?></option>
+                                    <?php endforeach;?>
+                                </select>
+                                <?php else:?>
+                                    <input type="text" class="input-text required-entry" title="<?php echo $this->__('Suffix') ?>" value="" name="suffix" id="suffix">
+                                <?php endif;?>
+                            </div>
+                        </div>
+                        <?php endif;?>
+                    </div>
+                </li>
+                <?php endif;?>
+                <?php if($fields['taxvat']['required']==1):?>
+                <li><label class="required" for="taxvat"><em>*</em><?php echo $this->__('Tax/VAT number') ?></label>
+                    <div class="input-box">
+                        <input type="text" class="input-text required-entry" title="<?php echo $this->__('Tax/VAT number') ?>" value="" name="taxvat" id="taxvat">
+                    </div>
+                </li>
+                <?php endif;?>
+            </ul>
+        </div>
+        <div class="buttons-set">
+            <p class="required">* <?php echo $this->__('Required Fields') ?></p>
+            <button class="button" title="<?php echo $this->__('Submit') ?>" type="submit"><span><span><?php echo $this->__('Submit') ?></span></span></button>
+        </div>
+        <?php else:?>
+            <fieldset class="group-select wide">
+                <h4 class="legend"><?php echo $this->__('Personal Information') ?></h4>
+                <ul>
+                    <?php if($fields['prefix']['required']==1 || $fields['suffix']['required']==1):?>
+                    <li>
+                        <div class="customer-name-prefix-suffix">
+                            <?php if($fields['prefix']['required']==1):?>
+                            <div class="input-box name-prefix">
+                                <label for="prefix"><?php echo $this->__('Prefix') ?> <span class="required">*</span></label><br>
+                                <?php if(reset($fields['prefix']['values'])!=''):?>
+                                <select class="required-entry" title="<?php echo $this->__('Prefix') ?>" name="prefix" id="prefix">
+                                    <?php foreach($fields['prefix']['values'] as $item):?>
+                                        <option value="<?php echo $item?>"><?php echo $item?></option>
+                                    <?php endforeach;?>
+                                </select>
+                                <?php else:?>
+                                    <input type="text" class="required-entry input-text" title="<?php echo $this->__('Prefix') ?>" value="" name="prefix" id="prefix">
+                                <?php endif;?>
+                            </div>
+                            <?php endif;?>
+                            <?php if($fields['suffix']['required']==1):?>
+                            <div class="input-box name-suffix">
+                                <label for="suffix"><?php echo $this->__('Suffix') ?> <span class="required">*</span></label><br>
+                                <?php if(reset($fields['suffix']['values'])!=''):?>
+                                <select class="required-entry" title="<?php echo $this->__('Suffix') ?>" name="prefix" id="prefix">
+                                    <?php foreach($fields['suffix']['values'] as $item):?>
+                                        <option value="<?php echo $item?>"><?php echo $item?></option>
+                                    <?php endforeach;?>
+                                </select>
+                                <?php else:?>
+                                    <input type="text" class="required-entry input-text" title="<?php echo $this->__('Suffix') ?>" value="" name="suffix" id="suffix">
+                                <?php endif;?>
+                            </div>
+                            <?php endif;?>
+                        </div>
+                    </li>
+                    <?php endif;?>
+                    <?php if($fields['taxvat']['required']==1):?>
+                    <li>
+                        <div class="input-box taxvat">
+                            <label for="taxvat"><?php echo $this->__('Tax/VAT number') ?> <span class="required">*</span></label><br>
+                            <input type="text" class="required-entry input-text" title="<?php echo $this->__('Tax/VAT number') ?>" value="" name="taxvat" id="taxvat">
+                        </div>
+                    </li>
+                    <?php endif;?>
+                </ul>
+            </fieldset>
+            <div class="button-set">
+                <p class="required">* <?php echo $this->__('Required Fields') ?></p>
+                <button type="submit" class="form-button"><span><?php echo $this->__('Submit') ?></span></button>
+            </div>
+        <?php endif;?>
+    </form>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+    var dataForm = new VarienForm('form-validate', true);
+//]]>
+</script>

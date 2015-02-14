@@ -1,0 +1,55 @@
+<?php
+    /**
+     * aheadWorks Co.
+     *
+     * NOTICE OF LICENSE
+     *
+     * This source file is subject to the EULA
+     * that is bundled with this package in the file LICENSE.txt.
+     * It is also available through the world-wide-web at this URL:
+     * http://ecommerce.aheadworks.com/LICENSE-M1.txt
+     *
+     * @category   AW
+     * @package    AW_Onsale
+     * @copyright  Copyright (c) 2009-2010 aheadWorks Co. (http://www.aheadworks.com)
+     * @license    http://ecommerce.aheadworks.com/LICENSE-M1.txt
+     */
+?>
+<?php if ( $this->isShow() ): ?>
+    <a href="<?php echo $this->getProduct()->getProductUrl() ?>">
+    <?php $__Position = $this->getPosition(); ?>	
+    <table onclick="window.location = '<?php echo $this->getProduct()->getProductUrl() ?>';"  id="onsale-table-<?php echo $this->getTableId(); ?>" cellspacing="0" cellpadding="0" class="onsale-category-container" style="
+            FLOAT: left;  RIGHT: 0px; WIDTH: 100%;
+            <?php if (in_array($__Position, array('TL', 'TC', 'TR'))): ?>TOP: 0px;<?php endif; ?>
+            <?php if (in_array($__Position, array('BL', 'BC', 'BR'))): ?>BOTTOM: 0px;<?php endif; ?>
+    ">
+            <tr>
+				<td width="100%">
+					<div align="<?php if (($__Position == 'TC') or ($__Position == 'BC')) print 'center'; if (($__Position == 'TR') or ($__Position == 'BR')) print 'right'; ?>">
+                            <div class="onsale-category-label-image" style="<?php print $this->getImageSizeHtmlList(); ?> BACKGROUND-IMAGE: url('<?php print $this->getImageUrl(); ?>');">
+								<table class="<?php echo  $this->getType() ?>-onsale-category-label-text" cellspacing="0" cellpadding="0" style="WIDTH: 100%; HEIGHT: 100%;">
+                                            <tr>
+                                                    <td align="center" valign="middle">
+                                                            <?php print $this->getFormatedText() ?>
+                                                    </td>
+                                            </tr>
+                                    </table>
+                            </div>
+						</div>							
+                    </td>
+            </tr>
+    </table>
+    <?php if ($this->getShowOnceFlag()): ?>
+        <?php $this->resetShowOnceFlag(); ?>
+        <?php if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)): ?>
+                <style type="text/css">
+                        DIV.onsale-category-container * { MARGIN: 0px; }
+                </style>
+        <?php endif; ?>
+        <style type="text/css">DIV.product-image {WIDTH: auto !important;}</style>
+        <?php if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6.0') !== false)): ?>
+                <style type="text/css">DIV.onsale-category-container-list DIV.product-image { FLOAT: none; }</style>
+        <?php endif; ?>
+    <?php endif; ?>
+    </a>
+<?php endif; ?>
