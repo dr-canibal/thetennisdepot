@@ -6,5 +6,7 @@ public/media/.thumbs
 public/media/.tumbs/*
 public/downloader/cache.cfg
 public/downloader/connect.cfg
+public/downloader/.cache
+public/downloader/.cache/*
 backup
 backup/*
