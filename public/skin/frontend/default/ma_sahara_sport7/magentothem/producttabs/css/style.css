@@ -1,0 +1,67 @@
+/* Add by DVN */
+.producttabs .tab-title {
+	display: none;
+}
+.producttabs { margin: 35px 0 0;}
+.box-tabs-title {
+    background: url("../images/bg-title.png") repeat-x scroll center center;
+    display: inline-block;
+    float: none;
+    margin-bottom: 20px;
+    padding: 0;
+    text-align: center;
+    width: 100%;
+}
+#producttabs {
+    background: none repeat scroll 0 0 #FFFFFF;
+    display: inline-block;
+    float: none;
+    margin: 0;
+    min-width: 375px;
+    padding: 0;
+}
+#producttabs li {
+    display: inline-block;
+    float: none;
+    margin: 0 10px 0 0;
+}
+#producttabs li.last {
+	margin: 0;
+}
+#producttabs h3 {
+    border: 1px solid #DDDDDD;
+    color: #BBBBBB;
+    display:inline-block;
+    float: left;
+    font-family: 'helveticaneuecn';
+    font-size: 16px;
+    padding: 6px 8px;
+    text-decoration: none;
+    text-transform: uppercase;
+    margin: 0;
+}
+#producttabs .active h3 {
+	border: 1px solid #555555;
+    color: #333333;
+    font-weight: normal;
+}
+.producttabs-products .bx-wrapper {
+	max-width: 100% !important;
+}
+.producttabs-products .products-grid .item { margin: 0 30px 0 0;}
+.producttabs .ajax_loading {
+	margin-left: 48%;
+	padding: 10px;
+}
+
+#producttabs > .item {
+}
+
+#producttabs > .item:hover{
+}
+
+.producttabs-products
+{
+	clear: both;
+}
+/* End add by DVN */

@@ -1,0 +1,13 @@
+.item-inner .products .product figure {position:relative;display:block;float:left;overflow:hidden;margin-bottom:0;width:100%}
+.item-inner:hover .products .product figure .product-image+.product-image{ opacity: 1;}
+.item-inner:hover .products .product figure .overlay{filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);opacity:1}
+.item-inner .products .product figure>a{display:block;float:left;width:100%;z-index:1}
+.item-inner .products .product figure>a .product-image{width:100%;line-height:0}
+.item-inner .products .product figure>a .product-image img{width:100%}
+.item-inner .products .product figure>a .product-image+.product-image{
+	position:absolute;
+	top:0;
+        left:0;
+        opacity:0;
+}
+.item-inner .products .product figure>a .product-image+.product-image img{max-width:none}

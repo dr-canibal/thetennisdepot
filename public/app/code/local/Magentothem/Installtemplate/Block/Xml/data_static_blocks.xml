@@ -1,0 +1,240 @@
+<?xml version="1.0"?>
+<ma_sahara_sport7>
+    <blocks>
+
+        <block>
+            <title>Footer Static</title>
+            <identifier>footer_static</identifier>
+            <content>
+                    <![CDATA[
+			<div class="f-col first col-sm-12 col-md-4 col-sms-12 col-smb-12">
+			<div class="f-col-last">
+			<div class="footer-logo"><a href="#"><img src="{{media url="wysiwyg/logo.png"}}" alt="" /></a></div>
+			<div class="footer-static-content">
+			<div class="box-footer">
+			<p>Donec tristique aliquam nunc ac aliquam. Aliquam seds condimentum nulla. Donec tristique aliquam nunc accs aliquam. Aliquam sed condimentum nulla.</p>
+			</div>
+			</div>
+			</div>
+			</div>
+			<div class="f-col f-col2 col-sm-6 col-md-2 col-sms-6 col-smb-12">
+			<div class="footer-static-title">
+			<h3>MY ACCOUNT</h3>
+			</div>
+			<div class="footer-static-content row-fluid">
+			<ul>
+			<li class="first"><a href="{{store direct_url="catalog/seo_sitemap/category"}}">Sitemap</a></li>
+			<li><a href="{{store direct_url="privacy-policy-cookie-restriction-mode"}}">Privacy Policy</a></li>
+			<li><a href="{{store direct_url="customer/account/index"}}">Your Account</a></li>
+			<li><a href="{{store direct_url="catalogsearch/advanced"}}">Advanced Search</a></li>
+			<li class="last"><a href="{{store direct_url="contacts"}}">Contact Us</a></li>
+			</ul>
+			</div>
+			</div>
+			<div class="f-col f-col3 col-sm-6 col-md-2 col-sms-6 col-smb-12">
+			<div class="footer-static-title">
+			<h3>INFORMATION</h3>
+			</div>
+			<div class="footer-static-content">
+			<ul>
+			<li class="first"><a href="{{store direct_url="sales/order/history/"}}">Order History</a></li>
+			<li><a href="{{store direct_url="customer/account/index"}}">My Account</a></li>
+			<li><a href="#">Returns</a></li>
+			<li><a href="#">Mobiles</a></li>
+			<li class="last"><a href="{{store direct_url="catalog/seo_sitemap/category"}}">Site Map</a></li>
+			</ul>
+			</div>
+			</div>
+			<div class="f-col f-col4 col-sm-6 col-md-2 col-sms-6 col-smb-12">
+			<div class="footer-static-title">
+			<h3>WHY CHOOSE US</h3>
+			</div>
+			<div class="footer-static-content">
+			<ul>
+			<li class="first"><a href="{{store direct_url="sales/order/history/"}}">Order History</a></li>
+			<li><a href="#">Specials</a></li>
+			<li><a href="#">Mobiles</a></li>
+			<li><a href="{{store direct_url="catalog/seo_sitemap/category"}}">Site Map</a></li>
+			<li class="last"><a href="#">Returns</a></li>
+			</ul>
+			</div>
+			</div>
+			<div class="f-col f-col5 col-sm-6 col-md-2 col-sms-6 col-smb-12">
+			<div class="footer-static-title">
+			<h3>OPENING TIME</h3>
+			</div>
+			<div class="footer-static-content">
+			<ul>
+			<li class="first"><a href="{{store direct_url="customer/account/index"}}">My Account</a></li>
+			<li><a href="#">Specials</a></li>
+			<li><a href="{{store direct_url="sales/order/history/"}}">Order History</a></li>
+			<li><a href="{{store direct_url="catalog/seo_sitemap/category"}}">Site Map</a></li>
+			<li class="last"><a href="#">Specials</a></li>
+			</ul>
+			</div>
+			</div>
+		    ]]>
+            </content>
+            <is_active>1</is_active>
+        </block>
+
+
+        <block>
+            <title>Banner Right</title>
+            <identifier>banner_right</identifier>
+            <content>
+                <![CDATA[
+		<div class="banner-right"><a href="{{store direct_url="football.html"}}"><img src="{{media url="wysiwyg/banner-left.png"}}" alt="" /></a></div>
+		]]>
+            </content>
+            <is_active>1</is_active>
+        </block>
+	
+	<block>
+            <title>Static Sub Menu Col Right</title>
+            <identifier>pt_menu_idcat_3_right</identifier>
+            <content>
+                <![CDATA[
+		<div class="custom-menu-right">
+		<div class="menu-right col">
+		<div class="menu-image"><a href="{{store direct_url="women.html"}}"><img src="{{media url="wysiwyg/bg-menu-right.png"}}" alt="" /></a></div>
+		<p>This is Photoshop's version of Lorem grive Ipsum. Proin gravida nttibh vel.</p>
+		</div>
+		</div>
+		]]>
+            </content>
+            <is_active>1</is_active>
+        </block>
+	
+	<block>
+            <title>Static Sub Menu Bottom</title>
+            <identifier>pt_menu_idcat_4</identifier>
+            <content>
+                <![CDATA[
+		<div class="custom-menu-bottom">
+		<div class="menu-bottom images">
+		<div class="cus-image"><a href="{{store direct_url="football.html"}}"><img src="{{media url="wysiwyg/bg-menu-bottom.png"}}" alt="" /></a></div>
+		</div>
+		<div class="menu-bottom images1">
+		<div class="cus-image"><a href="{{store direct_url="men.html"}}"><img src="{{media url="wysiwyg/bg1-menu-bottom.png"}}" alt="" /></a></div>
+		</div>
+		</div>
+		]]>
+            </content>
+            <is_active>1</is_active>
+        </block>
+	
+	<block>
+            <title>Newsletter Right</title>
+            <identifier>newsletter_right</identifier>
+            <content>
+                <![CDATA[
+		<div class="newsletter-right">{{block type="newsletter/subscribe" name="left.newsletter" template="newsletter/subscribe.phtml"}}
+		<div class="newsletter-right-content">
+		<div class="n-one flow"><a href="#">flow</a></div>
+		<div class="n-one in"><a href="#">in</a></div>
+		<div class="n-one tumblr"><a href="#">tumblr</a></div>
+		<div class="n-one bribble"><a href="#">bribble</a></div>
+		<div class="n-one facebook"><a href="#">facebook</a></div>
+		</div>
+		</div>
+		]]>
+            </content>
+            <is_active>1</is_active>
+        </block>
+	
+	<block>
+            <title>Static Bottom</title>
+            <identifier>static_bottom</identifier>
+            <content>
+                <![CDATA[
+		<div class="static-bottom">
+		<div class="static-bottom-title">
+		<h2>static block</h2>
+		</div>
+		<div class="static-bottom-content">
+		<p>&ldquo; Vivamus vitae interdum est, vel egestas sem. Vivamus rhoncus magna non mi rutrum, in luctus just o placerat. Vivamus vitae interdum est, vel egestas sem. Vivamus rho ncus magna non mi rutrum, in luctus justo placerat . Vivamus vitae interdum est, vel egestas sem. Vivamus rhoncus magna non mi rutrum, in luctus just o placerat. Viva mus rho ncus magna non mi rutrum, in luctus justo placerat . Vivamus vitae interdum est, vel egestas sem. &rdquo;</p>
+		</div>
+		</div>
+		]]>
+            </content>
+            <is_active>1</is_active>
+        </block>
+	
+	<block>
+            <title>Footer Logo Bottom</title>
+            <identifier>footer_logo_bottom</identifier>
+            <content>
+                <![CDATA[
+		<div class="footer-logo-bottom">
+		<div class="container">
+		<ul>
+		<li class="first"><a href="#"><img src="{{media url="wysiwyg/f-logo.png"}}" alt="" /></a></li>
+		<li><a href="#"><img src="{{media url="wysiwyg/f-logo1.png"}}" alt="" /></a></li>
+		<li><a href="#"><img src="{{media url="wysiwyg/f-logo2.png"}}" alt="" /></a></li>
+		<li><a href="#"><img src="{{media url="wysiwyg/f-logo3.png"}}" alt="" /></a></li>
+		<li class="last"><a href="#"><img src="{{media url="wysiwyg/f-logo4.png"}}" alt="" /></a></li>
+		</ul>
+		</div>
+		</div>
+		]]>
+            </content>
+            <is_active>1</is_active>
+        </block>
+	
+	<block>
+            <title>Banner Center Right Sport7</title>
+            <identifier>banner_static_right_sport7</identifier>
+            <content>
+                <![CDATA[
+		<div class="banner-static-right">
+		<div class="banner-one-box box">
+		<div class="banner-one banner-one1 "><a href="{{store direct_url="running.html"}}"><img src="{{media url="wysiwyg/bg2-banner-sport5.jpg"}}" alt="" /></a></div>
+		</div>
+		<div class="banner-one-box box1">
+		<div class="banner-one banner-one2 "><a href="{{store direct_url="football.html"}}"><img src="{{media url="wysiwyg/bg3-banner-sport5.jpg"}}" alt="" /></a></div>
+		</div>
+		</div>
+		]]>
+            </content>
+            <is_active>1</is_active>
+        </block>
+	
+	<block>
+            <title>Banner Static Left Sport7</title>
+            <identifier>banner_static_left_sport7</identifier>
+            <content>
+                <![CDATA[
+		    <div class="banner-static-left">
+		    <div class="banner-one-box box">
+		    <div class="banner-one banner-one1 "><a href="{{store direct_url="women.html"}}"><img src="{{media url="wysiwyg/bg-banner-sport5.jpg"}}" alt="" /></a></div>
+		    </div>
+		    <div class="banner-one-box box1">
+		    <div class="banner-one banner-one2 "><a href="{{store direct_url="men.html"}}"><img src="{{media url="wysiwyg/bg1-banner-sport5.jpg"}}" alt="" /></a></div>
+		    </div>
+		    </div>
+		]]>
+            </content>
+            <is_active>1</is_active>
+        </block>
+	
+	<block>
+            <title>Banner Center One Sport7</title>
+            <identifier>banner_center_one_sport7</identifier>
+            <content>
+                <![CDATA[
+		    <div class="banner-center-one">
+		    <div class="row">
+		    <div class="col-md-6 col-sm-6 col-sms-12 col"><a href="{{store direct_url="football.html"}}"><img src="{{media url="wysiwyg/bg-banner-sport7.jpg"}}" alt="" /></a></div>
+		    <div class="col-md-6 col-sm-6 col-sms-12 col1"><a href="{{store direct_url="men.html"}}"><img src="{{media url="wysiwyg/bg1-banner-sport7.jpg"}}" alt="" /></a></div>
+		    </div>
+		    </div>
+		]]>
+            </content>
+            <is_active>1</is_active>
+        </block>
+    
+    </blocks>
+
+</ma_sahara_sport7>
+

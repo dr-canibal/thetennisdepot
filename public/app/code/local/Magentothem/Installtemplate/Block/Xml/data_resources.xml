@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<ma_sahara_sport7>
+    <resources>
+        <resource>
+            <title>Ma_sahara Home page</title>
+            <identifier>ma_sahara_sport7_home</identifier>
+            <root_template>two_columns_right</root_template>
+				<content><![CDATA[
+				    <div class="home-content">{{block type="newproductslider/newproductslider" name="newproductslider" template="magentothem/newproductslider/newproductslider.phtml"}} {{block type="cms/block" block_id="banner_center_one_sport7"}}{{block type="catslider/catslider" name="catslider" before="-" template="magentothem/catslider/catslider.phtml"}}{{block type="onsaleslider/onsaleslider" name="ma.onsaleslider" template="magentothem/onsaleslider/onsaleslider.phtml"}}{{block type="cms/block" block_id="static_bottom"}}</div>
+				]]></content>
+				<sort_order>1</sort_order>
+            <is_active>1</is_active>
+        </resource>
+    </resources>
+</ma_sahara_sport7>

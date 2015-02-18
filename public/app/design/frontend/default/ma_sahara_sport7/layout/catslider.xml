@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <default>
+    </default>
+    <cms_index_index>
+        <reference name="head">
+         <action method="addCss" ifconfig="catslider/catslider_config/enabled"><stylesheet>magentothem/catslider/css/jquery.bxslider.css</stylesheet></action>
+         <action method="addCss" ifconfig="catslider/catslider_config/enabled"><stylesheet>magentothem/catslider/css/styles.css</stylesheet></action>
+         <action method="addCss" ifconfig="catslider/catslider_config/enabled"><stylesheet>magentothem/catslider/css/effects.css</stylesheet></action>
+         <action method="addJs" ifconfig="catslider/catslider_config/jquery"><script>magentothem/jquery.min.js</script></action>         
+         <action method="addJs" ifconfig="catslider/catslider_config/jquery"><script>magentothem/noconflict.js</script></action>            
+         <action method="addJs" ifconfig="catslider/catslider_config/enabled"><script>magentothem/jquery.bxslider.js</script></action>  
+     </reference>
+
+     <block type="catslider/catslider" name="catslider">
+        <action method="setTemplate">
+            <template>magentothem/catslider/catslider.phtml</template>
+        </action>
+    </block>  
+
+    <!--reference name="content">
+        <action method="insert" ifconfig="catslider/catslider_config/enabled">
+            <block>catslider</block>
+        </action>
+    </reference-->
+<!-- 
+    <block type="catslider/catslider" name="catslider" before="-" template="magentothem/catslider/catslider.phtml" /> -->
+
+</cms_index_index>
+
+<catslider_index_result>  
+    <reference name="root">
+        <action method="setTemplate" ifconfig="catslider/catslider_config/enabled"><template>magentothem/catslider/result.phtml</template></action>
+
+        <!-- <block type="catslider/product_list" name="product_list" template="magentothem/catslider/product/list.phtml" /> -->
+        <block type="catslider/product_list" name="product_list" template="magentothem/catslider/product/extralist.phtml" />
+    </reference>
+</catslider_index_result>
+
+</layout> 

@@ -3,7 +3,9 @@ public/media/catalog/product/cache
 public/var
 public/sitemap.xml
 public/media/.thumbs
-public/media/.tumbs/*
+public/media/.thumbs/*
+public/media/wysiwyg/.thumbs
+public/media/wysiwyg/.thumbs/*
 public/downloader/cache.cfg
 public/downloader/connect.cfg
 public/downloader/.cache

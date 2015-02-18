@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Magentothem_Catslider>
+            <version>0.1.2</version>
+        </Magentothem_Catslider>
+    </modules>
+    <frontend>
+        <routers>
+            <catslider>
+                <use>standard</use>
+                <args>
+                    <module>Magentothem_Catslider</module>
+                    <frontName>catslider</frontName>
+                </args>
+            </catslider>
+        </routers>
+        <layout>
+            <updates>
+                <catslider>
+                    <file>catslider.xml</file>
+                </catslider>
+            </updates>
+        </layout>
+    </frontend>
+    <admin>
+        <routers>
+            <catslider>
+                <use>admin</use>
+                <args>
+                    <module>Magentothem_Catslider</module>
+                    <frontName>catslider</frontName>
+                </args>
+            </catslider>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <catslider before="Mage_Adminhtml">Magentothem_Catslider_Adminhtml</catslider>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
+    <adminhtml>
+        <menu>
+            <magentothem translate="title" module="catslider">
+                <title>Magentothem</title>
+                <sort_order>71</sort_order>               
+                <children>
+                    <catslider translate="title" module="catslider">
+                        <title>Category Slider</title>
+                        <sort_order>0</sort_order>
+                        <children>
+                            <featuredproduct translate="title">
+                                <title>Featured Products</title>
+                                <sort_order>1</sort_order>
+                                <action>adminhtml/featured/index</action>
+                            </featuredproduct>
+                            <configuration>
+                                <title>Configuration</title>
+                                <sort_order>2</sort_order>
+                                <action>adminhtml/system_config/edit/section/catslider</action>
+                            </configuration>
+                        </children>
+                    </catslider>
+                </children>
+            </magentothem>
+        </menu>
+        <acl>
+            <resources>
+                <all>
+                    <title>Allow Everything</title>
+                </all>
+                <admin>
+                    <children>
+                        <Magentothem_Catslider>
+                            <title>Catslider Module</title>
+                            <sort_order>10</sort_order>
+                        </Magentothem_Catslider>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
+        <layout>
+            <updates>
+                <catslider>
+                    <file>catslider.xml</file>
+                </catslider>
+            </updates>
+        </layout>
+    </adminhtml>   
+    <global>
+        <models>
+            <catslider>
+                <class>Magentothem_Catslider_Model</class>
+                <resourceModel>catslider_resource</resourceModel>
+            </catslider>
+            <catslider_resource>
+                <class>Magentothem_Catslider_Model_Resource</class>
+            </catslider_resource>
+        </models>
+        <resources>
+            <catslider_setup>
+                <setup>
+                    <module>Magentothem_Catslider</module>
+                    <class>Mage_Catalog_Model_Resource_Eav_Mysql4_Setup</class>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </catslider_setup>
+            <catslider_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </catslider_write>
+            <catslider_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </catslider_read>
+        </resources>
+        <blocks>
+            <catslider>
+                <class>Magentothem_Catslider_Block</class>
+            </catslider>
+        </blocks>
+        <helpers>
+            <catslider>
+                <class>Magentothem_Catslider_Helper</class>
+            </catslider>
+        </helpers>
+    </global>
+    <default>
+        <catslider>
+            <catslider_config>
+                <enabled>1</enabled>
+                <jquery>1</jquery>
+                <title>Category Slider</title>
+                <auto>1</auto>
+                <speed>3000</speed>
+                <maxslides>12</maxslides>
+                <sort_name>asc</sort_name>
+                <item_width>210</item_width>
+                <width_thumbnail>210</width_thumbnail>
+                <height_thumbnail>57</height_thumbnail>
+                <!-- <background_color>#BDBDBD</background_color> -->
+            </catslider_config>
+
+            <featured_product>
+                <title>Featured Products</title>
+                <heading_block>Featured Products</heading_block>
+                <enable_featuredproduct>1</enable_featuredproduct>
+            </featured_product>
+
+            <product_show>
+                <product_type>random</product_type>
+                <product_number>6</product_number>
+                <items_column>3</items_column>
+                <play_delay>500</play_delay>
+                <product_action>cart</product_action>
+                <product_review>1</product_review>
+            </product_show>
+        </catslider>
+    </default>
+</config>

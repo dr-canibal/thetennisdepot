@@ -1,0 +1,107 @@
+<?php
+
+if(!$this->getSliderCfg('enabled')) return;
+
+$_categories = $this->getCategories();
+if(count($_categories)){
+
+	?>
+
+	<div class= "catslider">
+		<h2 class ="title">
+			<?php 
+			echo $this->__($this->getSliderCfg('title'))
+			?>
+		</h2>
+		<ul id="catslider">
+			<?php
+			$widthImage  = $this->getSliderCfg('width_thumbnail');
+			$heightImage = $this->getSliderCfg('height_thumbnail');
+			foreach ($_categories as $category) {
+				$selected = ($category->getEntityId() == $this->getProductCfg('product_default')) ? 'select_catslider' : '';
+				echo 
+				'<li data-catid ="'.$category->getEntityId().'" class="item '.$selected.'">
+				<div class="top"></div>
+				<h3 class ="title">'.$category->getName().'</h3>
+				<img class="image" src="'.$this->getCatResizedSlider($category, $widthImage, $heightImage, 100).'" alt="'.$category->getName().'" />
+				<img class="imagehover" src="'.$this->getCatResizedSliderHover($category, $widthImage, $heightImage, 100).'" alt="'.$category->getName().'" />
+			</li>';
+		}
+
+		?>
+	</ul>
+	<div class="ajax_loading" style="display:none">
+		<img src="<?php echo $this->getSkinUrl('magentothem/catslider/images/bx_loader.gif')?>" alt="<?php echo $this->__('Loading...');?>">
+	</div>
+	<div class="catslider-products">
+	</div>
+</div>
+
+<script type="text/javascript">
+
+	jQuery( document ).ready(function($) {
+
+		// // Cach 1:
+		(function(selector, Id){
+			$content = $(selector);
+			/*
+			var slider = $content.bxSlider({
+			//infiniteLoop: false,
+			startSlide: 2,
+			slideWidth: <?php echo $this->getSliderCfg('item_width') ?>,
+			minSlides: 3, // get from config
+			maxSlides: <?php echo $this->getSliderCfg('maxslides') ?>, 
+			slideMargin: 10,
+			<?php if($this->getSliderCfg('auto')) { ?>
+				auto: true,
+			  //autoControls: true,
+			  <?php } ?>
+			  speed: <?php echo $this->getSliderCfg('speed') ?>,
+			  //pause: 6000
+			  autoHover: true, // stop while hover <=> slider.stopAuto(); + slider.startAuto();
+			  onSliderLoad: function(){ // call while run slider
+			  */
+				$items = $('.item',$content);
+
+				$items.click(function() {
+						var type = "<?php echo $this->getProductCfg('product_type')?>";
+						if(type != "random" && $(this).hasClass('select_catslider')) return;
+						$items.removeClass('select_catslider');
+						$(this).addClass('select_catslider');
+						var catId = $(this).data('catid');
+						getProductCat(catId);
+					});
+				$items.hover( 	function() {
+									$( this ).addClass( "hover_catslider" );
+								}, 
+								function() {
+									$( this ).removeClass( "hover_catslider" );
+								});
+				 /*
+			 	 }
+
+			});
+*/
+			(getProductCat)(Id); // <=> getProductCat(Id)
+		  	function getProductCat(catId){
+				if(catId == undefined || catId == 0) return;
+				jQuery( ".catslider .ajax_loading").show();
+				jQuery.ajax({
+					type:'post',
+					data:{ category_id: catId},
+					url:'<?php echo $this->getUrl('catslider/index/result')?>',
+					success:function(data){
+						jQuery( ".catslider .ajax_loading").hide();
+						jQuery('.catslider-products').html(data);					
+					}
+				});
+		  	}
+		//*/
+		})("#catslider", <?php echo (int) $this->getProductCfg('product_default')?>);
+
+	}); // end jQuery ready
+</script>
+
+<?php
+}
+?>

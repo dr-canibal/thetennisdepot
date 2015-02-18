@@ -1,0 +1,51 @@
+.ma-tabsproduct-contain {
+    float: left;
+    clear: both;
+    width: 100%;
+    margin-top: 20px;
+}
+.ma-tabs-title {
+    background:url("../images/bg-title.png") repeat-x center;
+    padding:0;
+    float: none;
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 20px;
+    text-align: center;
+}
+.tabs-title {
+    float: none;
+    display: inline-block;
+    min-width: 320px;
+    background: #fff;
+    padding: 0;
+    margin: 0;
+}
+.ma-tabs-title li {
+    float: none;
+    display: inline-block;
+    margin: 0 10px 0 0;
+}
+.ma-tabs-title li:last-child {
+    margin: 0;
+}
+.ma-tabs-title a {
+    float: left;
+    text-decoration: none;
+    color: #bbbbbb;
+    font-size: 16px;
+    padding:6px 8px;
+    font-family: 'helveticaneuecn';
+    text-transform: uppercase;
+    border: 1px solid #dddddd;
+}
+.ma-tabs-title li.active a {
+    font-weight: normal;
+    border: 1px solid #555;
+    color: #333333;
+}
+.ma-tabs-content {
+    margin: 15px 0 0;
+    display: inline-block;
+    width: 100%;
+}

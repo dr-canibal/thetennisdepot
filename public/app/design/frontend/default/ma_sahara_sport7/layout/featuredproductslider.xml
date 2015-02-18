@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <default>
+    </default>
+    <default>
+        <reference name="head">
+			<!--<action method="addCss" ifconfig="featuredproductslider/featuredproductslider_config/enabled"><stylesheet>magentothem/css/ma.bxslider.css</stylesheet></action> -->  
+		</reference>
+        <reference name="right">
+            <block type="featuredproductslider/featuredproductslider" before="-" name="featuredproductslider" template="magentothem/featuredproductslider/featuredproductslider.phtml" />
+        </reference>
+    </default>
+</layout> 
