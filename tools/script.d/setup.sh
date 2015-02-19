@@ -116,6 +116,11 @@ $MAGERUN_CMD config:set "web/secure/base_url" "$SECURE_URL/beachtennis/" --scope
 $MAGERUN_CMD sys:setup:run -vvv >> setup.log
 
 ## Step 7: Post upgrade events
+SQL="ALTER TABLE dxov_catalogrule_product_price DROP COLUMN rule_hash";
+MYSQL_CMD1='mysql -u $DB_USER -p$DB_PASSWORD -h $DB_HOST $DB_NAME -e "$SQL"';
+
+## $MAGERUN_CMD config:set "" ""
+
 $MAGERUN_CMD index:reindex:all
 $MAGERUN_CMD cache:clean
 $MAGERUN_CMD cache:flush

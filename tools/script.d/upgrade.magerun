@@ -1,2 +1,0 @@
-
-db:query "DELETE FROM dxov_sales_flat_invoice WHERE base_grand_total = 0 AND increment_id LIKE '%INV'"
