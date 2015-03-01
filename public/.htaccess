@@ -207,3 +207,8 @@
 ## http://developer.yahoo.com/performance/rules.html#etags
 
     #FileETag none
+
+SetEnvIf Request_URI tennis MAGE_RUN_CODE=tennis
+SetEnvIf Request_URI squash MAGE_RUN_CODE=squash
+SetEnvIf Request_URI badminton MAGE_RUN_CODE=badminton
+SetEnvIf Request_URI beachtenni MAGE_RUN_CODE=beachtennis
