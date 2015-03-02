@@ -2071,7 +2071,7 @@ p.welcome-msg { margin: 0; line-height: 25px; text-align: left; color: #cccccc; 
 .ratings dt {}
 .ratings dd {}
 .rating-box { width:60px; display: inline-block; height:11px; font-size:0; line-height:0; background:url(../images/bkg_rating.png) 0 0 repeat-x; text-indent:-999em; overflow:hidden; }
-.rating-box .rating { float:no; height:10px; background:url(../images/bkg_rating.png) 0 100% repeat-x; }
+.rating-box .rating { float:none; height:10px; background:url(../images/bkg_rating.png) 0 100% repeat-x; }
 .ratings .rating-box { float:none; margin-right:3px; }
 .ratings .amount { display: none;}
 
@@ -5507,3 +5507,8 @@ html[xmlns] .ma-onsaleproductslider-container .slides {display: block;}
 }
 /*style scss3 ==================================================================================================*/
 .catalog-seo-sitemap-category .pager .pages { margin: 20px 0 0;}
+
+/*==================*/
+#ma-store-mobilemenu span.head {
+    display: none !important;
+}

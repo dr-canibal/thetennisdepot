@@ -93,6 +93,9 @@ Default layout, loads most of the pages
                 <block type="page/template_links" name="top.links" as="topLinks"/>
                 <block type="page/switch" name="store_language" as="store_language" template="page/switch/languages.phtml"/>
                 <block type="directory/currency" name="currency_top" template="directory/currency.phtml"/>
+                <block type="core/text_list" name="top.stores.menu" as="topStoresMenu" translate="label">
+                    <block type="page/html_topmenu" name="catalog.store.topnav" template="magentothem/custommenu/storemenu.phtml"/>
+                </block>
                 <block type="core/text_list" name="top.menu" as="topMenu" translate="label">
                     <label>Navigation Bar</label>
                     <block type="page/html_topmenu" name="catalog.topnav" template="page/html/topmenu.phtml"/>

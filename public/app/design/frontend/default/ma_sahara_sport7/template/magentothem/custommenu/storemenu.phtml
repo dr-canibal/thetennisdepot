@@ -1,31 +1,41 @@
+<?php $storeViews = Mage::app()->getStores(); ?>
 <?php
-$className = Mage::getConfig()->getBlockClassName('custommenu/custommenu');
-$block = new $className();
-$_menu = $block->renderCategoriesMenuHtml(0,'level-top') ?>
-<?php if($_menu): ?>
+$labels = array(
+    'tennis'            => __('Tennis'),
+    'squash'            => __('Squash'),
+    'badminton'         => __('Badminton'),
+    'beachtennis'       => __('Beach tennis'),
+);
+?>
 <div class="ma-nav-mobile-container visible-xs">
-	<div class="box-padding">
-		<div class="navbar">
-			<div id="navbar-inner" class="navbar-inner navbar-inactive">
+    <div class="box-padding">
+        <div class="navbar">
+            <div id="navbar-store-inner" class="navbar-inner navbar-inactive">
                 <div class="menu-mobile">
                     <a class="btn btn-navbar navbar-toggle">
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </a>
-                    <span class="brand navbar-brand"><?php echo $this->__('Categories') ?></span>
+                    <span class="brand navbar-brand"><?php echo $this->__('Stores') ?></span>
                 </div>
-				<ul id="ma-mobilemenu" class="mobilemenu nav-collapse collapse">
-					<?php echo $_menu ?>
-				</ul>
-			</div>
-		</div>
-	</div>
+                <ul id="ma-store-mobilemenu" class="mobilemenu">
+                    <?php $i = 0; ?>
+                    <?php foreach($storeViews as $_id => $_store): ?>
+                        <li class="level0 nav-<?php print $i + 1; ?> level-top parent<?php ($i == 0 ? ' first' : '') ?>">
+                            <a href="<?php print Mage::app()->getStore($_id)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK); ?>" class="level-top" title="<?php print Mage::app()->getStore($_id)->getFrontendName() ?>">
+                                <span><?php print $labels[Mage::app()->getStore($_id)->getCode()] ?></span>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
-<?php endif ?>
 
 <?php $_categories = Mage::helper('catalog/category')->getStoreCategories() ?>
-<?php if(count($_categories)): ?>
+<?php /*if(count($_categories)): ?>
     <div class="nav-container visible-lg visible-md">
         <div id="pt_custommenu" class="pt_custommenu">
             <?php
@@ -66,7 +76,7 @@ $_menu = $block->renderCategoriesMenuHtml(0,'level-top') ?>
                 if ($blockHtml) echo $block->drawCustomMenuBlock($blockId);
             }
 
-            /*menu links*/
+            menu links
             $blockLinkId = 'pt_menu_links';
             $blockLinkHtml = $this->getLayout()->createBlock('cms/block')->setBlockId($blockLinkId)->toHtml();
             if ($blockLinkHtml){
@@ -89,4 +99,4 @@ $_menu = $block->renderCategoriesMenuHtml(0,'level-top') ?>
         var CUSTOMMENU_POPUP_TOP_OFFSET = <?php echo (int)Mage::getStoreConfig('custommenu/popup/top_offset')?>;
         //]]>
     </script>
-<?php endif ?>
+<?php endif */ ?>
