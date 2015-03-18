@@ -1,10 +1,10 @@
 <?php $storeViews = Mage::app()->getStores(); ?>
 <?php
 $labels = array(
-    'tennis'            => __('Tennis'),
-    'squash'            => __('Squash'),
-    'badminton'         => __('Badminton'),
-    'beachtennis'       => __('Beach tennis'),
+    'tennis'        => __('Tennis'),
+    'squash'        => __('Squash'),
+    'badminton'     => __('Badminton'),
+    'beachtennis'   => __('Beach tennis'),
 );
 ?>
 <div class="ma-nav-mobile-container visible-xs">
@@ -34,69 +34,31 @@ $labels = array(
     </div>
 </div>
 
-<?php $_categories = Mage::helper('catalog/category')->getStoreCategories() ?>
-<?php /*if(count($_categories)): ?>
-    <div class="nav-container visible-lg visible-md">
-        <div id="pt_custommenu" class="pt_custommenu">
-            <?php
-            $showhome = Mage::getStoreConfig('custommenu/general/showhome');
-            $active = '';
-            if(Mage::getSingleton('cms/page')->getIdentifier() == 'ma_sahara_sport7_home'  && Mage::app()->getFrontController()->getRequest()->getRouteName() == 'cms') :
-                $active = ' act';
-            endif;
-            if($showhome){
-                $id     = "_home";
-                $html[] = '<div id="pt_menu' . $id . '" class="pt_menu' . $active . '">';
-                $html[] = '<div class="parentMenu">';
-                $html[] = '<a href="'.Mage::helper('core/url')->getHomeUrl().'">';
-                $html[] = '<span>Home</span>';
-                $html[] = '</a>';
-                $html[] = '</div>';
-                //$html[] = '<div id="popup' . $id . '" class="popup" style="display: none; width: 1228px;">';
-                //$html[] = '</div>';
-                $html[] = '</div>';
-                $html = implode("\n", $html);
-                echo $html;
-            }
-            $className = Mage::getConfig()->getBlockClassName('custommenu/custommenu');
-            $block = new $className();
-            //$block->_prepareData();
-            $item = 0;
-            foreach ($_categories as $_category): $item++;?>
-                <?php echo $block->drawCustomMenuItem($_category,0,false,$item) ?>
-            <?php endforeach ?>
+<div class="storenav-container visible-lg visible-md">
+    <div id="pt_storemenu" class="pt_storemenu">
 
-            <?php
-            $collection = Mage::getModel('cms/block')->getCollection()
-                        ->addFieldToFilter('identifier', array('like'=>'pt_item_menu'.'%'))
-                        ->addFieldToFilter('is_active', 1);
-            foreach($collection as $key => $value){
-                $blockId = $value->getIdentifier();
-                $blockHtml = $this->getLayout()->createBlock('cms/block')->setBlockId($blockId)->toHtml();
-                if ($blockHtml) echo $block->drawCustomMenuBlock($blockId);
-            }
+        <?php $i = 0; ?>
+        <?php foreach($storeViews as $_id => $_store): ?>
+            <?php $s = $_id . ' - ' . Mage::app()->getStore()->getCode() . ' - ' . Mage::app()->getStore($_id)->getCode(); ?>
+            <?php $active = (Mage::app()->getStore()->getCode() == Mage::app()->getStore($_id)->getCode()) ? ' active' : ''; ?>
+            <div id="pt_menu_store_<?php print Mage::app()->getStore($_id)->getCode(); ?>" class="pt_menu_no_child nav-<?php print Mage::app()->getStore($_id)->getCode(); ?> pt_store_menu <?php print $active; ?>" >
+                <div class="parentMenu">
+                    <a href="<?php print Mage::app()->getStore($_id)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK); ?>" title="<?php print $labels[Mage::app()->getStore($_id)->getCode()] ?>" class="level-top">
+                        <span><?php print $labels[Mage::app()->getStore($_id)->getCode()] ?></span>
+                    </a>
+                </div>
+            </div>
+            <?php $i++; ?>
+        <?php endforeach; ?>
 
-            menu links
-            $blockLinkId = 'pt_menu_links';
-            $blockLinkHtml = $this->getLayout()->createBlock('cms/block')->setBlockId($blockLinkId)->toHtml();
-            if ($blockLinkHtml){
-                $id     = "_link";
-                $htmlLink[] = '<div id="pt_menu' . $id . '" class="pt_menu">';
-                $htmlLink[] = '<div class="parentMenu">';
-                $htmlLink[] = $blockLinkHtml;
-                $htmlLink[] = '</div>';
-                $htmlLink[] = '</div>';
-                $htmlLink = implode("\n", $htmlLink);
-                echo $htmlLink;
-            }
-            ?>
-            <div class="clearBoth"></div>
-        </div>
+        <div class="clearBoth"></div>
     </div>
-    <script type="text/javascript">
-        //<![CDATA[
-        var CUSTOMMENU_POPUP_EFFECT = <?php echo (int)Mage::getStoreConfig('custommenu/popup/effect')?>;
-        var CUSTOMMENU_POPUP_TOP_OFFSET = <?php echo (int)Mage::getStoreConfig('custommenu/popup/top_offset')?>;
-        //]]>
-    </script>
-<?php endif */ ?>
+</div>
+<script type="text/javascript">
+    //<![CDATA[
+    <?php /*
+    var CUSTOMMENU_POPUP_EFFECT = <?php echo (int)Mage::getStoreConfig('custommenu/popup/effect')?>;
+    var CUSTOMMENU_POPUP_TOP_OFFSET = <?php echo (int)Mage::getStoreConfig('custommenu/popup/top_offset')?>;
+    */ ?>
+    //]]>
+</script>

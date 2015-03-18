@@ -90,10 +90,10 @@ echo "Dumping media";
 
 if test "$DB_DUMP_OVER_SSH" = "true"; then
     echo "Dumping over SSH";
-    rsync --progress -avzhe ssh $SSH_USER@$SSH_HOST:$SSH_FOLDER/thetennisdepot.com/html/media $MAGENTO_ROOT/
+    rsync --progress --exclude 'media/catalog/product/cache' -avzhe ssh $SSH_USER@$SSH_HOST:$SSH_FOLDER/thetennisdepot.com/html/media $MAGENTO_ROOT/
 else
     echo "Raw dumping";
-    rsync --progress -avz $SSH_FOLDER/thetennisdepot.com/html/media $MAGENTO_ROOT/
+    rsync --progress --exclude 'media/catalog/product/cache' -avz $SSH_FOLDER/thetennisdepot.com/html/media $MAGENTO_ROOT/
 fi
 
 ## Step 6: Run system setup

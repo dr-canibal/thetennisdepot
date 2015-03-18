@@ -5416,6 +5416,7 @@ html[xmlns] .ma-onsaleproductslider-container .slides {display: block;}
     .product-view .link-wishlist,.product-view .link-compare,.product-view .email-friend a { font-size: 12px; padding: 6px 10px;}
     .top-cart-wrapper { bottom: -88px;}
     .pt_custommenu div.pt_menu .parentMenu a, .pt_custommenu div.pt_menu .parentMenu span.block-title { font-size: 11px;}
+    .pt_storemenu div.pt_store_menu .parentMenu a, .pt_storemenu div.pt_store_menu .parentMenu span.block-title { font-size: 11px;}
 }
 @media (max-width: 992px) {
     .header-call p { font-size: 9px;}
@@ -5512,3 +5513,173 @@ html[xmlns] .ma-onsaleproductslider-container .slides {display: block;}
 #ma-store-mobilemenu span.head {
     display: none !important;
 }
+
+/*Store-custommenu==================================================================*/
+
+.pt_storemenu {
+    position:relative;
+    z-index:1000;
+    font-size: 14px;
+    margin: 0 auto;
+    padding:0;
+    width: 100%;
+    background: #dfdfdf;
+}
+.cms-index-index .pt_storemenu {
+    border-bottom: 0;
+}
+.pt_storemenu div.pt_store_menu {
+    float: left;
+}
+.pt_storemenu div.pt_store_menu .parentMenu a,
+.pt_storemenu div.pt_store_menu .parentMenu .block-title{
+    padding:8px 23px;
+    text-decoration: none;
+    display:block;
+    line-height: 32px;
+    color: #464646;
+    text-transform: uppercase;
+    font-size: 15px;
+    font-family: 'helveticalcondensed';
+    margin: 0;
+    position: relative;
+}
+.pt_storemenu div.pt_store_menu.act .itemMenu .itemMenuName{ border: 0; color: #666666; background: none}
+.pt_storemenu div.pt_store_menu.act .itemMenu .itemMenuName:hover{ color: #FE4E4E;  background: none;}
+.pt_storemenu div.pt_store_menu.act .itemSubMenu .itemMenuName{ color: #666666;  background: none;}
+.pt_storemenu div.pt_store_menu.act .itemSubMenu .itemMenuName:hover{
+    color: #FE4E4E;
+    background:none;
+}
+.pt_storemenu div.pt_store_menu.active {
+    background-color:inherit;
+}
+.cms-index-index .pt_storemenu div.popup {
+    border: 1px solid #fff;
+    border-top: 0;
+}
+.pt_storemenu div.popup {
+    position:absolute;
+    z-index:3000;
+    background-color:#fff;
+    border: 1px solid #DFDFDF;
+    border-top: 0;
+    text-align:left;
+    width: 904px;
+    padding: 0;
+    margin: 0 0 0 -1px;
+}
+.pt_storemenu div.pt_store_menu.act a{
+    color: #fff;
+    background: #fe4e4e;
+}
+.pt_storemenu div.pt_store_menu .parentMenu a:hover,
+.pt_storemenu div.pt_store_menu .parentMenu .block-title:hover,
+.pt_storemenu #pt_menu_link ul li a:hover,
+.pt_storemenu div.pt_store_menu.active .parentMenu a{
+    color: #fff;
+    background: #fe4e4e;
+}
+.pt_storemenu div.popup a {
+    text-decoration: none;
+    display:block;
+    line-height: 32px;
+}
+.pt_storemenu .itemMenu h4.level1,
+.pt_storemenu .itemMenu a.level1{
+    margin:10px 0 6px;
+}
+.pt_storemenu .itemMenu h4.level1 span,
+.pt_storemenu .itemMenu a.level1 span{
+    font-size: 13px;
+    text-transform:uppercase;
+    font-weight: normal;
+    color: #666666;
+    background: none;
+    padding-right:10px;
+    font-family: 'helveticalcondensed';
+}
+.pt_storemenu .itemMenu h4.level1:hover span,
+.pt_storemenu .itemMenu a.level1:hover span {
+    color: #FE4E4E;
+}
+.pt_storemenu .itemSubMenu h4.level2,
+.pt_storemenu .itemSubMenu a.level2,
+.pt_storemenu .itemSubMenu h4.level3,
+.pt_storemenu .itemSubMenu a.level3,
+.pt_storemenu .itemMenu a.level1.nochild{
+    line-height: 30px;
+    color: #666666;
+    padding-left:0;
+    text-transform: capitalize;
+    font-family: 'arial';
+    font-weight: normal;
+    font-size: 12px;
+}
+.pt_storemenu .itemSubMenu a.level2:hover,
+.pt_storemenu .itemMenu a.level1.nochild:hover{
+    color: #fe4e4e;
+}
+.pt_storemenu div.popup a.actParent {
+    color: #fe4e4e;
+}
+.pt_storemenu div.popup a.act {
+    color: #fe4e4e !important;
+}
+.pt_storemenu div.column {
+    float:left;
+    width:165px; /* column width */
+    margin-right: 20px;
+}
+.pt_storemenu div.blockright {
+    width: 220px !important;
+}
+.pt_storemenu div.column.last {
+    border-right: 0 none;
+    margin-right: 0;
+    padding-right: 0;
+}
+.pt_storemenu div.itemSubMenu {
+    margin-left:0;
+}
+.pt_storemenu .block2{
+    margin-top:0;
+    float: left;
+}
+.pt_storemenu div.popup .block1{
+    overflow: hidden;
+    float: left;
+    padding:10px 30px 28px;
+    border:0;
+}
+.pt_storemenu div.popup .block1 .column{
+    margin-bottom: -99999px;
+    padding-bottom: 99999px;
+}
+.pt_storemenu div.popup .blockright img{
+    max-width: 100%;
+}
+.pt_storemenu div.pt_menu .parentMenu p{
+    margin: 0;
+    padding: 0;
+}
+.pt_storemenu #pt_menu_link{
+    padding: 0;
+}
+.pt_storemenu #pt_menu_link .parentMenu ul li{
+    float: left;
+    list-style: none;
+}
+.pt_storemenu #pt_menu_link .parentMenu ul li a{
+    float: left;
+    padding: 0 10px;
+    display: block;
+}
+.pt_storemenu .clearBoth {
+    clear:both;
+}
+
+.storenav-container {
+    margin-bottom: 1em;
+}
+
