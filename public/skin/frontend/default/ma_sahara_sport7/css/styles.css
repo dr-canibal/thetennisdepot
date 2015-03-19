@@ -5426,7 +5426,8 @@ html[xmlns] .ma-onsaleproductslider-container .slides {display: block;}
 }
 @media (max-width: 990px) {
     .header .search-container .form-search .input-text { width: 113px;}
-    .top-cart-wrapper { bottom: -101px; padding: 16px 20px 13px; right: 105px;}
+    /*.top-cart-wrapper { bottom: -101px; padding: 16px 20px 13px; right: 105px;}*/
+    .top-cart-wrapper { bottom: -85px; padding: 16px 20px 13px; right: 15px;}
     #catslider .item { width: 25%;}
     .catslider .box-content,.mostviewd-products .box-content,.block-related .mini-products-list .product-details { display: inline-block; width: 100%; margin: 10px 0 0;}
     .block-subscribe input.input-text { width: 98px;}
