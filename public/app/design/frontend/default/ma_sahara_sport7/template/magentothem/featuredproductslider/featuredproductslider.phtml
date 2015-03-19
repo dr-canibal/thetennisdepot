@@ -33,19 +33,19 @@
 								<figure> 
 									<a href="<?php echo $_product->getProductUrl() ?>" title="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>" class="product-image">
 										<div class="product-image">
-											<img src="<?php echo $this->helper('catalog/image')->init($_product, 'small_image')->resize(210,260); ?>" width="270" height="396" alt="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>" />
+											<img src="<?php echo $this->helper('catalog/image')->init($_product, 'small_image')->resize(210,210); ?>" width="210" height="210" alt="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>" />
 										</div>
 										<div class="product-image image-rotator">
 											<?php 
 											$product = $_product;
 											if ($product->getRotatorImage() && $product->getRotatorImage() !='no_selection') {
 												//$imageTooltipResize = $this->getResizedUrl($imagetTooltip,600,400);
-												$image = Mage::helper('catalog/image')->init($product, 'rotator_image')->resize(210, 260);
+												$image = Mage::helper('catalog/image')->init($product, 'rotator_image')->resize(210, 210);
 											} else {
-												$image = Mage::helper('catalog/image')->init($_product, 'small_image')->resize(210, 260);
+												$image = Mage::helper('catalog/image')->init($_product, 'small_image')->resize(210, 210);
 											}
 											?>
-											<img src="<?php echo $image ?>" width="210" height="260" alt="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>" />
+											<img src="<?php echo $image ?>" width="210" height="210" alt="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>" />
 										 </div>			
 									</a>
 								</figure>

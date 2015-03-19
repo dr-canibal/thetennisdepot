@@ -7,34 +7,8 @@ $labels = array(
     'beachtennis'   => __('Beach tennis'),
 );
 ?>
-<div class="ma-nav-mobile-container visible-xs">
-    <div class="box-padding">
-        <div class="navbar">
-            <div id="navbar-store-inner" class="navbar-inner navbar-inactive">
-                <div class="menu-mobile">
-                    <a class="btn btn-navbar navbar-toggle">
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </a>
-                    <span class="brand navbar-brand"><?php echo $this->__('Stores') ?></span>
-                </div>
-                <ul id="ma-store-mobilemenu" class="mobilemenu">
-                    <?php $i = 0; ?>
-                    <?php foreach($storeViews as $_id => $_store): ?>
-                        <li class="level0 nav-<?php print $i + 1; ?> level-top parent<?php ($i == 0 ? ' first' : '') ?>">
-                            <a href="<?php print Mage::app()->getStore($_id)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK); ?>" class="level-top" title="<?php print Mage::app()->getStore($_id)->getFrontendName() ?>">
-                                <span><?php print $labels[Mage::app()->getStore($_id)->getCode()] ?></span>
-                            </a>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="storenav-container visible-lg visible-md">
+<div class="storenav-container">
     <div id="pt_storemenu" class="pt_storemenu">
 
         <?php $i = 0; ?>

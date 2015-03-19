@@ -5410,6 +5410,7 @@ html[xmlns] .ma-onsaleproductslider-container .slides {display: block;}
     .top-link { padding: 5px 20px 1px;}
     .header { padding: 30px 20px 25px; }
     .nav-container { padding: 0 20px;}
+    .storenav-container { padding: 0 20px; }
     .banner-content,.cms-index-index .banner-content { padding: 0 20px;}
     .footer-static-container { padding: 35px 20px;}
     .newsletter-right .n-one { margin: 0 5px 0 0;}
@@ -5454,6 +5455,7 @@ html[xmlns] .ma-onsaleproductslider-container .slides {display: block;}
     .currency-language { display: inline-block; width: 100%; text-align: center;}
     .header .header-content { padding: 0;}
     .header .welcome-msg { margin: 0 0 15px; text-align: center;}
+    .header .phone-callout { margin: 0 0 15px; text-align: center; }
     .header .header-box,.header .header-cart { text-align: center;}
     .top-cart-wrapper { position: inherit; margin: 20px 0 0;}
     .header .search-container .form-search .input-text { width: 250px;}
@@ -5681,5 +5683,12 @@ html[xmlns] .ma-onsaleproductslider-container .slides {display: block;}
 
 .storenav-container {
     margin-bottom: 1em;
+}
+
+
+.header-navigation ul li {
+    display: inline-block;
+    float: right;
+    padding: 0 0.5em;
 }
 

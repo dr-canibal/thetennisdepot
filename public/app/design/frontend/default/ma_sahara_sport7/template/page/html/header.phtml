@@ -35,9 +35,14 @@
                 <?php echo $this->getChildHtml('topLinks') ?>
             </div>
             <div class="col-md4 col-sm-4 col-sms12">
+                <?php /*
                 <div class="currency-language">
                     <?php echo $this->getChildHtml('currency_top') ?>
                     <?php echo $this->getChildHtml('store_language') ?>
+                </div>
+                */ ?>
+                <div class="header-navigation visible-lg visible-md">
+                    <?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('header_navigation')->toHtml() ?>
                 </div>
             </div>
         </div>
@@ -47,7 +52,9 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-4">
                     <p class="welcome-msg"><?php echo $this->getWelcome() ?> <?php echo $this->getAdditionalHtml() ?></p>
-                    <?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('header_call')->toHtml() ?>
+                    <div class="phone-callout">
+                        <?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('header_call')->toHtml() ?>
+                    </div>
                 </div>
                 <div class="col-xs-12 col-sm-4">
                     <?php if ($this->getIsHomePage()): ?>
