@@ -67,7 +67,10 @@ class AW_All_Block_System_Config_Form_Fieldset_Awall_Extensions	extends Mage_Adm
         try{
             if($platform = Mage::getConfig()->getNode("modules/$moduleName/platform")){
                 $platform = strtolower($platform);
-                $ignore_platform = false;
+                /*FIXME: fixing this weird thing */
+                //$ignore_platform = false;
+                $ignore_platform = true;
+                /* FIXME */
             }else{
                 throw new Exception();
             }

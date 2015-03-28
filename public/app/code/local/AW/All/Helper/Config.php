@@ -21,7 +21,10 @@ class AW_All_Helper_Config extends Mage_Core_Helper_Abstract{
 	/** Updates Feed path */
     const UPDATES_FEED_URL = 'http://media.aheadworks.com/feeds/updates.xml';
 
-    const ENTERPRISE_VERSION = '1.7';
-
-    const PROFESSIONAL_EDITION = '1.6';
+    /*FIXME: stupid update, but it doesn't work without it*/
+    //const ENTERPRISE_VERSION = '1.7';
+    //const PROFESSIONAL_EDITION = '1.6';
+    const ENTERPRISE_VERSION = '2.0';
+    const PROFESSIONAL_EDITION = '2.0';
+    /* FIXME */
 }
