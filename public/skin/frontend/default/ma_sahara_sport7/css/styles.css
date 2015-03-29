@@ -1028,7 +1028,7 @@ p.welcome-msg { margin: 0; line-height: 25px; text-align: left; color: #cccccc; 
     padding: 0 10px 0 0;
 }
 .top-link .links li a {
-    background: url("../images/bg-link.png") no-repeat right center;
+    /*background: url("../images/bg-link.png") no-repeat right center;*/
     padding:0 10px;
     display: inline-block;
     font-size: 13px;
