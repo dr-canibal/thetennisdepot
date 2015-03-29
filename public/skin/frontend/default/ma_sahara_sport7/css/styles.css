@@ -5693,3 +5693,5 @@ html[xmlns] .ma-onsaleproductslider-container .slides {display: block;}
     padding: 0 0.5em;
 }
 
+.top-right p { float:left; display:inline; margin:5px 8px 0px 0px; }
+
