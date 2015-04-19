@@ -410,7 +410,7 @@ class Mage_Core_Model_App
      */
     protected function _initModules()
     {
-        if (!$this->_config->loadModulesCache()) {
+        //if (!$this->_config->loadModulesCache()) {
             $this->_config->loadModules();
             if ($this->_config->isLocalConfigLoaded() && !$this->_shouldSkipProcessModulesUpdates()) {
                 Varien_Profiler::start('mage::app::init::apply_db_schema_updates');
@@ -419,7 +419,7 @@ class Mage_Core_Model_App
             }
             $this->_config->loadDb();
             $this->_config->saveCache();
-        }
+        //}
         return $this;
     }
 

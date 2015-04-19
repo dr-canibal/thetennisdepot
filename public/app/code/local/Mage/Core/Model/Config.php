@@ -834,11 +834,13 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
 
         // load modules declarations
         foreach ($moduleFiles as $file) {
-            if ($isDesktop && in_array($file, $modsArray))
+            $_file = explode('/', $file);
+            $_file = array_pop($_file);
+            if ($isDesktop && in_array($_file, $modsArray))
             {
                 continue;
             }
-            else if (!$isDesktop && in_array($file, $_modsArray))
+            else if (!$isDesktop && in_array($_file, $_modsArray))
             {
                 continue;
             }
