@@ -35,11 +35,6 @@
 
 <?php echo $this->getPriceHtml($_product) ?>
 
-
-<?php
-function clean_num($num){
-  return trim(trim($num, '0'), '.');
-}?>
 <?php $_associatedProducts = $this->getAllowProducts() ?>
     <?php if (count($_associatedProducts)): ?>
     <h4>Availability</h4>

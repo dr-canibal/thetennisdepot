@@ -136,7 +136,9 @@ if (!function_exists('neat_trim')) {
                 </div><?php */?>
 				<?php echo $this->getPriceHtml($_product, true) ?>
                 <?php if($_product->isSaleable()): ?>
+                    <?php $_product->unsUrl(); ?>
                     <a class="form-button {transparent}" onclick="setLocation('<?php echo $this->getAddToCartUrl($_product) ?>')"><?php echo $this->__('Add to Cart') ?></a>
+                    <?php $_product->unsUrl(); ?>
                 <?php else: ?>
                 	<span class="out-of-stock"><?php echo $this->__('Out of stock') ?></span>
                 <?php endif; ?>

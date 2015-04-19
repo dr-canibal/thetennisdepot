@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Thetennis_Extended>
+            <version>1.0.0</version>
+        </Thetennis_Extended>
+    </modules>
+    <global>
+        <blocks>
+            <ext>
+                <class>Thetennis_Extended_Block</class>
+            </ext>
+        </blocks>
+        <helpers>
+            <ext>
+                <class>Thetennis_Extended_Helper</class>
+            </ext>
+        </helpers>
+        <models>
+            <ext>
+                <class>Thetennis_Extended_Model</class>
+            </ext>
+        </models>
+    </global>
+</config>

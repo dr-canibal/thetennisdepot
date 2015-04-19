@@ -822,6 +822,10 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
             'Magentothem_Upsellslider.xml'
         );
 
+        $_modsArray = array(
+            'AW_Ajaxcartpro.xml'
+        );
+
         Varien_Profiler::start('config/load-modules-declaration');
 
         $unsortedConfig = new Mage_Core_Model_Config_Base();
@@ -834,6 +838,11 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
             {
                 continue;
             }
+            else if (!$isDesktop && in_array($file, $_modsArray))
+            {
+                continue;
+            }
+
             $fileConfig->loadFile($file);
             $unsortedConfig->extend($fileConfig);
         }

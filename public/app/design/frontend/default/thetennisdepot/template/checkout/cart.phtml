@@ -43,6 +43,7 @@
     <?php echo $this->getMessagesBlock()->getGroupedHtml() ?>
     <?php echo $this->getChildHtml('form_before') ?>
     <form action="<?php echo $this->getUrl('checkout/cart/updatePost') ?>" method="post">
+        <?php print $this->getBlockHtml('formkey') ?>
         <fieldset>
             <table id="shopping-cart-table" class="data-table cart-table" cellpadding="0" cellspacing="0">
                 <col width="1" />
@@ -121,7 +122,7 @@
     </form>
     <div class="cart-collaterals">
     <?php /*WDCA CODE BEGINS*/?>
-    <?php echo str_replace('left; width:100%', 'left; width:650px', Mage::getBlockSingleton('rewards/checkout_cart')->toHtml())?>        
+    <?php //echo str_replace('left; width:100%', 'left; width:650px', Mage::getBlockSingleton('rewards/checkout_cart')->toHtml())?>
     <?php /*WDCA CODE ENDS*/?>    
         <div class="col2-set">
             <div class="col-1">
