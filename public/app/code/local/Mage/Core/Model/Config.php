@@ -322,6 +322,7 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
 
     public function getCurrentTemplate()
     {
+        return true;
         if (@preg_match('/iPhone|iPod|iPad|BlackBerry|Palm|Googlebot-Mobile|mobile|mobi|Windows Mobile|Safari Mobile|(Android.+Mobile)|(GT-N7100)|Opera Mini|Fennec|Mobile/', $_SERVER['HTTP_USER_AGENT']))
         {
             return false;

@@ -43,11 +43,13 @@ class Mage_Cms_IndexController extends Mage_Core_Controller_Front_Action
     {
         $pageId = Mage::getStoreConfig(Mage_Cms_Helper_Page::XML_PATH_HOME_PAGE);
         /* FIXME: temporary update */
+        /*
         $configModel = Mage::getModel('core/config');
         if ($configModel->getCurrentTemplate())
         {
             $pageId = 'home';
         }
+        */
         /* FIXME */
         if (!Mage::helper('cms/page')->renderPage($this, $pageId)) {
             $this->_forward('defaultIndex');
